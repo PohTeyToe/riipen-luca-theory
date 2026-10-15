@@ -9,3 +9,5 @@ dist/
 .vercel/
 .playwright-cli/
 *.tsbuildinfo
+.env*
+!.env.example
