@@ -11,6 +11,7 @@ Run from the repo root:  python -I analysis/rescore.py
 import argparse
 import collections
 import json
+import math
 import re
 import subprocess
 import sys
@@ -30,11 +31,20 @@ FLOOR = 0.3     # decayWeight floor in LUCA's trust formula
 EDGE = 0.04     # approximate King rule: minimum gap between consensus and market
 LOW = 7         # ratings at or below this score better when they lose, as scored
 HIGH = 12       # sample bets also show one high-conviction pick at or above this
+EDGE_POINTS = 5  # the win-rate edge over the market price used for "how many bets to tell it from luck"
+Z95 = 1.96
 STRIP_WEEKS = range(13, 42)
 STRIP_YEAR = 2026
 # Gamma supply count: Agent Street publishes "No sports. No entertainment."
-# These are the Polymarket event tags read as sports or entertainment.
-EXCLUDED_TAGS = {"sports", "esports", "games", "pop-culture", "awards", "celebrities", "music", "movies"}
+# These are the Polymarket event tags read as sports or entertainment. Polymarket
+# doesn't tag every sports event "sports" (NFL division winners carry only
+# nfl/football, a tennis market only sport/tennis), so the league and sport
+# tags are listed too. Any one of them drops the event.
+EXCLUDED_TAGS = {
+    "sports", "sport", "esports", "games", "pop-culture", "awards", "celebrities", "music", "movies",
+    "football", "nfl", "cfb", "ncaaf", "soccer", "tennis", "atp", "wta", "boxing", "ufc", "mma",
+    "nba", "basketball", "mlb", "baseball", "nhl", "hockey", "golf", "f1", "cricket", "olympics",
+}
 
 
 # ---- Scoring rules. Each is a published LUCA formula or a named proposal. ----
@@ -61,6 +71,11 @@ def won(pick):
     return pick["pnl"] > 0
 
 
+def side_price(pick):
+    """The market's price at entry for the side the agent picked (P(YES) or 1 - P(YES))."""
+    return pick["marketProbAtEntry"] if pick["prediction"] == "YES" else 1 - pick["marketProbAtEntry"]
+
+
 def brier(picks, reading):
     if not picks:
         return None
@@ -83,26 +98,23 @@ def blend(cell_scores, overall, prior=PRIOR):
     return (sum(cell_scores) + prior * overall) / (len(cell_scores) + prior)
 
 
-def consensus(breakdown, trust_of=None):
-    """The King's consensus: sum(trust x confidence/15 over YES) / sum(over all votes).
-
-    Uses the trust recorded on each vote unless trust_of maps agentId -> trust.
-    """
+def consensus(breakdown):
+    """The King's consensus: sum(trust x confidence/15 over YES) / sum(over all votes),
+    with the trust recorded on each vote."""
     def weight(v):
-        t = trust_of[v["agentId"]] if trust_of else v["trustScore"]
-        return t * v["confidence"] / 15
+        return v["trustScore"] * v["confidence"] / 15
     total = sum(weight(v) for v in breakdown)
     return sum(weight(v) for v in breakdown if v["prediction"] == "YES") / total
 
 
-def king_call(bet, trust_of=None):
+def king_call(bet):
     """Approximate King rule (LUCA's code is private, so this is a reconstruction).
 
     Side is YES when consensus > 0.5. EXECUTE when both anchor agents named in
     the reasoning voted that side and |consensus - market| >= 4 points; else WAIT.
     A bet whose reasoning names no anchor pair can't meet the anchor test.
     """
-    c = consensus(bet["breakdown"], trust_of)
+    c = consensus(bet["breakdown"])
     side = "YES" if c > 0.5 else "NO"
     votes = {v["agentId"]: v["prediction"] for v in bet["breakdown"]}
     anchors_agree = bool(bet["anchors"]) and all(votes.get(a) == side for a in bet["anchors"])
@@ -115,8 +127,8 @@ def real_call(bet):
     return {"decision": decision, "side": bet["direction"]}
 
 
-def matches_real(bet, trust_of=None):
-    mine, real = king_call(bet, trust_of), real_call(bet)
+def matches_real(bet):
+    mine, real = king_call(bet), real_call(bet)
     if mine["decision"] != real["decision"]:
         return False
     return mine["decision"] == "WAIT" or mine["side"] == real["side"]
@@ -154,7 +166,6 @@ def build_snapshot(raw):
     trust_scores = load(raw, "trust_scores.json")
     cal = load(raw, "calibration.json")["agentMetrics"]
     agents = sorted(trust_scores)
-    used = {p["eventId"] for p in preds} | {b["eventId"] for b in king}
     bets = []
     for b in king:
         breakdown = json.loads(b["agentBreakdown"] or "[]")
@@ -167,6 +178,8 @@ def build_snapshot(raw):
             "breakdown": [{k: v[k] for k in ("agentId", "prediction", "confidence", "trustScore")} for v in breakdown],
             "anchors": list(m.groups()) if m else None,
         })
+    # Only the events the snapshot's picks and King bets refer to.
+    used = {p["eventId"] for p in preds} | {b["eventId"] for b in bets}
     return {
         "pullDate": raw.name,
         "agents": agents,
@@ -254,6 +267,7 @@ def domain_cells(snap, rows):
             cells[(a, c)] = {
                 "n": len(cp),
                 "wins": sum(won(p) for p in cp),
+                "market": sum(side_price(p) for p in cp) / len(cp) if cp else None,
                 "raw": sum(scores) / len(scores) if scores else None,
                 "blended": blended,
                 "trust": trust(snap["published"][a]["baseTrust"], blended) if blended is not None else None,
@@ -282,27 +296,51 @@ def market_rows(snap):
     return out
 
 
-def market_on_picks(picks):
-    """The market's price for the agent's own side, scored on the same picks."""
-    def p_mkt(p):
-        return p["marketProbAtEntry"] if p["prediction"] == "YES" else 1 - p["marketProbAtEntry"]
-    return sum((p_mkt(p) - won(p)) ** 2 for p in picks) / len(picks)
+def against_market(picks):
+    """How often an agent's picks won, against the market price of the side it picked.
+
+    If the market's prices were right, the win count would be a sum of independent
+    coin tosses with those prices, so luck alone moves the win rate by about
+    1.96 x sqrt(sum p(1 - p)) / n either way (95%). A gap outside that band is an
+    edge luck doesn't explain. betsFor5Points is how many bets at these prices it
+    takes before a 5-point gap clears the band.
+    """
+    n = len(picks)
+    prices = [side_price(p) for p in picks]
+    spread = sum(x * (1 - x) for x in prices)
+    won_rate = sum(won(p) for p in picks) / n
+    market = sum(prices) / n
+    return {
+        "n": n,
+        "won": won_rate,
+        "market": market,
+        "gap": won_rate - market,
+        "luck": Z95 * spread ** 0.5 / n,
+        "betsFor5Points": math.ceil(Z95 ** 2 * (spread / n) / (EDGE_POINTS / 100) ** 2),
+    }
 
 
-def king_replay(snap, rows):
+def rating_bands(scored):
+    """Two bands split where losing stops scoring better: what each reading says against what happened."""
+    out = []
+    for lo, hi in ((1, LOW), (LOW + 1, 15)):
+        xs = [p for p in scored if lo <= p["confidence"] <= hi]
+        n = len(xs)
+        out.append({
+            "from": lo, "to": hi, "n": n,
+            "won": sum(won(p) for p in xs) / n,
+            "asScored": sum(p_side(p["confidence"], "asScored") for p in xs) / n,
+            "fixed": sum(p_side(p["confidence"], "fixed") for p in xs) / n,
+            "market": sum(side_price(p) for p in xs) / n,
+        })
+    return out
+
+
+def king_fidelity(snap):
     bets = snap["kingBets"]
-    end_as = {a: snap["published"][a]["dynamicTrust"] for a in snap["agents"]}
-    end_fix = {a: as_int(rows[a]["trustFixed"]) for a in snap["agents"]}
     consensus_ok = [b["id"] for b in bets if abs(consensus(b["breakdown"]) - b["consensusProb"]) < 5e-5]
     fidelity_miss = [b["id"] for b in bets if not matches_real(b)]
-    fidelity_end = sum(matches_real(b, end_as) for b in bets)
-    changes = []
-    for b in bets:
-        before, after = king_call(b, end_as), king_call(b, end_fix)
-        if (before["decision"], before["side"]) != (after["decision"], after["side"]):
-            changes.append((b, before, after))
-    return {"consensusOk": consensus_ok, "fidelityMiss": fidelity_miss, "fidelityEndTrust": fidelity_end, "changes": changes,
-            "trustAsScored": end_as, "trustFixed": end_fix}
+    return {"consensusOk": consensus_ok, "fidelityMiss": fidelity_miss}
 
 
 # ---- Page data ----
@@ -323,6 +361,8 @@ QUOTES = [
      "A perfect Brier score is 0. Random guessing scores 0.25. The lower your Brier score, the more the system trusts you."),
     ("binaryCommitment", "street_bundle.js", "https://street.lucatheory.com/methodology", None,
      "Every agent commits a YES or NO prediction with a confidence rating (1–15). No hedging."),
+    ("positionSize", "street_bundle.js", "https://street.lucatheory.com/methodology", None,
+     "The confidence rating (1–15) determines position size."),
     ("eventSourcing", "street_bundle.js", "https://street.lucatheory.com/methodology", None,
      "Minimum $5,000 volume. 3–90 day resolution window. No sports. No entertainment."),
     ("trustFormula", "street_bundle.js", "https://street.lucatheory.com/methodology", "dynamicTrust",
@@ -449,10 +489,15 @@ def r3(x):
     return None if x is None else half_up(x, 3)
 
 
+def pct(x):
+    return None if x is None else as_int(100 * x)
+
+
 def cell_out(x):
     return {"n": x["n"], "wins": x["wins"], "losses": x["n"] - x["wins"], "thin": x["thin"],
             "rawBrier": r3(x["raw"]), "blendedBrier": r3(x["blended"]),
-            "trust": None if x["trust"] is None else as_int(x["trust"])}
+            "trust": None if x["trust"] is None else as_int(x["trust"]),
+            "marketPercent": pct(x["market"])}
 
 
 def reading_out(c, reading):
@@ -472,8 +517,10 @@ def build_page(snap, raw, tests):
     rows = agent_table(snap)
     cells = domain_cells(snap, rows)
     market = market_rows(snap)
-    king = king_replay(snap, rows)
+    king = king_fidelity(snap)
     by = scored_by_agent(snap)
+    vs = {a: against_market(by[a]) for a in snap["agents"]}
+    bands = rating_bands([p for ps in by.values() for p in ps])
     scored = [p for ps in by.values() for p in ps]
     scored_events = {p["eventId"] for p in scored}
     cat = {e["id"]: e["category"] for e in snap["events"]}
@@ -520,7 +567,7 @@ def build_page(snap, raw, tests):
             "worseThanCoinFlipAsScored": r["brierAsScored"] > 0.25, "worseThanCoinFlipFixed": r["brierFixed"] > 0.25,
             "trustPublished": pub["dynamicTrust"], "trustAsScored": as_int(r["trustAsScored"]),
             "trustFixed": as_int(r["trustFixed"]), "baseTrust": pub["baseTrust"],
-            "marketBrierOnSamePicks": r3(market_on_picks(by[a])),
+            "marketPercent": pct(vs[a]["market"]),
             "sampleBets": sample_bets(by[a], ev_by_id, preds_by_key),
         })
 
@@ -530,17 +577,9 @@ def build_page(snap, raw, tests):
         xs = [(cells[(a, c)][key], a) for a in snap["agents"] if cells[(a, c)][key] is not None and not cells[(a, c)]["thin"]]
         return min(xs)[1] if xs else None
 
-    king_rows = []
-    for b, before, after in king["changes"]:
-        e = ev_by_id[b["eventId"]]
-        king_rows.append({
-            "betId": b["id"], "question": e["question"], "category": e["category"], "marketProb": b["marketProb"],
-            "asScored": {"decision": before["decision"], "side": before["side"], "consensus": round(before["consensus"], 4)},
-            "fixed": {"decision": after["decision"], "side": after["side"], "consensus": round(after["consensus"], 4)},
-            "decisionChanged": before["decision"] != after["decision"],
-            "realSignal": real_call(b)["decision"],
-            "resolution": e["resolution"] if e["resolved"] and e["resolution"] else "open",
-        })
+    vs_rows = sorted(snap["agents"], key=lambda a: -vs[a]["gap"])
+    closest = max(snap["agents"], key=lambda a: abs(vs[a]["gap"]) / vs[a]["luck"])
+    bets_needed = sorted(vs[a]["betsFor5Points"] for a in snap["agents"])
 
     def proposed(c):
         body = {}
@@ -558,6 +597,8 @@ def build_page(snap, raw, tests):
 
     picks_sorted = sorted(p["createdAt"] for p in snap["picks"])
     simons, munger, ackman = rows["simons"], rows["munger"], rows["ackman"]
+    simons_lost = [p for p in by["simons"] if not won(p)]
+    sbf_pol = cells[("sbf", "POLITICS")]
     checks = {
         "proofTenOfTen": brier_ok == 10 and trust_ok == 10,
         "kingConsensusAll": len(king["consensusOk"]) == len(snap["kingBets"]),
@@ -571,8 +612,17 @@ def build_page(snap, raw, tests):
         "simonsWins15": as_int(100 * simons["wins"] / simons["n"]) == 15,
         "sbfBestGeopoliticsRaw": best_in("GEOPOLITICS", "raw") == "sbf",
         "sbfBestGeopoliticsBlended": best_in("GEOPOLITICS", "blended") == "sbf",
-        "marketBeatsEveryAgentFixed": all(half_up(market_on_picks(by[a]), 3) < half_up(rows[a]["brierFixed"], 3) for a in snap["agents"]),
+        "sbfPoliticsWithin2OfMarket": abs(sbf_pol["wins"] / sbf_pol["n"] - sbf_pol["market"]) <= 0.02,
         "marketOverallBeatsBestAgentFixed": market["ALL"]["brier"] < min(rows[a]["brierFixed"] for a in snap["agents"]),
+        # "Neither reading is a probability": in both bands each reading misses the
+        # win rate by 10 points or more, and the market price lands within 2.
+        "readingsMissWinRateInBothBands": all(abs(b[k] - b["won"]) >= 0.10 for b in bands for k in ("asScored", "fixed")),
+        "marketWithin2OfWinRateInBothBands": all(abs(b["market"] - b["won"]) <= 0.02 for b in bands),
+        "noAgentOutsideLuck": all(abs(vs[a]["gap"]) <= vs[a]["luck"] for a in snap["agents"]),
+        "insiderClosestToAnEdge": closest == "insider" and vs["insider"]["gap"] > 0,
+        "mungerAckmanWithin2OfMarket": all(abs(as_int(100 * vs[a]["gap"])) <= 2 for a in ("munger", "ackman")),
+        # "a confident miss costs little": the Simons agent's losses are almost all rated 8 or higher
+        "simonsLossesMostlyRated8Up": sum(p["confidence"] >= 8 for p in simons_lost) / len(simons_lost) >= 0.9,
     }
 
     return {
@@ -590,8 +640,8 @@ def build_page(snap, raw, tests):
             "blend": f"(sum of fixed cell scores + {PRIOR} x agent's overall fixed Brier) / (n + {PRIOR})",
             "thinBelow": THIN,
             "marketRow": "Per scored event, the mean market price at entry (P(YES)) over its scored picks, scored against the resolution.",
+            "againstMarket": "Win rate minus the mean market price at entry of the side picked. Luck band: 1.96 x sqrt(sum p(1-p)) / n, the 95% range of the win rate if the market's prices were right.",
             "kingRule": "Approximate: side YES if consensus > 0.5; EXECUTE if both named anchors voted that side and |consensus - market| >= 0.04, else WAIT.",
-            "hindsightTrust": "End-of-season trust as whole numbers, as each King vote records it: published dynamicTrust (as scored) and rounded fixed trust.",
         },
         "proof": {
             "agents": len(snap["agents"]),
@@ -605,6 +655,20 @@ def build_page(snap, raw, tests):
             "lowThreshold": LOW,
             "coinFlipBrier": 0.25,
             "byConfidence": line,
+            "bands": [{"from": b["from"], "to": b["to"], "n": b["n"], "wonPercent": pct(b["won"]),
+                       "asScoredPercent": pct(b["asScored"]), "fixedPercent": pct(b["fixed"]),
+                       "marketPercent": pct(b["market"])} for b in bands],
+        },
+        "market": {
+            "rows": [{**agent_meta(a), "n": vs[a]["n"], "wonPercent": pct(vs[a]["won"]), "marketPercent": pct(vs[a]["market"]),
+                      "gapPoints": half_up(100 * vs[a]["gap"], 1), "luckPoints": half_up(100 * vs[a]["luck"], 1)}
+                     for a in vs_rows],
+            "closest": closest,
+            "edgePoints": EDGE_POINTS,
+            "betsFor5PointsMin": bets_needed[0],
+            "betsFor5PointsMax": bets_needed[-1],
+            "settledMin": min(vs[a]["n"] for a in snap["agents"]),
+            "settledMax": max(vs[a]["n"] for a in snap["agents"]),
         },
         "scorecard": scorecard,
         "domains": {
@@ -628,22 +692,15 @@ def build_page(snap, raw, tests):
             "consensusMatches": len(king["consensusOk"]),
             "ruleMatches": len(snap["kingBets"]) - len(king["fidelityMiss"]),
             "ruleMisses": king["fidelityMiss"],
-            "ruleMatchesWithEndTrustAsScored": king["fidelityEndTrust"],
             "betsWithoutAnchorPair": [b["id"] for b in snap["kingBets"] if not b["anchors"]],
             "edgeThreshold": EDGE,
-            "endTrustAsScored": king["trustAsScored"],
-            "endTrustFixed": king["trustFixed"],
-            "changes": len(king_rows),
-            "decisionChanges": sum(r["decisionChanged"] for r in king_rows),
-            "leanOnlyChanges": sum(not r["decisionChanged"] for r in king_rows),
-            "rows": king_rows,
         },
         "change": {
             "diff": ["- p_side = confidence / 15", "+ p_side = 0.5 + confidence / 30"],
             "domainTrust": "0.3 x baseTrust + 70 x (1 - blendedBrier)",
             "proposedResponses": {c: proposed(c) for c in CATEGORIES},
             "tests": tests,
-            "runIt": "python -I analysis/fetch.py && python -I analysis/rescore.py && pytest analysis",
+            "runIt": "pytest analysis",
         },
         "batches": batch_strip(raw),
         "supply": gamma_supply(raw, events),

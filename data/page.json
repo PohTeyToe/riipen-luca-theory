@@ -91,6 +91,11 @@
    "page": "https://street.lucatheory.com/methodology",
    "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
   },
+  "positionSize": {
+   "text": "The confidence rating (1–15) determines position size.",
+   "page": "https://street.lucatheory.com/methodology",
+   "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  },
   "eventSourcing": {
    "text": "Minimum $5,000 volume. 3–90 day resolution window. No sports. No entertainment.",
    "page": "https://street.lucatheory.com/methodology",
@@ -120,8 +125,8 @@
   "blend": "(sum of fixed cell scores + 10 x agent's overall fixed Brier) / (n + 10)",
   "thinBelow": 10,
   "marketRow": "Per scored event, the mean market price at entry (P(YES)) over its scored picks, scored against the resolution.",
-  "kingRule": "Approximate: side YES if consensus > 0.5; EXECUTE if both named anchors voted that side and |consensus - market| >= 0.04, else WAIT.",
-  "hindsightTrust": "End-of-season trust as whole numbers, as each King vote records it: published dynamicTrust (as scored) and rounded fixed trust."
+  "againstMarket": "Win rate minus the mean market price at entry of the side picked. Luck band: 1.96 x sqrt(sum p(1-p)) / n, the 95% range of the win rate if the market's prices were right.",
+  "kingRule": "Approximate: side YES if consensus > 0.5; EXECUTE if both named anchors voted that side and |consensus - market| >= 0.04, else WAIT."
  },
  "proof": {
   "agents": 10,
@@ -503,7 +508,137 @@
     "lossScoresBetter": false,
     "scoredPicks": 8
    }
+  ],
+  "bands": [
+   {
+    "from": 1,
+    "to": 7,
+    "n": 255,
+    "wonPercent": 74,
+    "asScoredPercent": 23,
+    "fixedPercent": 62,
+    "marketPercent": 74
+   },
+   {
+    "from": 8,
+    "to": 15,
+    "n": 638,
+    "wonPercent": 52,
+    "asScoredPercent": 77,
+    "fixedPercent": 88,
+    "marketPercent": 52
+   }
   ]
+ },
+ "market": {
+  "rows": [
+   {
+    "id": "insider",
+    "name": "NAIncy Pelosi",
+    "role": "The Policy Insider",
+    "n": 87,
+    "wonPercent": 82,
+    "marketPercent": 76,
+    "gapPoints": 6.0,
+    "luckPoints": 7.4
+   },
+   {
+    "id": "sbf",
+    "name": "SAIm BAInkman-FrAIed",
+    "role": "The Degen Theorist",
+    "n": 79,
+    "wonPercent": 72,
+    "marketPercent": 67,
+    "gapPoints": 4.8,
+    "luckPoints": 7.8
+   },
+   {
+    "id": "dalio",
+    "name": "Ray DAIlio",
+    "role": "The Machine Systemist",
+    "n": 85,
+    "wonPercent": 75,
+    "marketPercent": 72,
+    "gapPoints": 3.3,
+    "luckPoints": 7.4
+   },
+   {
+    "id": "munger",
+    "name": "ChAIrlie Munger",
+    "role": "The Moat Architect",
+    "n": 106,
+    "wonPercent": 76,
+    "marketPercent": 74,
+    "gapPoints": 2.1,
+    "luckPoints": 6.5
+   },
+   {
+    "id": "ackman",
+    "name": "Bill AIckman",
+    "role": "The Catalyst Activist",
+    "n": 108,
+    "wonPercent": 77,
+    "marketPercent": 77,
+    "gapPoints": 0.1,
+    "luckPoints": 6.3
+   },
+   {
+    "id": "soros",
+    "name": "GeorgeAI Soros",
+    "role": "The Reflexivity Engine",
+    "n": 83,
+    "wonPercent": 63,
+    "marketPercent": 64,
+    "gapPoints": -0.9,
+    "luckPoints": 7.4
+   },
+   {
+    "id": "wood",
+    "name": "CAIthy Wood",
+    "role": "The Disruption Oracle",
+    "n": 95,
+    "wonPercent": 75,
+    "marketPercent": 77,
+    "gapPoints": -2.3,
+    "luckPoints": 6.9
+   },
+   {
+    "id": "thiel",
+    "name": "Peter ThAIel",
+    "role": "The Contrarian Architect",
+    "n": 81,
+    "wonPercent": 19,
+    "marketPercent": 22,
+    "gapPoints": -3.6,
+    "luckPoints": 7.7
+   },
+   {
+    "id": "simons",
+    "name": "Jim SAImons",
+    "role": "The Quant Architect",
+    "n": 86,
+    "wonPercent": 15,
+    "marketPercent": 20,
+    "gapPoints": -5.0,
+    "luckPoints": 7.2
+   },
+   {
+    "id": "kitty",
+    "name": "RorAIng KAItty",
+    "role": "The Sentiment Sniper",
+    "n": 83,
+    "wonPercent": 17,
+    "marketPercent": 22,
+    "gapPoints": -5.6,
+    "luckPoints": 7.6
+   }
+  ],
+  "closest": "insider",
+  "edgePoints": 5,
+  "betsFor5PointsMin": 174,
+  "betsFor5PointsMax": 194,
+  "settledMin": 79,
+  "settledMax": 108
  },
  "scorecard": [
   {
@@ -526,7 +661,7 @@
    "trustAsScored": 87,
    "trustFixed": 88,
    "baseTrust": 97,
-   "marketBrierOnSamePicks": 0.112,
+   "marketPercent": 76,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -592,7 +727,7 @@
    "trustAsScored": 85,
    "trustFixed": 84,
    "baseTrust": 88,
-   "marketBrierOnSamePicks": 0.113,
+   "marketPercent": 72,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -658,7 +793,7 @@
    "trustAsScored": 75,
    "trustFixed": 74,
    "baseTrust": 85,
-   "marketBrierOnSamePicks": 0.112,
+   "marketPercent": 64,
    "sampleBets": [
     {
      "slot": "rated 12 or higher",
@@ -696,7 +831,7 @@
    "trustAsScored": 74,
    "trustFixed": 59,
    "baseTrust": 91,
-   "marketBrierOnSamePicks": 0.102,
+   "marketPercent": 20,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -762,7 +897,7 @@
    "trustAsScored": 72,
    "trustFixed": 85,
    "baseTrust": 94,
-   "marketBrierOnSamePicks": 0.113,
+   "marketPercent": 74,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -828,7 +963,7 @@
    "trustAsScored": 69,
    "trustFixed": 67,
    "baseTrust": 45,
-   "marketBrierOnSamePicks": 0.112,
+   "marketPercent": 67,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -894,7 +1029,7 @@
    "trustAsScored": 62,
    "trustFixed": 79,
    "baseTrust": 82,
-   "marketBrierOnSamePicks": 0.103,
+   "marketPercent": 77,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -960,7 +1095,7 @@
    "trustAsScored": 55,
    "trustFixed": 71,
    "baseTrust": 60,
-   "marketBrierOnSamePicks": 0.111,
+   "marketPercent": 77,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -1026,7 +1161,7 @@
    "trustAsScored": 51,
    "trustFixed": 43,
    "baseTrust": 72,
-   "marketBrierOnSamePicks": 0.103,
+   "marketPercent": 22,
    "sampleBets": [
     {
      "slot": "rated 12 or higher",
@@ -1064,7 +1199,7 @@
    "trustAsScored": 50,
    "trustFixed": 40,
    "baseTrust": 55,
-   "marketBrierOnSamePicks": 0.104,
+   "marketPercent": 22,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, lost",
@@ -1130,7 +1265,8 @@
       "thin": false,
       "rawBrier": 0.186,
       "blendedBrier": 0.182,
-      "trust": 86
+      "trust": 86,
+      "marketPercent": 77
      },
      "GEOPOLITICS": {
       "n": 18,
@@ -1139,7 +1275,8 @@
       "thin": false,
       "rawBrier": 0.143,
       "blendedBrier": 0.149,
-      "trust": 89
+      "trust": 89,
+      "marketPercent": 80
      },
      "MACRO": {
       "n": 10,
@@ -1148,7 +1285,8 @@
       "thin": false,
       "rawBrier": 0.083,
       "blendedBrier": 0.121,
-      "trust": 91
+      "trust": 91,
+      "marketPercent": 65
      },
      "TECH": {
       "n": 2,
@@ -1157,7 +1295,8 @@
       "thin": true,
       "rawBrier": 0.01,
       "blendedBrier": 0.135,
-      "trust": 90
+      "trust": 90,
+      "marketPercent": 75
      },
      "CRYPTO": {
       "n": 1,
@@ -1166,7 +1305,8 @@
       "thin": true,
       "rawBrier": 0.028,
       "blendedBrier": 0.147,
-      "trust": 89
+      "trust": 89,
+      "marketPercent": 35
      }
     }
    },
@@ -1182,7 +1322,8 @@
       "thin": false,
       "rawBrier": 0.186,
       "blendedBrier": 0.186,
-      "trust": 85
+      "trust": 85,
+      "marketPercent": 73
      },
      "GEOPOLITICS": {
       "n": 19,
@@ -1191,7 +1332,8 @@
       "thin": false,
       "rawBrier": 0.129,
       "blendedBrier": 0.15,
-      "trust": 88
+      "trust": 88,
+      "marketPercent": 85
      },
      "MACRO": {
       "n": 9,
@@ -1200,7 +1342,8 @@
       "thin": true,
       "rawBrier": 0.238,
       "blendedBrier": 0.213,
-      "trust": 83
+      "trust": 83,
+      "marketPercent": 61
      },
      "TECH": {
       "n": 10,
@@ -1209,7 +1352,8 @@
       "thin": false,
       "rawBrier": 0.278,
       "blendedBrier": 0.234,
-      "trust": 82
+      "trust": 82,
+      "marketPercent": 63
      },
      "CRYPTO": {
       "n": 5,
@@ -1218,7 +1362,8 @@
       "thin": true,
       "rawBrier": 0.204,
       "blendedBrier": 0.194,
-      "trust": 85
+      "trust": 85,
+      "marketPercent": 95
      }
     }
    },
@@ -1234,7 +1379,8 @@
       "thin": false,
       "rawBrier": 0.183,
       "blendedBrier": 0.182,
-      "trust": 84
+      "trust": 84,
+      "marketPercent": 75
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1243,7 +1389,8 @@
       "thin": false,
       "rawBrier": 0.154,
       "blendedBrier": 0.162,
-      "trust": 85
+      "trust": 85,
+      "marketPercent": 75
      },
      "MACRO": {
       "n": 8,
@@ -1252,7 +1399,8 @@
       "thin": true,
       "rawBrier": 0.132,
       "blendedBrier": 0.156,
-      "trust": 85
+      "trust": 85,
+      "marketPercent": 53
      },
      "TECH": {
       "n": 3,
@@ -1261,7 +1409,8 @@
       "thin": true,
       "rawBrier": 0.282,
       "blendedBrier": 0.2,
-      "trust": 82
+      "trust": 82,
+      "marketPercent": 54
      },
      "CRYPTO": {
       "n": 0,
@@ -1270,7 +1419,8 @@
       "thin": true,
       "rawBrier": null,
       "blendedBrier": null,
-      "trust": null
+      "trust": null,
+      "marketPercent": null
      }
     }
    },
@@ -1286,7 +1436,8 @@
       "thin": false,
       "rawBrier": 0.234,
       "blendedBrier": 0.234,
-      "trust": 78
+      "trust": 78,
+      "marketPercent": 78
      },
      "GEOPOLITICS": {
       "n": 18,
@@ -1295,7 +1446,8 @@
       "thin": false,
       "rawBrier": 0.194,
       "blendedBrier": 0.206,
-      "trust": 80
+      "trust": 80,
+      "marketPercent": 81
      },
      "MACRO": {
       "n": 11,
@@ -1304,7 +1456,8 @@
       "thin": false,
       "rawBrier": 0.14,
       "blendedBrier": 0.182,
-      "trust": 82
+      "trust": 82,
+      "marketPercent": 61
      },
      "TECH": {
       "n": 9,
@@ -1313,7 +1466,8 @@
       "thin": true,
       "rawBrier": 0.3,
       "blendedBrier": 0.262,
-      "trust": 76
+      "trust": 76,
+      "marketPercent": 69
      },
      "CRYPTO": {
       "n": 5,
@@ -1322,7 +1476,8 @@
       "thin": true,
       "rawBrier": 0.337,
       "blendedBrier": 0.265,
-      "trust": 76
+      "trust": 76,
+      "marketPercent": 95
      }
     }
    },
@@ -1338,7 +1493,8 @@
       "thin": false,
       "rawBrier": 0.328,
       "blendedBrier": 0.325,
-      "trust": 73
+      "trust": 73,
+      "marketPercent": 66
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1347,7 +1503,8 @@
       "thin": false,
       "rawBrier": 0.253,
       "blendedBrier": 0.274,
-      "trust": 76
+      "trust": 76,
+      "marketPercent": 63
      },
      "MACRO": {
       "n": 7,
@@ -1356,7 +1513,8 @@
       "thin": true,
       "rawBrier": 0.262,
       "blendedBrier": 0.29,
-      "trust": 75
+      "trust": 75,
+      "marketPercent": 52
      },
      "TECH": {
       "n": 2,
@@ -1365,7 +1523,8 @@
       "thin": true,
       "rawBrier": 0.425,
       "blendedBrier": 0.329,
-      "trust": 72
+      "trust": 72,
+      "marketPercent": 43
      },
      "CRYPTO": {
       "n": 0,
@@ -1374,7 +1533,8 @@
       "thin": true,
       "rawBrier": null,
       "blendedBrier": null,
-      "trust": null
+      "trust": null,
+      "marketPercent": null
      }
     }
    },
@@ -1390,7 +1550,8 @@
       "thin": false,
       "rawBrier": 0.187,
       "blendedBrier": 0.195,
-      "trust": 74
+      "trust": 74,
+      "marketPercent": 82
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1399,7 +1560,8 @@
       "thin": false,
       "rawBrier": 0.17,
       "blendedBrier": 0.196,
-      "trust": 74
+      "trust": 74,
+      "marketPercent": 89
      },
      "MACRO": {
       "n": 7,
@@ -1408,7 +1570,8 @@
       "thin": true,
       "rawBrier": 0.223,
       "blendedBrier": 0.234,
-      "trust": 72
+      "trust": 72,
+      "marketPercent": 71
      },
      "TECH": {
       "n": 7,
@@ -1417,7 +1580,8 @@
       "thin": true,
       "rawBrier": 0.556,
       "blendedBrier": 0.371,
-      "trust": 62
+      "trust": 62,
+      "marketPercent": 43
      },
      "CRYPTO": {
       "n": 4,
@@ -1426,7 +1590,8 @@
       "thin": true,
       "rawBrier": 0.841,
       "blendedBrier": 0.413,
-      "trust": 59
+      "trust": 59,
+      "marketPercent": 28
      }
     }
    },
@@ -1442,7 +1607,8 @@
       "thin": false,
       "rawBrier": 0.295,
       "blendedBrier": 0.285,
-      "trust": 64
+      "trust": 64,
+      "marketPercent": 65
      },
      "GEOPOLITICS": {
       "n": 16,
@@ -1451,7 +1617,8 @@
       "thin": false,
       "rawBrier": 0.062,
       "blendedBrier": 0.127,
-      "trust": 75
+      "trust": 75,
+      "marketPercent": 80
      },
      "MACRO": {
       "n": 9,
@@ -1460,7 +1627,8 @@
       "thin": true,
       "rawBrier": 0.171,
       "blendedBrier": 0.202,
-      "trust": 69
+      "trust": 69,
+      "marketPercent": 56
      },
      "TECH": {
       "n": 1,
@@ -1469,7 +1637,8 @@
       "thin": true,
       "rawBrier": 0.001,
       "blendedBrier": 0.209,
-      "trust": 69
+      "trust": 69,
+      "marketPercent": 75
      },
      "CRYPTO": {
       "n": 0,
@@ -1478,7 +1647,8 @@
       "thin": true,
       "rawBrier": null,
       "blendedBrier": null,
-      "trust": null
+      "trust": null,
+      "marketPercent": null
      }
     }
    },
@@ -1494,7 +1664,8 @@
       "thin": false,
       "rawBrier": 0.527,
       "blendedBrier": 0.53,
-      "trust": 60
+      "trust": 60,
+      "marketPercent": 22
      },
      "GEOPOLITICS": {
       "n": 16,
@@ -1503,7 +1674,8 @@
       "thin": false,
       "rawBrier": 0.582,
       "blendedBrier": 0.569,
-      "trust": 57
+      "trust": 57,
+      "marketPercent": 11
      },
      "MACRO": {
       "n": 8,
@@ -1512,7 +1684,8 @@
       "thin": true,
       "rawBrier": 0.55,
       "blendedBrier": 0.548,
-      "trust": 59
+      "trust": 59,
+      "marketPercent": 23
      },
      "TECH": {
       "n": 3,
@@ -1521,7 +1694,8 @@
       "thin": true,
       "rawBrier": 0.697,
       "blendedBrier": 0.582,
-      "trust": 57
+      "trust": 57,
+      "marketPercent": 32
      },
      "CRYPTO": {
       "n": 1,
@@ -1530,7 +1704,8 @@
       "thin": true,
       "rawBrier": 0.64,
       "blendedBrier": 0.555,
-      "trust": 58
+      "trust": 58,
+      "marketPercent": 5
      }
     }
    },
@@ -1546,7 +1721,8 @@
       "thin": false,
       "rawBrier": 0.704,
       "blendedBrier": 0.702,
-      "trust": 42
+      "trust": 42,
+      "marketPercent": 20
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1555,7 +1731,8 @@
       "thin": false,
       "rawBrier": 0.649,
       "blendedBrier": 0.664,
-      "trust": 45
+      "trust": 45,
+      "marketPercent": 26
      },
      "MACRO": {
       "n": 9,
@@ -1564,7 +1741,8 @@
       "thin": true,
       "rawBrier": 0.659,
       "blendedBrier": 0.675,
-      "trust": 44
+      "trust": 44,
+      "marketPercent": 29
      },
      "TECH": {
       "n": 1,
@@ -1573,7 +1751,8 @@
       "thin": true,
       "rawBrier": 0.81,
       "blendedBrier": 0.7,
-      "trust": 43
+      "trust": 43,
+      "marketPercent": 26
      },
      "CRYPTO": {
       "n": 0,
@@ -1582,7 +1761,8 @@
       "thin": true,
       "rawBrier": null,
       "blendedBrier": null,
-      "trust": null
+      "trust": null,
+      "marketPercent": null
      }
     }
    },
@@ -1598,7 +1778,8 @@
       "thin": false,
       "rawBrier": 0.666,
       "blendedBrier": 0.665,
-      "trust": 40
+      "trust": 40,
+      "marketPercent": 22
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1607,7 +1788,8 @@
       "thin": false,
       "rawBrier": 0.642,
       "blendedBrier": 0.648,
-      "trust": 41
+      "trust": 41,
+      "marketPercent": 21
      },
      "MACRO": {
       "n": 9,
@@ -1616,7 +1798,8 @@
       "thin": true,
       "rawBrier": 0.614,
       "blendedBrier": 0.637,
-      "trust": 42
+      "trust": 42,
+      "marketPercent": 25
      },
      "TECH": {
       "n": 2,
@@ -1625,7 +1808,8 @@
       "thin": true,
       "rawBrier": 0.781,
       "blendedBrier": 0.679,
-      "trust": 39
+      "trust": 39,
+      "marketPercent": 25
      },
      "CRYPTO": {
       "n": 0,
@@ -1634,7 +1818,8 @@
       "thin": true,
       "rawBrier": null,
       "blendedBrier": null,
-      "trust": null
+      "trust": null,
+      "marketPercent": null
      }
     }
    }
@@ -1680,7 +1865,8 @@
      "thin": false,
      "rawBrier": 0.062,
      "blendedBrier": 0.127,
-     "trust": 75
+     "trust": 75,
+     "marketPercent": 80
     },
     "politics": {
      "n": 53,
@@ -1689,7 +1875,8 @@
      "thin": false,
      "rawBrier": 0.295,
      "blendedBrier": 0.285,
-     "trust": 64
+     "trust": 64,
+     "marketPercent": 65
     }
    },
    "wood": {
@@ -1700,7 +1887,8 @@
      "thin": true,
      "rawBrier": 0.556,
      "blendedBrier": 0.371,
-     "trust": 62
+     "trust": 62,
+     "marketPercent": 43
     },
     "crypto": {
      "n": 4,
@@ -1709,7 +1897,8 @@
      "thin": true,
      "rawBrier": 0.841,
      "blendedBrier": 0.413,
-     "trust": 59
+     "trust": 59,
+     "marketPercent": 28
     },
     "politics": {
      "n": 60,
@@ -1718,7 +1907,8 @@
      "thin": false,
      "rawBrier": 0.187,
      "blendedBrier": 0.195,
-     "trust": 74
+     "trust": 74,
+     "marketPercent": 82
     }
    }
   }
@@ -1729,212 +1919,11 @@
   "consensusMatches": 89,
   "ruleMatches": 89,
   "ruleMisses": [],
-  "ruleMatchesWithEndTrustAsScored": 82,
   "betsWithoutAnchorPair": [
    "4874f1da-1c8e-4add-946f-b8ad190e5977",
    "0754fa61-5c71-476a-bfa5-ca92655f3dc1"
   ],
-  "edgeThreshold": 0.04,
-  "endTrustAsScored": {
-   "ackman": 62,
-   "dalio": 85,
-   "insider": 87,
-   "kitty": 50,
-   "munger": 72,
-   "sbf": 69,
-   "simons": 74,
-   "soros": 75,
-   "thiel": 51,
-   "wood": 55
-  },
-  "endTrustFixed": {
-   "ackman": 79,
-   "dalio": 84,
-   "insider": 88,
-   "kitty": 40,
-   "munger": 85,
-   "sbf": 67,
-   "simons": 59,
-   "soros": 74,
-   "thiel": 43,
-   "wood": 71
-  },
-  "changes": 9,
-  "decisionChanges": 6,
-  "leanOnlyChanges": 3,
-  "rows": [
-   {
-    "betId": "a6e2a084-9485-44d8-8262-dfc96e977734",
-    "question": "Will Trump praise Allah again by June 30?",
-    "category": "POLITICS",
-    "marketProb": 0.24,
-    "asScored": {
-     "decision": "EXECUTE",
-     "side": "NO",
-     "consensus": 0.2871
-    },
-    "fixed": {
-     "decision": "WAIT",
-     "side": "NO",
-     "consensus": 0.2437
-    },
-    "decisionChanged": true,
-    "realSignal": "EXECUTE",
-    "resolution": "NO"
-   },
-   {
-    "betId": "02257898-fdb3-4ce8-a268-daca761ade13",
-    "question": "US-Iran nuclear deal by July 31?",
-    "category": "POLITICS",
-    "marketProb": 0.41,
-    "asScored": {
-     "decision": "EXECUTE",
-     "side": "NO",
-     "consensus": 0.48
-    },
-    "fixed": {
-     "decision": "WAIT",
-     "side": "NO",
-     "consensus": 0.4423
-    },
-    "decisionChanged": true,
-    "realSignal": "WAIT",
-    "resolution": "YES"
-   },
-   {
-    "betId": "f1538d85-97f0-4abc-ad79-febd83a39a2f",
-    "question": "Will Iran withdraw from the NPT before 2027?",
-    "category": "POLITICS",
-    "marketProb": 0.075,
-    "asScored": {
-     "decision": "WAIT",
-     "side": "YES",
-     "consensus": 0.5067
-    },
-    "fixed": {
-     "decision": "EXECUTE",
-     "side": "NO",
-     "consensus": 0.4523
-    },
-    "decisionChanged": true,
-    "realSignal": "EXECUTE",
-    "resolution": "open"
-   },
-   {
-    "betId": "73177123-b16a-40cb-91a8-11fe6c2d21d0",
-    "question": "MegaETH market cap (FDV) >$3B one day after launch?",
-    "category": "CRYPTO",
-    "marketProb": 0.057,
-    "asScored": {
-     "decision": "WAIT",
-     "side": "YES",
-     "consensus": 0.5096
-    },
-    "fixed": {
-     "decision": "WAIT",
-     "side": "NO",
-     "consensus": 0.4912
-    },
-    "decisionChanged": false,
-    "realSignal": "WAIT",
-    "resolution": "NO"
-   },
-   {
-    "betId": "40521bc9-cec0-4e54-a33f-d678c0e24528",
-    "question": "Netanyahu out by June 30?",
-    "category": "POLITICS",
-    "marketProb": 0.055,
-    "asScored": {
-     "decision": "WAIT",
-     "side": "YES",
-     "consensus": 0.5053
-    },
-    "fixed": {
-     "decision": "EXECUTE",
-     "side": "NO",
-     "consensus": 0.4863
-    },
-    "decisionChanged": true,
-    "realSignal": "WAIT",
-    "resolution": "NO"
-   },
-   {
-    "betId": "b2f174ff-c22f-4468-a9e7-234bed15a24f",
-    "question": "MegaETH market cap (FDV) >$6B one day after launch?",
-    "category": "CRYPTO",
-    "marketProb": 0.021,
-    "asScored": {
-     "decision": "WAIT",
-     "side": "YES",
-     "consensus": 0.5187
-    },
-    "fixed": {
-     "decision": "WAIT",
-     "side": "NO",
-     "consensus": 0.4943
-    },
-    "decisionChanged": false,
-    "realSignal": "WAIT",
-    "resolution": "NO"
-   },
-   {
-    "betId": "09166262-b4dd-4bc3-925f-8ba6d425f6b8",
-    "question": "Will OpenAI’s market cap be between $1.25T and $1.5T at market close on IPO day?",
-    "category": "TECH",
-    "marketProb": 0.078,
-    "asScored": {
-     "decision": "WAIT",
-     "side": "YES",
-     "consensus": 0.5104
-    },
-    "fixed": {
-     "decision": "WAIT",
-     "side": "NO",
-     "consensus": 0.4917
-    },
-    "decisionChanged": false,
-    "realSignal": "WAIT",
-    "resolution": "open"
-   },
-   {
-    "betId": "b449e3b3-bc80-41b0-b2b2-1ba0d73ff467",
-    "question": "Will any country leave NATO by June 30, 2026?",
-    "category": "POLITICS",
-    "marketProb": 0.037,
-    "asScored": {
-     "decision": "EXECUTE",
-     "side": "NO",
-     "consensus": 0.0832
-    },
-    "fixed": {
-     "decision": "WAIT",
-     "side": "NO",
-     "consensus": 0.0662
-    },
-    "decisionChanged": true,
-    "realSignal": "EXECUTE",
-    "resolution": "NO"
-   },
-   {
-    "betId": "06a6346d-7a4e-4105-bab4-fedcbf7b5f0e",
-    "question": "Will Trump visit China by April 30?",
-    "category": "POLITICS",
-    "marketProb": 0.295,
-    "asScored": {
-     "decision": "WAIT",
-     "side": "NO",
-     "consensus": 0.2998
-    },
-    "fixed": {
-     "decision": "EXECUTE",
-     "side": "NO",
-     "consensus": 0.2531
-    },
-    "decisionChanged": true,
-    "realSignal": "EXECUTE",
-    "resolution": "NO"
-   }
-  ]
+  "edgeThreshold": 0.04
  },
  "change": {
   "diff": [
@@ -2834,7 +2823,7 @@
     "status": "passed"
    }
   ],
-  "runIt": "python -I analysis/fetch.py && python -I analysis/rescore.py && pytest analysis"
+  "runIt": "pytest analysis"
  },
  "batches": [
   {
@@ -3225,21 +3214,43 @@
    "limit": "100"
   },
   "excludedTags": [
+   "atp",
    "awards",
+   "baseball",
+   "basketball",
+   "boxing",
    "celebrities",
+   "cfb",
+   "cricket",
    "esports",
+   "f1",
+   "football",
    "games",
+   "golf",
+   "hockey",
+   "mlb",
+   "mma",
    "movies",
    "music",
+   "nba",
+   "ncaaf",
+   "nfl",
+   "nhl",
+   "olympics",
    "pop-culture",
-   "sports"
+   "soccer",
+   "sport",
+   "sports",
+   "tennis",
+   "ufc",
+   "wta"
   ],
   "marketsPulled": 5606,
   "eventsPulled": 2429,
-  "marketsAfterTagFilter": 4414,
+  "marketsAfterTagFilter": 4405,
   "alreadyInAgentStreet": 167,
-  "markets": 4247,
-  "events": 1853
+  "markets": 4238,
+  "events": 1848
  },
  "checks": {
   "proofTenOfTen": true,
@@ -3254,7 +3265,13 @@
   "simonsWins15": true,
   "sbfBestGeopoliticsRaw": true,
   "sbfBestGeopoliticsBlended": true,
-  "marketBeatsEveryAgentFixed": true,
-  "marketOverallBeatsBestAgentFixed": true
+  "sbfPoliticsWithin2OfMarket": true,
+  "marketOverallBeatsBestAgentFixed": true,
+  "readingsMissWinRateInBothBands": true,
+  "marketWithin2OfWinRateInBothBands": true,
+  "noAgentOutsideLuck": true,
+  "insiderClosestToAnEdge": true,
+  "mungerAckmanWithin2OfMarket": true,
+  "simonsLossesMostlyRated8Up": true
  }
 }

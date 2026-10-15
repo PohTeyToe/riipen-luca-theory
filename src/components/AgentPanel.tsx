@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, type MouseEvent } from 'react'
 import { agent, brier3, categoryLabel, longDate, ordinal, page, type SampleBet } from '../data'
 
 const low = page.line.lowThreshold
@@ -59,89 +59,109 @@ interface Props {
   onClose: () => void
 }
 
-/** Flow step 5. Side panel on wide screens, bottom sheet on phones. */
+/** Clicks on the backdrop land on the dialog element itself, outside its box. */
+function outside(e: MouseEvent<HTMLDialogElement>) {
+  const r = e.currentTarget.getBoundingClientRect()
+  return e.target === e.currentTarget && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)
+}
+
+/**
+ * Flow step 5. A modal dialog: side panel on wide screens, bottom sheet on phones.
+ * showModal() gives the focus trap, the inert page behind it and Esc; the stylesheet
+ * locks page scroll while it's open.
+ */
 export function AgentPanel({ id, onClose }: Props) {
   const a = agent(id)
+  const dialog = useRef<HTMLDialogElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
   const body = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const d = dialog.current
+    if (d && !d.open) d.showModal()
+  }, [])
 
   useEffect(() => {
     heading.current?.focus({ preventScroll: true })
     body.current?.scrollTo({ top: 0 })
   }, [id])
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  // Close the dialog first: while it's modal the page behind is inert, so focus can't go back to the row.
+  const close = () => {
+    dialog.current?.close()
+    onClose()
+  }
 
   const lowLine = a.lowCount === 0 ? 'none' : `${a.lowCount}`
 
   return (
-    <>
-      <div className="scrim" onClick={onClose} aria-hidden="true" />
-      <aside className="panel" role="dialog" aria-modal="false" aria-labelledby="panel-h">
-        <div className="panel-head">
-          <div>
-            <p className="panel-role">{a.role}</p>
-            <h3 id="panel-h" ref={heading} tabIndex={-1}>
-              {a.name}
-            </h3>
-          </div>
-          <button type="button" className="close" onClick={onClose}>
-            Close
-          </button>
+    <dialog
+      ref={dialog}
+      className="panel"
+      aria-labelledby="panel-h"
+      onCancel={(e) => {
+        e.preventDefault()
+        close()
+      }}
+      onClick={(e) => outside(e) && close()}
+    >
+      <div className="panel-head">
+        <div>
+          <p className="panel-role">{a.role}</p>
+          <h3 id="panel-h" ref={heading} tabIndex={-1}>
+            {a.name}
+          </h3>
         </div>
-        <div className="panel-body" ref={body}>
-          <p className="panel-summary">
-            Rates {lowLine} of its {a.n} bets at {low} or lower. Wins {a.winPercent}%.
-          </p>
-          <table className="data panel-stats">
-            <thead>
-              <tr>
-                <th scope="col" />
-                <th scope="col" className="num">
-                  As scored
-                </th>
-                <th scope="col" className="num">
-                  Fixed
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Brier score</th>
-                <td className="num">{brier3(a.brierAsScored)}</td>
-                <td className="num fixed">{brier3(a.brierFixed)}</td>
-              </tr>
-              <tr>
-                <th scope="row">Trust</th>
-                <td className="num">{a.trustAsScored}</td>
-                <td className="num fixed">{a.trustFixed}</td>
-              </tr>
-              <tr>
-                <th scope="row">Rank</th>
-                <td className="num">{ordinal(a.rankAsScored)}</td>
-                <td className="num fixed">{ordinal(a.rankFixed)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="panel-market">
-            Market price at entry on the same {a.n} picks: <b>{brier3(a.marketBrierOnSamePicks)}</b>
-          </p>
+        <button type="button" className="close" onClick={close}>
+          Close
+        </button>
+      </div>
+      <div className="panel-body" ref={body}>
+        <p className="panel-summary">
+          Rates {lowLine} of its {a.n} bets at {low} or lower. Wins {a.winPercent}%, on sides the market priced at{' '}
+          {a.marketPercent}% on average.
+        </p>
+        <table className="data panel-stats">
+          <thead>
+            <tr>
+              <th scope="col" />
+              <th scope="col" className="num">
+                As scored
+              </th>
+              <th scope="col" className="num">
+                Fixed
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Brier score</th>
+              <td className="num">{brier3(a.brierAsScored)}</td>
+              <td className="num fixed">{brier3(a.brierFixed)}</td>
+            </tr>
+            <tr>
+              <th scope="row">Trust</th>
+              <td className="num">{a.trustAsScored}</td>
+              <td className="num fixed">{a.trustFixed}</td>
+            </tr>
+            <tr>
+              <th scope="row">Rank</th>
+              <td className="num">{ordinal(a.rankAsScored)}</td>
+              <td className="num fixed">{ordinal(a.rankFixed)}</td>
+            </tr>
+          </tbody>
+        </table>
 
-          <h4 className="panel-sub">Its bets, both scores (lower is better)</h4>
-          {a.sampleBets.map((b) => (
-            <Bet key={b.createdAt + b.slot} b={b} />
-          ))}
-          <p className="panel-note">
-            Chosen by rule, not by hand: its most recent bet rated {low} or lower that won, the most recent that lost, and
-            the most recent rated 12 or higher.
-            {a.sampleBets.length < 3 && ' Slots with no match are left out.'}
-          </p>
-        </div>
-      </aside>
-    </>
+        <h4 className="panel-sub">Its bets, both scores (lower is better)</h4>
+        {a.sampleBets.map((b) => (
+          <Bet key={b.createdAt + b.slot} b={b} />
+        ))}
+        <p className="panel-note">
+          Chosen by rule, not by hand: its most recent bet rated {low} or lower that won, the most recent that lost, and
+          the most recent rated 12 or higher.
+          {a.sampleBets.length < 3 && ' Slots with no match are left out.'}
+        </p>
+      </div>
+    </dialog>
   )
 }

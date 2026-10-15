@@ -6,7 +6,10 @@ const plan: [string, string][] = [
     'Oct 26 to 30 (check-in Oct 30)',
     'Repo access. Run this rescore against your database instead of the public API. Agree with you on how confidence should be read.',
   ],
-  ['Nov 2 to 13', 'Fixed scoring behind a flag, with these tests in your repo. Rescore Season 1 so Season 2 starts from corrected trust.'],
+  [
+    'Nov 2 to 13',
+    'A stated probability on every pick, scored with Brier and against the market price, behind a flag with these tests in your repo. Rescore Season 1 with the stopgap so Season 2 starts from corrected trust.',
+  ],
   ['Nov 16 to 27', 'Per-domain trust in /api/trust-scores, used by the King behind a flag, with the thin-cell rule.'],
   ['Nov 30 to Dec 11 (spotlight Dec 11)', 'Weekly batch running again for Season 2, then a play-money dry run.'],
   ['Dec 14 to 18 (submit Dec 18)', 'Handover notes and docs.'],
@@ -93,13 +96,14 @@ export function BatchStrip() {
   )
 }
 
-/** Shown only when the Gamma pull was shown to be complete (see data/SOURCES.md). */
+/** Shown only when the pull has a Gamma file that was shown to be complete (see data/SOURCES.md). */
 export function SupplyLine() {
-  if (!page.supply.complete) return null
+  const supply = page.supply
+  if (!supply?.complete) return null
   return (
     <p className="supply">
-      As of {pulled}, {int(page.supply.markets)} open Polymarket markets in {int(page.supply.events)} events pass your
-      published filters. <a href={`${REPO}/blob/main/data/SOURCES.md#polymarket-supply-count`}>How I counted</a>.
+      As of {pulled}, about {int(supply.markets)} open Polymarket markets in {int(supply.events)} events pass your
+      published filters, as I read them. <a href={`${REPO}/blob/main/data/SOURCES.md#polymarket-supply-count`}>How I counted</a>.
     </p>
   )
 }

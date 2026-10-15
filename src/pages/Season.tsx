@@ -3,28 +3,29 @@ import { AgentPanel } from '../components/AgentPanel'
 import { DomainGrid } from '../components/DomainGrid'
 import { Exhibit, Section } from '../components/Exhibit'
 import { Footer } from '../components/Footer'
-import { KingTable } from '../components/KingTable'
 import { LineSlider } from '../components/LineSlider'
+import { MarketGap, RatingBands } from '../components/Market'
 import { BatchStrip, PlanTable, SupplyLine } from '../components/Plan'
 import { ProofStrip } from '../components/ProofStrip'
 import { Scorecard } from '../components/Scorecard'
 import { TheChange } from '../components/TheChange'
-import { OWNER, int, page, pulled, shortDate } from '../data'
+import { OWNER, confidenceRow, int, page, pulled, score2, shortDate } from '../data'
 
-const { line, domains, king, quotes, season } = page
+const { line, domains, king, market, quotes, season } = page
 const sbf = domains.notes.sbf
 const wood = domains.notes.wood
-const edgePoints = Math.round(king.edgeThreshold * 100)
-const ruleLine =
-  king.ruleMatches === king.betsWithBreakdown
-    ? `all ${king.betsWithBreakdown} of the real calls`
-    : `${king.ruleMatches} of the ${king.betsWithBreakdown} real calls`
+const [lowBand, highBand] = line.bands
+const c9 = confidenceRow(9)
+// Copy names the Policy Insider agent as closest; the build checks that still holds.
+const insider = market.rows.find((r) => r.id === 'insider')!
+const tens = (n: number) => Math.round(n / 10) * 10
+const METHODOLOGY = 'https://street.lucatheory.com/methodology'
 
 const contents = [
   ['line', 'The line'],
   ['scorecard', 'Scorecard'],
+  ['market', 'Against the market'],
   ['domains', 'By domain'],
-  ['king', 'The King'],
   ['change', 'The change'],
   ['plan', 'Plan'],
 ] as const
@@ -80,22 +81,23 @@ export function Season() {
           <Section id="line" n={1} title="One line decides who looks good">
             <div className="prose">
               <p>
-                Your methodology page says: "{quotes.binaryCommitment.text}" The published Brier scores come back exactly
-                if you divide that rating by 15 and read it as the chance the agent's own side is right. Drag it and watch
-                one pick.
+                Your <a href={METHODOLOGY}>methodology page</a> says: "{quotes.binaryCommitment.text}" The published Brier
+                scores come back exactly if you divide that rating by 15 and read it as the chance the agent's own side is
+                right. Drag it and watch one pick.
               </p>
             </div>
             <LineSlider />
             <p className="source">
-              <Src>street.lucatheory.com/api/predictions for the {int(line.scoredPicks)} scored bets, and /methodology for the quote</Src>
+              <Src>street.lucatheory.com/api/predictions for the {int(line.scoredPicks)} scored bets, and /methodology for the quotes</Src>
             </p>
           </Section>
 
           <Section id="scorecard" n={2} title="The ranking, both ways">
             <div className="prose">
               <p>
-                Trust sets how much each agent's vote counts in the King's consensus, so this ranking is what the fix
-                changes in the product. Switch it to "Fixed" and watch who moves.
+                Trust sets how much each agent's vote counts in the King's consensus. My replay matches that consensus on all{' '}
+                {king.consensusMatches} bets that list each vote, so this ranking is what a scoring change moves in the
+                product. Switch it to "Fixed" and watch who moves.
               </p>
             </div>
             <Exhibit
@@ -109,26 +111,86 @@ export function Season() {
                 its 0.3 floor. Tap a row for the agent's own bets.
               </p>
             </Exhibit>
-          </Section>
-
-          <Section id="domains" n={3} title="Trust by domain">
             <div className="prose">
               <p>
-                Your <a href={quotes.lastMile.page}>FAQ</a> says "{quotes.lastMile.text}" Here's Season 1 split by domain,
-                scored the fixed way.
+                The Simons agent drops because, as scored, a confident miss costs little. Almost all its losses are rated 8
+                or higher, and a losing 9 costs {score2(c9.asScored.loss)} as scored against {score2(c9.fixed.loss)} fixed.
+              </p>
+            </div>
+          </Section>
+
+          <Section id="market" n={3} title="Who beats the market price">
+            <div className="prose">
+              <p>
+                The fixed reading is a stopgap. Your methodology page also says: "{quotes.positionSize.text}" The results
+                fit that better than either reading. Bets rated {highBand.from} or higher won {highBand.wonPercent}% of the
+                time. As scored that rating reads as {highBand.asScoredPercent}%, and fixed as {highBand.fixedPercent}%. The
+                market's price at entry said {highBand.marketPercent}%.
               </p>
             </div>
             <Exhibit
               n={2}
+              title="What a rating says, against what happened"
+              source={<Src>street.lucatheory.com/api/predictions, {int(line.scoredPicks)} scored bets with their market price at entry</Src>}
+            >
+              <RatingBands />
+              <p className="caption">
+                Bets rated {lowBand.from} to {lowBand.to} won {lowBand.wonPercent}%; the market priced them at{' '}
+                {lowBand.marketPercent}%. In both halves of the scale the market's price tracks the win rate and neither
+                reading does.
+              </p>
+            </Exhibit>
+            <div className="prose">
+              <p>
+                So the fair test of a forecaster is whether it wins more often than the market's price said it would.
+              </p>
+            </div>
+            <Exhibit
+              n={3}
+              title="Win rate against the market price at entry, by agent"
+              source={
+                <Src>
+                  street.lucatheory.com/api/predictions. The comparison and the luck range are mine: the range is where 95% of
+                  win rates would land over the same bets if the market's prices were right
+                </Src>
+              }
+            >
+              <MarketGap />
+              <p className="caption">
+                Market is the average price at entry of the sides each agent picked. Every agent sits inside the range luck
+                alone covers.
+              </p>
+            </Exhibit>
+            <div className="prose">
+              <p>
+                No agent clearly beats the market yet. The Policy Insider agent comes closest: it won {insider.wonPercent}% of
+                bets the market priced at {insider.marketPercent}%. The
+                Munger and Ackman agents, which the fixed reading moves up, win within 2 points of the market's price. Season 1
+                gave each agent {market.settledMin} to {market.settledMax} settled bets, and a {market.edgePoints}-point edge
+                only clears luck at about {tens(market.betsFor5PointsMin)} to {tens(market.betsFor5PointsMax)}.
+              </p>
+            </div>
+          </Section>
+
+          <Section id="domains" n={4} title="Trust by domain">
+            <div className="prose">
+              <p>
+                Your <a href={quotes.lastMile.page}>Last-Mile Accuracy essay</a> says "{quotes.lastMile.text}" Here's Season 1
+                split by domain, scored the fixed way.
+              </p>
+            </div>
+            <Exhibit
+              n={4}
               title="Fixed Brier score by domain"
               source={<Src>street.lucatheory.com/api/predictions and /api/events. The blend and cell trust are my proposal</Src>}
             >
               <DomainGrid />
               <div className="notes">
                 <p>
-                  <b>SAIm BAInkman-FrAIed</b> was built as the crypto degen. In Season 1 it's the best geopolitics
-                  forecaster on the board, {sbf.geopolitics.wins} and {sbf.geopolitics.losses}, and middling on politics,{' '}
-                  {sbf.politics.wins} and {sbf.politics.losses}.
+                  <b>SAIm BAInkman-FrAIed</b> was built as the crypto degen. In Season 1 it's the best agent on geopolitics,{' '}
+                  {sbf.geopolitics.wins} and {sbf.geopolitics.losses}, on sides the market priced at{' '}
+                  {sbf.geopolitics.marketPercent}% on average. On politics it went {sbf.politics.wins} and{' '}
+                  {sbf.politics.losses}, right at the market's {sbf.politics.marketPercent}%.
                 </p>
                 <p>
                   <b>CAIthy Wood</b> was built around exponential tech and blockchain. It went {wood.tech.wins} and{' '}
@@ -144,42 +206,10 @@ export function Season() {
             </Exhibit>
           </Section>
 
-          <Section id="king" n={4} title="What the King would have called">
-            <div className="prose">
-              <p>
-                Your King weights each vote by trust x confidence / 15. I rebuilt that for the {king.betsWithBreakdown} bets
-                that list each agent's vote, and it matches all {king.consensusMatches}. With the trust recorded on each bet,
-                my version of the execute rule (anchors agree, edge at least {edgePoints} points) reproduces {ruleLine}. Then
-                I swapped end-of-season trust as scored for end-of-season trust fixed.
-              </p>
-            </div>
-            <Exhibit
-              n={3}
-              title="King calls that change with fixed trust (hindsight)"
-              source={
-                <Src>
-                  street.lucatheory.com/api/king/bets and /api/events. The execute rule is my approximation, and the replay uses
-                  end-of-season trust on bets made during the season
-                </Src>
-              }
-            >
-              <KingTable />
-              <p className="caption">
-                {king.changes} of {int(king.betsWithBreakdown)} calls change. {king.decisionChanges} change the decision;{' '}
-                {king.leanOnlyChanges} only change which way a wait leans.
-              </p>
-            </Exhibit>
-            <div className="prose">
-              <p>
-                Trust alone moves few calls. The next thing I'd want to understand is how the King turns a vote into a bet.
-              </p>
-            </div>
-          </Section>
-
           <Section id="change" n={5} title="The change" kicker="For whoever builds it">
             <Exhibit
-              n={4}
-              title="What the fix looks like"
+              n={5}
+              title="What I'd change"
               source={<>Formula from street.lucatheory.com/methodology. Tests run on data/snapshot.json from the {pulled} pull. Play money.</>}
             >
               <TheChange />
@@ -195,11 +225,12 @@ export function Season() {
               <p>If the Riipen project is a new product rather than Agent Street, the scoring and pipeline work carries over.</p>
               <p>If you place a UX and beta-test student, the Season 2 dry run is a natural test script for them.</p>
             </div>
-            <Exhibit n={5} title="Season 1 by week" source={<Src>street.lucatheory.com/api/batches/all and /api/events; Polymarket's public Gamma API for the market count</Src>}>
+            <Exhibit n={6} title="Season 1 by week" source={<Src>street.lucatheory.com/api/batches/all and /api/events; Polymarket's public Gamma API for the market count</Src>}>
               <BatchStrip />
               <p className="caption">
-                Season 1 moved to "{season.status}" on {shortDate(season.crystallisedAt)}. Season 2 needs a batch every
-                week.
+                Season 1 moved to "{season.status}" on {shortDate(season.crystallisedAt)}. Season 2 needs a batch every week,
+                and more settled bets per agent than Season 1's {market.settledMin} to {market.settledMax}, to tell skill from
+                luck.
               </p>
               <SupplyLine />
             </Exhibit>
@@ -211,4 +242,3 @@ export function Season() {
     </>
   )
 }
-

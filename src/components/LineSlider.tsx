@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { confidenceRow, int, page, score2, type Reading } from '../data'
+import { brier3, confidenceRow, int, page, type Reading } from '../data'
 
 const { line } = page
 const MAX = 15
@@ -23,14 +23,14 @@ function Bars({ reading, kind }: { reading: Reading; kind: 'as' | 'fixed' }) {
             <span className="bar-fill" style={{ width: `${value * 100}%` }} />
             <span className="coin-mark" aria-hidden="true" />
           </span>
-          <span className="bar-value">{score2(value)}</span>
+          <span className="bar-value">{brier3(value)}</span>
         </div>
       ))}
     </div>
   )
 }
 
-/** Flow step 3. The whole bug in one control: drag to 3, a win scores 0.64 and a loss 0.04. */
+/** Flow step 3. The whole bug in one control: drag to 3, a win scores 0.640 and a loss 0.040. */
 export function LineSlider() {
   const [c, setC] = useState(START)
   const row = confidenceRow(c)

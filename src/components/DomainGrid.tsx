@@ -56,6 +56,15 @@ function AgentCell({ cell, id, cat, selected, onSelect }: { cell: Cell; id: stri
 }
 
 function MarketCellView({ m, cat, selected, onSelect }: { m: MarketCell; cat: Category; selected: boolean; onSelect: () => void }) {
+  if (m.brier === null) {
+    return (
+      <td className="cell none">
+        <button type="button" aria-pressed={selected} onClick={onSelect} aria-label={`Market price at entry, ${categoryLabel[cat]}: no scored events`}>
+          <span className="cell-v">no events</span>
+        </button>
+      </td>
+    )
+  }
   const { background, dark } = fillFor(m.brier)
   return (
     <td className={`cell${m.thin ? ' thin' : ''}${dark && !m.thin ? ' dark' : ''}`} style={{ ['--fill' as string]: background }}>
@@ -85,6 +94,14 @@ function Detail({ sel }: { sel: Selection }) {
   }
   if (sel.kind === 'market') {
     const m = domains.market[sel.cat]
+    if (m.brier === null) {
+      return (
+        <>
+          <p className="detail-title">Market price at entry, {categoryLabel[sel.cat]}</p>
+          <p className="detail-note">No scored events in this domain, so there's nothing to score.</p>
+        </>
+      )
+    }
     return (
       <>
         <p className="detail-title">Market price at entry, {categoryLabel[sel.cat]}</p>
@@ -144,10 +161,15 @@ function Detail({ sel }: { sel: Selection }) {
           <dt>Cell trust</dt>
           <dd>{cell.trust}</dd>
         </div>
+        <div>
+          <dt>Market price</dt>
+          <dd>{cell.marketPercent}%</dd>
+        </div>
       </dl>
       <p className="detail-note">
         Blended as if it had 10 more picks at this agent's overall score ({brier3(a.brierFixed)}).
-        {cell.thin && ` Under ${THIN} picks, so the blend carries most of the weight.`}
+        {cell.thin && ` Under ${THIN} picks, so the blend carries most of the weight.`} Market price is the average price at
+        entry of the sides it picked.
       </p>
     </>
   )
@@ -160,11 +182,11 @@ export function DomainGrid() {
   const cats = domains.categories
   const isSel = (s: Selection) => JSON.stringify(s) === JSON.stringify(sel)
 
-  // On phones the numbers sit under the grid, often below the fold. Bring them up after a tap.
+  // On phones the numbers sit under the grid, often past the fold. Bring all of them into view after a tap.
   useEffect(() => {
     const el = detail.current
-    if (!sel || !el || el.getBoundingClientRect().top < window.innerHeight - 96) return
-    el.scrollIntoView({ block: 'end', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+    if (!sel || !el || el.getBoundingClientRect().bottom <= window.innerHeight) return
+    el.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
   }, [sel])
 
   return (

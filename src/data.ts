@@ -52,7 +52,8 @@ export interface Agent {
   trustAsScored: number
   trustFixed: number
   baseTrust: number
-  marketBrierOnSamePicks: number
+  /** Mean market price at entry of the sides it picked, in percent. */
+  marketPercent: number
   sampleBets: SampleBet[]
 }
 
@@ -64,12 +65,36 @@ export interface Cell {
   rawBrier: number | null
   blendedBrier: number | null
   trust: number | null
+  marketPercent: number | null
 }
 
 export interface MarketCell {
   events: number
-  brier: number
+  brier: number | null
   thin: boolean
+}
+
+export interface Band {
+  from: number
+  to: number
+  n: number
+  wonPercent: number
+  asScoredPercent: number
+  fixedPercent: number
+  marketPercent: number
+}
+
+export interface MarketRow {
+  id: string
+  name: string
+  role: string
+  n: number
+  wonPercent: number
+  marketPercent: number
+  /** Win rate minus market price, in points. */
+  gapPoints: number
+  /** How far luck alone moves the win rate at these prices (95%), in points. */
+  luckPoints: number
 }
 
 export interface ProofRow {
@@ -81,24 +106,6 @@ export interface ProofRow {
   rebuiltBrier: number
   publishedTrust: number
   rebuiltTrust: number
-}
-
-export interface Call {
-  decision: 'EXECUTE' | 'WAIT'
-  side: 'YES' | 'NO'
-  consensus: number
-}
-
-export interface KingRow {
-  betId: string
-  question: string
-  category: Category
-  marketProb: number
-  asScored: Call
-  fixed: Call
-  decisionChanged: boolean
-  realSignal: string
-  resolution: string | null
 }
 
 export interface Batch {
@@ -117,10 +124,22 @@ export interface PageData {
   pullDate: string
   season: { label: string; status: string; crystallisedAt: string; firstPickAt: string; lastPickAt: string }
   sources: { file: string; url: string; retrievedAt: string }[]
-  quotes: Record<'proofOfTrust' | 'lastMile' | 'brierScale' | 'binaryCommitment' | 'eventSourcing' | 'trustFormula' | 'brierTrust' | 'decayWeight', { text: string; page: string }>
+  quotes: Record<
+    'proofOfTrust' | 'lastMile' | 'brierScale' | 'binaryCommitment' | 'positionSize' | 'eventSourcing' | 'trustFormula' | 'brierTrust' | 'decayWeight',
+    { text: string; page: string }
+  >
   method: Record<string, string | number>
   proof: { agents: number; brierMatches: number; trustWithinHalf: number; kingConsensusMatches: number; kingBetsWithBreakdown: number; rows: ProofRow[] }
-  line: { scoredPicks: number; ratedLowOrBelow: number; lowThreshold: number; coinFlipBrier: number; byConfidence: ConfidenceRow[] }
+  line: { scoredPicks: number; ratedLowOrBelow: number; lowThreshold: number; coinFlipBrier: number; byConfidence: ConfidenceRow[]; bands: Band[] }
+  market: {
+    rows: MarketRow[]
+    closest: string
+    edgePoints: number
+    betsFor5PointsMin: number
+    betsFor5PointsMax: number
+    settledMin: number
+    settledMax: number
+  }
   scorecard: Agent[]
   domains: {
     categories: Category[]
@@ -142,10 +161,6 @@ export interface PageData {
     consensusMatches: number
     ruleMatches: number
     edgeThreshold: number
-    changes: number
-    decisionChanges: number
-    leanOnlyChanges: number
-    rows: KingRow[]
   }
   change: {
     diff: string[]
@@ -155,7 +170,8 @@ export interface PageData {
     runIt: string
   }
   batches: Batch[]
-  supply: { complete: boolean; markets: number; events: number }
+  /** Null when the pull has no Gamma file. */
+  supply: { complete: boolean; markets: number; events: number } | null
   checks: Record<string, boolean>
 }
 

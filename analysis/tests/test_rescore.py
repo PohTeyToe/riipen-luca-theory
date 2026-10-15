@@ -43,14 +43,13 @@ def test_king_consensus_matches(snap):
 
 
 def test_king_rule_fidelity(snap):
-    # The rule is a reconstruction of private code, so allow one miss. On the
-    # 2026-10-15 pull it matches all 89. The closest call is bet 4874f1da-...,
-    # a WAIT whose reasoning says "Anchor agents missing predictions" and names
-    # no anchor pair. Treating a missing pair as agreement (as an earlier
-    # check did) turns it into an EXECUTE and makes that bet the one miss.
+    # The rule is a reconstruction of private code. On the committed snapshot it
+    # reproduces every real call. The closest one is bet 4874f1da-..., a WAIT
+    # whose reasoning says "Anchor agents missing predictions" and names no
+    # anchor pair: treating a missing pair as agreement turns it into an EXECUTE.
     bets = snap["kingBets"]
     misses = [b["id"] for b in bets if not rs.matches_real(b)]
-    assert len(misses) <= 1, misses
+    assert misses == [], misses
 
 
 def test_as_scored_rewards_losing():

@@ -10,42 +10,35 @@ const gloss: Record<string, string> = {
   test_rebuilds_published_brier: 'Every published Brier score comes back to 3 decimals',
   test_rebuilds_published_trust: 'Every published trust score comes back within 0.5',
   test_king_consensus_matches: "The King's consensus matches on every bet that lists its votes",
-  test_king_rule_fidelity: 'The approximate execute rule misses at most one real call',
+  test_king_rule_fidelity: "My approximation of the King's execute rule reproduces every real call",
   test_as_scored_rewards_losing: 'As scored, a loss beats a win at every rating from 1 to 7, and only there',
   test_fixed_never_rewards_losing: 'Fixed, a win never scores worse than a loss',
   test_blend: 'Empty cells get no value; a blend lands between the cell and the agent overall',
 }
 
-type Line = { text: string; added?: boolean }
+type Line = { text: string; added: boolean }
 
-const pairs = (o: Record<string, unknown>, keys: string[]) => keys.map((k) => `"${k}": ${JSON.stringify(o[k])}`).join(', ')
-
+/** One agent's proposed response, pretty-printed, with the new domain block marked. */
 function responseLines(): Line[] {
-  const r = change.proposedResponses[CATEGORY][AGENT] as Record<string, unknown>
-  const d = r.domain as Record<string, unknown>
-  return [
-    { text: '{' },
-    { text: `  "${AGENT}": {` },
-    { text: `    ${pairs(r, ['agentId', 'baseTrust', 'dynamicTrust', 'brierScore'])},` },
-    { text: `    ${pairs(r, ['settledCount', 'baseWeight'])},` },
-    { text: '    "domain": {', added: true },
-    { text: `      ${pairs(d, ['category', 'scoring'])},`, added: true },
-    { text: `      ${pairs(d, ['settledCount', 'brierScore', 'blendedBrier'])},`, added: true },
-    { text: `      ${pairs(d, ['trust', 'thin'])}`, added: true },
-    { text: '    }', added: true },
-    { text: '  },' },
-    { text: '  …' },
-    { text: '}' },
-  ]
+  const text = JSON.stringify({ [AGENT]: change.proposedResponses[CATEGORY][AGENT] }, null, 2).split('\n')
+  const start = text.findIndex((l) => l.trimStart().startsWith('"domain"'))
+  const end = text.indexOf('    }', start)
+  const lines = text.map((t, i) => ({ text: t, added: i >= start && i <= end }))
+  // The response has every agent; show one and mark the rest.
+  lines.splice(lines.length - 2, 1, { text: '  },', added: false }, { text: '  …', added: false })
+  return lines
 }
 
-/** Exhibit 4. The fix as a formula, the tests that guard it, and an API response that extends theirs. */
+/** Exhibit 5. A stopgap for Season 1, the real change for Season 2, the tests, and an API response that extends theirs. */
 export function TheChange() {
   return (
     <div className="change">
       <div className="change-part">
-        <h3 className="part-h">The formula</h3>
-        <p className="part-note">Your code is private, so this is the formula, not a patch to your files.</p>
+        <h3 className="part-h">For Season 1: a stopgap</h3>
+        <p className="part-note">
+          It stops a loss scoring better than a win. It doesn't make the rating a probability. Your code is private, so this
+          is the formula, not a patch to your files.
+        </p>
         <pre className="code diff" aria-label="Formula change">
           {change.diff.map((l) => (
             <span key={l} className={l.startsWith('+') ? 'add' : 'del'}>
@@ -56,9 +49,19 @@ export function TheChange() {
       </div>
 
       <div className="change-part">
+        <h3 className="part-h">For Season 2: a stated probability</h3>
+        <p className="part-note">
+          Ask each agent for the chance its side is right, as a number, next to the 1 to 15 rating that sets its stake.
+          Score that number with Brier, and show each agent's win rate against the market price at entry beside it. Then
+          trust measures forecasting, and the rating stays a stake.
+        </p>
+      </div>
+
+      <div className="change-part">
         <h3 className="part-h">The tests</h3>
         <p className="part-note">
-          Run at build time on the committed snapshot. <a href={TEST_FILE}>Read them</a>.
+          rescore.py runs them on the committed snapshot before it writes the page data, and the build stops unless all of
+          them passed. <a href={TEST_FILE}>Read them</a>.
         </p>
         <ul className="tests">
           {change.tests.map((t) => (
@@ -72,7 +75,7 @@ export function TheChange() {
           ))}
         </ul>
         <p className="run-it">
-          Run it: <code>{change.runIt}</code>
+          Run them: <code>{change.runIt}</code>
         </p>
       </div>
 

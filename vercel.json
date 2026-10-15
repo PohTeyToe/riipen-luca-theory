@@ -3,7 +3,10 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/season-1", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/season-1", "destination": "/index.html" },
+    { "source": "/season-1/", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

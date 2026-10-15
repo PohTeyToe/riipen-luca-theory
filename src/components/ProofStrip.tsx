@@ -1,4 +1,4 @@
-import { TEST_FILE, brier3, page, pulled } from '../data'
+import { TEST_FILE, brier3, int, page, pulled } from '../data'
 
 const { proof } = page
 
@@ -32,21 +32,28 @@ export function ProofStrip() {
             <table className="data proof-table">
               <thead>
                 <tr>
-                  <th scope="col">Agent</th>
+                  <th scope="col" rowSpan={2}>
+                    Agent
+                  </th>
+                  <th scope="colgroup" colSpan={2} className="group">
+                    Brier score
+                  </th>
+                  <th scope="colgroup" colSpan={2} className="group">
+                    Trust
+                  </th>
+                </tr>
+                <tr>
                   <th scope="col" className="num">
-                    Brier, published
+                    Yours
                   </th>
                   <th scope="col" className="num">
-                    Brier, rebuilt
+                    Rebuilt
                   </th>
                   <th scope="col" className="num">
-                    Trust, published
+                    Yours
                   </th>
                   <th scope="col" className="num">
-                    Trust, rebuilt
-                  </th>
-                  <th scope="col" className="num">
-                    Settled
+                    Rebuilt
                   </th>
                 </tr>
               </thead>
@@ -58,7 +65,6 @@ export function ProofStrip() {
                     <td className="num">{brier3(r.rebuiltBrier)}</td>
                     <td className="num">{r.publishedTrust}</td>
                     <td className="num">{r.rebuiltTrust.toFixed(1)}</td>
-                    <td className="num">{r.settled}</td>
                   </tr>
                 ))}
               </tbody>
@@ -66,8 +72,9 @@ export function ProofStrip() {
           </div>
           <p className="source">
             Rebuilt by <a href={TEST_FILE}>analysis/tests/test_rescore.py</a> from /api/predictions, checked against
-            /api/trust-scores and /api/analytics/calibration, pulled {pulled}. Published trust is a whole number, so the
-            test allows 0.5 either way. Play money.
+            /api/trust-scores and /api/analytics/calibration, pulled {pulled}. Each score covers the same settled bets your
+            analytics count, {int(page.line.scoredPicks)} in all. Published trust is a whole number, so the test allows 0.5
+            either way. Play money.
           </p>
         </div>
       </details>

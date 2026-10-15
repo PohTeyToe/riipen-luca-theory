@@ -1,11 +1,12 @@
 import { Footer } from '../components/Footer'
-import { OWNER, REPO, agent, confidenceRow, ordinal, page, pulled, score2 } from '../data'
+import { OWNER, REPO, agent, confidenceRow, page, pulled, score2 } from '../data'
 
 const c3 = confidenceRow(3)
 const ackman = agent('ackman')
 const simons = agent('simons')
 const simonsDrop = simons.rankFixed - simons.rankAsScored
 const low = page.line.lowThreshold
+const high = page.line.bands[1]
 const { proof, king, quotes } = page
 
 export function Walkthrough() {
@@ -17,8 +18,8 @@ export function Walkthrough() {
             <h1>Agent Street Season 1, rescored</h1>
             <p className="lede">
               I'm applying to your Collective Intelligence project on Riipen. Before writing to you, I went through Agent
-              Street's public Season 1 data and found one line in the scoring that changes who looks like your best
-              forecaster. This is that check, on your own numbers.
+              Street's public Season 1 data and found one line in the scoring that reorders your trust ranking. This is
+              that check, on your own numbers.
             </p>
             <div className="actions">
               <a className="button primary" href="/season-1">
@@ -39,13 +40,14 @@ export function Walkthrough() {
             </p>
             <p>
               That reading rewards losing. A pick rated 3 scores {score2(c3.asScored.win)} if it wins and{' '}
-              {score2(c3.asScored.loss)} if it loses. It's why the Ackman agent wins {ackman.winPercent}% of its settled
-              bets and still scores worse than a coin flip, while the Simons agent wins {simons.winPercent}% and has the{' '}
-              {ordinal(simons.rankAsScored)}-highest trust.
+              {score2(c3.asScored.loss)} if it loses. The Ackman agent rates {ackman.lowCount} of its {ackman.n} settled bets
+              at {low} or lower, so it wins {ackman.winPercent}% of them and still scores worse than a coin flip.
             </p>
             <p>
-              Reading 1 as "barely better than a coin flip" and 15 as "certain" fixes it in one line. The page shows what
-              moves when you do.
+              Reading 1 as "barely better than a coin flip" and 15 as "certain" stops that in one line, and the page shows
+              what moves when you do. It's a stopgap, though. Under either reading the rating isn't a probability: bets rated{' '}
+              {high.from} or higher won {high.wonPercent}%, about what the market priced them at. So the page also asks which
+              agents beat the market price. In Season 1, none clearly does yet.
             </p>
           </div>
 
@@ -62,7 +64,8 @@ export function Walkthrough() {
                   {simonsDrop} places.
                 </li>
                 <li>
-                  <a href="/season-1#domains">Tap the SBF agent's geopolitics cell</a>, then the Wood agent's crypto cell.
+                  <a href="/season-1#market">Compare each agent with the market price.</a> Every one is inside the range luck
+                  alone explains.
                 </li>
                 <li>
                   <a href="/season-1#proof">Open "Show the 10"</a> at the top. That's the test rebuilding your published
@@ -74,20 +77,11 @@ export function Walkthrough() {
               <a href="/season-1#line" className="shot">
                 <img
                   src="/shots/slider.png"
-                  width={452}
-                  height={420}
-                  alt="The confidence slider set to 3: as scored, a win scores 0.64 and a loss 0.04; fixed, a win scores 0.16 and a loss 0.36."
+                  width={433}
+                  height={510}
+                  alt={`The confidence slider set to 3: as scored, a win scores ${score2(c3.asScored.win)} and a loss ${score2(c3.asScored.loss)}; fixed, a win scores ${score2(c3.fixed.win)} and a loss ${score2(c3.fixed.loss)}.`}
                 />
                 <span>The slider</span>
-              </a>
-              <a href="/season-1#domains" className="shot">
-                <img
-                  src="/shots/grid.png"
-                  width={456}
-                  height={438}
-                  alt="The by-domain grid: agents by five domains, colored by fixed Brier score, with thin cells hatched."
-                />
-                <span>The domain grid</span>
               </a>
             </div>
 
@@ -95,16 +89,16 @@ export function Walkthrough() {
             <h2 id="yours-h">What's yours and what's mine</h2>
             <ul>
               <li>
-                <b>Yours:</b> every pick, outcome and published score, pulled from street.lucatheory.com's public API on{' '}
-                {pulled}. Play money, Season 1.
+                <b>Yours:</b> every pick, outcome, market price at entry and published score, pulled from
+                street.lucatheory.com's public API on {pulled}. Play money, Season 1.
               </li>
               <li>
                 <b>Yours:</b> the trust formula from your methodology page, and the King's consensus formula. My replay
                 matches the King's consensus on all {king.consensusMatches} bets that list each agent's vote.
               </li>
               <li>
-                <b>Mine:</b> the fixed reading of confidence, how thin domain cells get blended, and the proposed API
-                response. They're proposals to argue with.
+                <b>Mine:</b> the fixed reading of confidence, the comparison with the market price, how thin domain cells
+                get blended, and the proposed API response. They're proposals to argue with.
               </li>
               <li>
                 I only had the public site. I can't tell from outside whether this reading was a deliberate choice, so take
