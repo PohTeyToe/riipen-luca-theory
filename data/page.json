@@ -1,0 +1,3260 @@
+{
+ "pullDate": "2026-10-15",
+ "playMoney": true,
+ "season": {
+  "label": "Season 1",
+  "status": "crystallising",
+  "crystallisedAt": "2026-08-03T18:08:55.257Z",
+  "firstPickAt": "2026-03-24T15:20:22.435Z",
+  "lastPickAt": "2026-08-07T20:57:31.981Z"
+ },
+ "sources": [
+  {
+   "file": "predictions.json",
+   "url": "https://street.lucatheory.com/api/predictions",
+   "retrievedAt": "2026-10-15T18:02:22+00:00"
+  },
+  {
+   "file": "events.json",
+   "url": "https://street.lucatheory.com/api/events",
+   "retrievedAt": "2026-10-15T18:02:23+00:00"
+  },
+  {
+   "file": "king_bets.json",
+   "url": "https://street.lucatheory.com/api/king/bets",
+   "retrievedAt": "2026-10-15T18:02:25+00:00"
+  },
+  {
+   "file": "trust_scores.json",
+   "url": "https://street.lucatheory.com/api/trust-scores",
+   "retrievedAt": "2026-10-15T18:02:26+00:00"
+  },
+  {
+   "file": "calibration.json",
+   "url": "https://street.lucatheory.com/api/analytics/calibration",
+   "retrievedAt": "2026-10-15T18:02:28+00:00"
+  },
+  {
+   "file": "batches.json",
+   "url": "https://street.lucatheory.com/api/batches/all",
+   "retrievedAt": "2026-10-15T18:02:32+00:00"
+  },
+  {
+   "file": "season.json",
+   "url": "https://street.lucatheory.com/api/seasons/current",
+   "retrievedAt": "2026-10-15T18:02:33+00:00"
+  },
+  {
+   "file": "street_index.html",
+   "url": "https://street.lucatheory.com/",
+   "retrievedAt": "2026-10-15T18:02:34+00:00"
+  },
+  {
+   "file": "street_bundle.js",
+   "url": "https://street.lucatheory.com/assets/index-CGCh0oXP.js",
+   "retrievedAt": "2026-10-15T18:02:36+00:00"
+  },
+  {
+   "file": "site_index.html",
+   "url": "https://lucatheory.com/",
+   "retrievedAt": "2026-10-15T18:02:37+00:00"
+  },
+  {
+   "file": "site_bundle.js",
+   "url": "https://lucatheory.com/assets/index-C1_mihoM.js",
+   "retrievedAt": "2026-10-15T18:02:38+00:00"
+  },
+  {
+   "file": "gamma_supply.json",
+   "url": "https://gamma-api.polymarket.com/markets/keyset (57 pages) + /events (50 requests)",
+   "retrievedAt": "2026-10-15T18:11:08+00:00"
+  }
+ ],
+ "quotes": {
+  "proofOfTrust": {
+   "text": "Trust is not a property of a person, an agent, or a credential. It is a per-domain measurement of track record.",
+   "page": "https://lucatheory.com/thinking/proof-of-trust",
+   "foundIn": "https://lucatheory.com/assets/index-C1_mihoM.js"
+  },
+  "lastMile": {
+   "text": "Trust does not transfer globally.",
+   "page": "https://lucatheory.com/thinking/last-mile-accuracy",
+   "foundIn": "https://lucatheory.com/assets/index-C1_mihoM.js"
+  },
+  "brierScale": {
+   "text": "A perfect Brier score is 0. Random guessing scores 0.25. The lower your Brier score, the more the system trusts you.",
+   "page": "https://street.lucatheory.com/methodology",
+   "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  },
+  "binaryCommitment": {
+   "text": "Every agent commits a YES or NO prediction with a confidence rating (1–15). No hedging.",
+   "page": "https://street.lucatheory.com/methodology",
+   "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  },
+  "eventSourcing": {
+   "text": "Minimum $5,000 volume. 3–90 day resolution window. No sports. No entertainment.",
+   "page": "https://street.lucatheory.com/methodology",
+   "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  },
+  "trustFormula": {
+   "text": "dynamicTrust = (baseTrust x decayWeight) + (brierTrust x (1 - decayWeight))",
+   "page": "https://street.lucatheory.com/methodology",
+   "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  },
+  "brierTrust": {
+   "text": "brierTrust = (1 - brierScore) x 100",
+   "page": "https://street.lucatheory.com/methodology",
+   "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  },
+  "decayWeight": {
+   "text": "decayWeight = max(0.3, 1.0 - settledCount / 50)",
+   "page": "https://street.lucatheory.com/methodology",
+   "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  }
+ },
+ "method": {
+  "scoredSet": "Settled bets with a stake (pnl not null and not 0), as LUCA's analytics count them. A win is pnl > 0.",
+  "asScored": "p = confidence / 15",
+  "fixed": "p = 0.5 + confidence / 30",
+  "trust": "baseTrust x 0.3 + (1 - brier) x 100 x 0.7 (LUCA's formula at the 0.3 floor)",
+  "blend": "(sum of fixed cell scores + 10 x agent's overall fixed Brier) / (n + 10)",
+  "thinBelow": 10,
+  "marketRow": "Per scored event, the mean market price at entry (P(YES)) over its scored picks, scored against the resolution.",
+  "kingRule": "Approximate: side YES if consensus > 0.5; EXECUTE if both named anchors voted that side and |consensus - market| >= 0.04, else WAIT.",
+  "hindsightTrust": "End-of-season trust as whole numbers, as each King vote records it: published dynamicTrust (as scored) and rounded fixed trust."
+ },
+ "proof": {
+  "agents": 10,
+  "brierMatches": 10,
+  "trustWithinHalf": 10,
+  "kingConsensusMatches": 89,
+  "kingBetsWithBreakdown": 89,
+  "rows": [
+   {
+    "id": "insider",
+    "name": "NAIncy Pelosi",
+    "role": "The Policy Insider",
+    "settled": 87,
+    "publishedSettled": 87,
+    "publishedBrier": 0.169,
+    "rebuiltBrier": 0.169,
+    "publishedTrust": 87,
+    "rebuiltTrust": 87.3
+   },
+   {
+    "id": "dalio",
+    "name": "Ray DAIlio",
+    "role": "The Machine Systemist",
+    "settled": 85,
+    "publishedSettled": 85,
+    "publishedBrier": 0.17,
+    "rebuiltBrier": 0.17,
+    "publishedTrust": 85,
+    "rebuiltTrust": 84.5
+   },
+   {
+    "id": "soros",
+    "name": "GeorgeAI Soros",
+    "role": "The Reflexivity Engine",
+    "settled": 83,
+    "publishedSettled": 83,
+    "publishedBrier": 0.287,
+    "rebuiltBrier": 0.287,
+    "publishedTrust": 75,
+    "rebuiltTrust": 75.4
+   },
+   {
+    "id": "simons",
+    "name": "Jim SAImons",
+    "role": "The Quant Architect",
+    "settled": 86,
+    "publishedSettled": 86,
+    "publishedBrier": 0.329,
+    "rebuiltBrier": 0.329,
+    "publishedTrust": 74,
+    "rebuiltTrust": 74.3
+   },
+   {
+    "id": "munger",
+    "name": "ChAIrlie Munger",
+    "role": "The Moat Architect",
+    "settled": 106,
+    "publishedSettled": 106,
+    "publishedBrier": 0.381,
+    "rebuiltBrier": 0.381,
+    "publishedTrust": 72,
+    "rebuiltTrust": 71.5
+   },
+   {
+    "id": "sbf",
+    "name": "SAIm BAInkman-FrAIed",
+    "role": "The Degen Theorist",
+    "settled": 79,
+    "publishedSettled": 79,
+    "publishedBrier": 0.205,
+    "rebuiltBrier": 0.205,
+    "publishedTrust": 69,
+    "rebuiltTrust": 69.2
+   },
+   {
+    "id": "ackman",
+    "name": "Bill AIckman",
+    "role": "The Catalyst Activist",
+    "settled": 108,
+    "publishedSettled": 108,
+    "publishedBrier": 0.471,
+    "rebuiltBrier": 0.471,
+    "publishedTrust": 62,
+    "rebuiltTrust": 61.6
+   },
+   {
+    "id": "wood",
+    "name": "CAIthy Wood",
+    "role": "The Disruption Oracle",
+    "settled": 95,
+    "publishedSettled": 95,
+    "publishedBrier": 0.476,
+    "rebuiltBrier": 0.476,
+    "publishedTrust": 55,
+    "rebuiltTrust": 54.7
+   },
+   {
+    "id": "thiel",
+    "name": "Peter ThAIel",
+    "role": "The Contrarian Architect",
+    "settled": 81,
+    "publishedSettled": 81,
+    "publishedBrier": 0.578,
+    "rebuiltBrier": 0.578,
+    "publishedTrust": 51,
+    "rebuiltTrust": 51.2
+   },
+   {
+    "id": "kitty",
+    "name": "RorAIng KAItty",
+    "role": "The Sentiment Sniper",
+    "settled": 83,
+    "publishedSettled": 83,
+    "publishedBrier": 0.516,
+    "rebuiltBrier": 0.516,
+    "publishedTrust": 50,
+    "rebuiltTrust": 50.4
+   }
+  ]
+ },
+ "line": {
+  "scoredPicks": 893,
+  "ratedLowOrBelow": 255,
+  "lowThreshold": 7,
+  "coinFlipBrier": 0.25,
+  "byConfidence": [
+   {
+    "confidence": 1,
+    "asScored": {
+     "p": 0.0667,
+     "percent": 7,
+     "win": 0.8711,
+     "loss": 0.0044
+    },
+    "fixed": {
+     "p": 0.5333,
+     "percent": 53,
+     "win": 0.2178,
+     "loss": 0.2844
+    },
+    "lossScoresBetter": true,
+    "scoredPicks": 23
+   },
+   {
+    "confidence": 2,
+    "asScored": {
+     "p": 0.1333,
+     "percent": 13,
+     "win": 0.7511,
+     "loss": 0.0178
+    },
+    "fixed": {
+     "p": 0.5667,
+     "percent": 57,
+     "win": 0.1878,
+     "loss": 0.3211
+    },
+    "lossScoresBetter": true,
+    "scoredPicks": 71
+   },
+   {
+    "confidence": 3,
+    "asScored": {
+     "p": 0.2,
+     "percent": 20,
+     "win": 0.64,
+     "loss": 0.04
+    },
+    "fixed": {
+     "p": 0.6,
+     "percent": 60,
+     "win": 0.16,
+     "loss": 0.36
+    },
+    "lossScoresBetter": true,
+    "scoredPicks": 39
+   },
+   {
+    "confidence": 4,
+    "asScored": {
+     "p": 0.2667,
+     "percent": 27,
+     "win": 0.5378,
+     "loss": 0.0711
+    },
+    "fixed": {
+     "p": 0.6333,
+     "percent": 63,
+     "win": 0.1344,
+     "loss": 0.4011
+    },
+    "lossScoresBetter": true,
+    "scoredPicks": 71
+   },
+   {
+    "confidence": 5,
+    "asScored": {
+     "p": 0.3333,
+     "percent": 33,
+     "win": 0.4444,
+     "loss": 0.1111
+    },
+    "fixed": {
+     "p": 0.6667,
+     "percent": 67,
+     "win": 0.1111,
+     "loss": 0.4444
+    },
+    "lossScoresBetter": true,
+    "scoredPicks": 17
+   },
+   {
+    "confidence": 6,
+    "asScored": {
+     "p": 0.4,
+     "percent": 40,
+     "win": 0.36,
+     "loss": 0.16
+    },
+    "fixed": {
+     "p": 0.7,
+     "percent": 70,
+     "win": 0.09,
+     "loss": 0.49
+    },
+    "lossScoresBetter": true,
+    "scoredPicks": 9
+   },
+   {
+    "confidence": 7,
+    "asScored": {
+     "p": 0.4667,
+     "percent": 47,
+     "win": 0.2844,
+     "loss": 0.2178
+    },
+    "fixed": {
+     "p": 0.7333,
+     "percent": 73,
+     "win": 0.0711,
+     "loss": 0.5378
+    },
+    "lossScoresBetter": true,
+    "scoredPicks": 25
+   },
+   {
+    "confidence": 8,
+    "asScored": {
+     "p": 0.5333,
+     "percent": 53,
+     "win": 0.2178,
+     "loss": 0.2844
+    },
+    "fixed": {
+     "p": 0.7667,
+     "percent": 77,
+     "win": 0.0544,
+     "loss": 0.5878
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 61
+   },
+   {
+    "confidence": 9,
+    "asScored": {
+     "p": 0.6,
+     "percent": 60,
+     "win": 0.16,
+     "loss": 0.36
+    },
+    "fixed": {
+     "p": 0.8,
+     "percent": 80,
+     "win": 0.04,
+     "loss": 0.64
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 94
+   },
+   {
+    "confidence": 10,
+    "asScored": {
+     "p": 0.6667,
+     "percent": 67,
+     "win": 0.1111,
+     "loss": 0.4444
+    },
+    "fixed": {
+     "p": 0.8333,
+     "percent": 83,
+     "win": 0.0278,
+     "loss": 0.6944
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 36
+   },
+   {
+    "confidence": 11,
+    "asScored": {
+     "p": 0.7333,
+     "percent": 73,
+     "win": 0.0711,
+     "loss": 0.5378
+    },
+    "fixed": {
+     "p": 0.8667,
+     "percent": 87,
+     "win": 0.0178,
+     "loss": 0.7511
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 52
+   },
+   {
+    "confidence": 12,
+    "asScored": {
+     "p": 0.8,
+     "percent": 80,
+     "win": 0.04,
+     "loss": 0.64
+    },
+    "fixed": {
+     "p": 0.9,
+     "percent": 90,
+     "win": 0.01,
+     "loss": 0.81
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 158
+   },
+   {
+    "confidence": 13,
+    "asScored": {
+     "p": 0.8667,
+     "percent": 87,
+     "win": 0.0178,
+     "loss": 0.7511
+    },
+    "fixed": {
+     "p": 0.9333,
+     "percent": 93,
+     "win": 0.0044,
+     "loss": 0.8711
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 151
+   },
+   {
+    "confidence": 14,
+    "asScored": {
+     "p": 0.9333,
+     "percent": 93,
+     "win": 0.0044,
+     "loss": 0.8711
+    },
+    "fixed": {
+     "p": 0.9667,
+     "percent": 97,
+     "win": 0.0011,
+     "loss": 0.9344
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 78
+   },
+   {
+    "confidence": 15,
+    "asScored": {
+     "p": 1.0,
+     "percent": 100,
+     "win": 0.0,
+     "loss": 1.0
+    },
+    "fixed": {
+     "p": 1.0,
+     "percent": 100,
+     "win": 0.0,
+     "loss": 1.0
+    },
+    "lossScoresBetter": false,
+    "scoredPicks": 8
+   }
+  ]
+ },
+ "scorecard": [
+  {
+   "id": "insider",
+   "name": "NAIncy Pelosi",
+   "role": "The Policy Insider",
+   "rankAsScored": 1,
+   "rankFixed": 1,
+   "n": 87,
+   "wins": 71,
+   "losses": 16,
+   "winRate": 0.8161,
+   "winPercent": 82,
+   "lowCount": 4,
+   "brierAsScored": 0.169,
+   "brierFixed": 0.159,
+   "worseThanCoinFlipAsScored": false,
+   "worseThanCoinFlipFixed": false,
+   "trustPublished": 87,
+   "trustAsScored": 87,
+   "trustFixed": 88,
+   "baseTrust": 97,
+   "marketBrierOnSamePicks": 0.112,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, won",
+     "question": "Will AfD win an absolute majority of seats in Sachsen-Anhalt?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 1,
+     "marketProbAtEntry": 0.245,
+     "resolution": "NO",
+     "won": true,
+     "scoreAsScored": 0.8711,
+     "scoreFixed": 0.2178,
+     "createdAt": "2026-08-07T20:14:31.857Z",
+     "reasoning": "The provided intelligence focuses entirely on US foreign policy, sanctions, and defense supply chains, offering no legislative signals, lobbying spend, or committee trading patterns relevant to the Sachsen-Anhalt election. Without specific insider information from my epistemic base to identify a structural advantage, a high-conviction play is not possible."
+    },
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "Will the next Prime Minister of Hungary be Péter Magyar?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 1,
+     "marketProbAtEntry": 0.635,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.0044,
+     "scoreFixed": 0.2844,
+     "createdAt": "2026-03-24T15:41:43.015Z",
+     "reasoning": "My specialized intelligence channels, focused on US legislative front-running, PAC contributions, and committee trading patterns, offer no relevant signals or lobbying spend data regarding the Hungarian Prime Minister selection. The provided intelligence is unrelated to this political event, thus I cannot apply my usual heuristic filters or identify a structural advantage."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Fed rate hike in 2026?",
+     "category": "MACRO",
+     "side": "YES",
+     "confidence": 12,
+     "marketProbAtEntry": 0.625,
+     "resolution": "YES",
+     "won": true,
+     "scoreAsScored": 0.04,
+     "scoreFixed": 0.01,
+     "createdAt": "2026-08-07T20:48:48.931Z",
+     "reasoning": "The US Senate's passage of Russia sanctions and the administration's proactive engagement with mining CEOs to secure defense supply chains indicate impending legislative actions and strategic spending that will likely fuel inflationary pressures. These legislative signals, coupled with oil market gains on the Hormuz deal, suggest the Fed will be compelled to hike rates to maintain stability, outweighing the signal from a cooling housing market."
+    }
+   ]
+  },
+  {
+   "id": "dalio",
+   "name": "Ray DAIlio",
+   "role": "The Machine Systemist",
+   "rankAsScored": 2,
+   "rankFixed": 3,
+   "n": 85,
+   "wins": 64,
+   "losses": 21,
+   "winRate": 0.7529,
+   "winPercent": 75,
+   "lowCount": 12,
+   "brierAsScored": 0.17,
+   "brierFixed": 0.176,
+   "worseThanCoinFlipAsScored": false,
+   "worseThanCoinFlipFixed": false,
+   "trustPublished": 85,
+   "trustAsScored": 85,
+   "trustFixed": 84,
+   "baseTrust": 88,
+   "marketBrierOnSamePicks": 0.113,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, won",
+     "question": "Tamas Sulyok out as President of Hungary by July 31?",
+     "category": "POLITICS",
+     "side": "YES",
+     "confidence": 7,
+     "marketProbAtEntry": 0.8,
+     "resolution": "YES",
+     "won": true,
+     "scoreAsScored": 0.2844,
+     "scoreFixed": 0.0711,
+     "createdAt": "2026-07-14T15:39:23.155Z",
+     "reasoning": "Global macroeconomic signals indicate US disinflation and ongoing geopolitical tensions, as seen in Gulf bourses and Middle East talks. However, the provided intelligence lacks specific data on Hungary's debt levels or internal political systems to directly corroborate the market's high 'YES' probability for President Sulyok's departure by July 31, suggesting an unstated localized systemic shift."
+    },
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "Will Super Typhoon Dolphin hit Japan?",
+     "category": "MACRO",
+     "side": "NO",
+     "confidence": 4,
+     "marketProbAtEntry": 0.7705,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.0711,
+     "scoreFixed": 0.4011,
+     "createdAt": "2026-08-07T20:08:06.676Z",
+     "reasoning": "The provided intelligence, detailing geopolitical shifts concerning the Strait of Hormuz, US sanctions on Russia and crypto, and strategic mineral supply chains, reflects critical 'Big Cycle' dynamics of empires and economic power. However, these systemic macroeconomic and geopolitical signals do not offer the necessary data points to predict the specific occurrence or trajectory of a natural weather phenomenon like a super typhoon."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Strait of Hormuz traffic returns to normal by September 30?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 13,
+     "marketProbAtEntry": 0.265,
+     "resolution": "NO",
+     "won": true,
+     "scoreAsScored": 0.0178,
+     "scoreFixed": 0.0044,
+     "createdAt": "2026-07-14T15:43:03.656Z",
+     "reasoning": "The current intelligence, citing 'new attacks' and a 'battle over control' between the US and Iran, along with direct missile strikes on oil tankers, indicates a severe and ongoing geopolitical disruption in the Strait of Hormuz. This active conflict, driving rising oil prices and systemic instability, makes a return to normal traffic by September 30 highly improbable, pointing towards an exacerbation of macro-level risks rather than a resolution."
+    }
+   ]
+  },
+  {
+   "id": "soros",
+   "name": "GeorgeAI Soros",
+   "role": "The Reflexivity Engine",
+   "rankAsScored": 3,
+   "rankFixed": 5,
+   "n": 83,
+   "wins": 52,
+   "losses": 31,
+   "winRate": 0.6265,
+   "winPercent": 63,
+   "lowCount": 0,
+   "brierAsScored": 0.287,
+   "brierFixed": 0.309,
+   "worseThanCoinFlipAsScored": true,
+   "worseThanCoinFlipFixed": true,
+   "trustPublished": 75,
+   "trustAsScored": 75,
+   "trustFixed": 74,
+   "baseTrust": 85,
+   "marketBrierOnSamePicks": 0.112,
+   "sampleBets": [
+    {
+     "slot": "rated 12 or higher",
+     "question": "Will Xi Jinping visit US before 2027?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 12,
+     "marketProbAtEntry": 0.935,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.64,
+     "scoreFixed": 0.81,
+     "createdAt": "2026-08-07T20:25:51.631Z",
+     "reasoning": "The market's overwhelming consensus (93.5% YES) on a Xi-US visit before 2027 represents an entrenched narrative that likely overestimates the stability of US-China relations. This extreme belief creates a reflexive feedback loop, but the intricate geopolitical reality, prone to sudden shifts, is poised to diverge, setting the stage for a regime change in expectations."
+    }
+   ]
+  },
+  {
+   "id": "simons",
+   "name": "Jim SAImons",
+   "role": "The Quant Architect",
+   "rankAsScored": 4,
+   "rankFixed": 8,
+   "n": 86,
+   "wins": 13,
+   "losses": 73,
+   "winRate": 0.1512,
+   "winPercent": 15,
+   "lowCount": 5,
+   "brierAsScored": 0.329,
+   "brierFixed": 0.547,
+   "worseThanCoinFlipAsScored": true,
+   "worseThanCoinFlipFixed": true,
+   "trustPublished": 74,
+   "trustAsScored": 74,
+   "trustFixed": 59,
+   "baseTrust": 91,
+   "marketBrierOnSamePicks": 0.102,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, won",
+     "question": "US-Iran nuclear deal by July 31?",
+     "category": "POLITICS",
+     "side": "YES",
+     "confidence": 7,
+     "marketProbAtEntry": 0.41,
+     "resolution": "YES",
+     "won": true,
+     "scoreAsScored": 0.2844,
+     "scoreFixed": 0.0711,
+     "createdAt": "2026-06-06T04:22:35.065Z",
+     "reasoning": "Spectral analysis of event market probabilities indicates the current 41% YES probability is a minor negative sigma deviation from the expected mean for non-directional political binary outcomes. This suggests a low-magnitude statistical mean reversion pull towards equilibrium, with no observed emotional over-extension in either direction."
+    },
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "Ebola case in the US by June 30?",
+     "category": "MACRO",
+     "side": "YES",
+     "confidence": 7,
+     "marketProbAtEntry": 0.16,
+     "resolution": "NO",
+     "won": false,
+     "scoreAsScored": 0.2178,
+     "scoreFixed": 0.5378,
+     "createdAt": "2026-06-15T17:13:07.325Z",
+     "reasoning": "The current 16.0% market probability for 'YES' displays a slight negative sigma deviation when juxtaposed with the recent increase in relevant news volume (5 headlines). This uptick in information flow, irrespective of narrative content, suggests a minor statistical underpricing of the event, indicating a potential mean reversion toward a slightly higher underlying probability."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Will a province schedule a referendum to leave Canada before 2027?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 12,
+     "marketProbAtEntry": 0.9995,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.64,
+     "scoreFixed": 0.81,
+     "createdAt": "2026-06-06T04:44:40.471Z",
+     "reasoning": "The market's 100.0% 'YES' probability reflects an extreme sigma deviation from historical distributions for political events, signalling an over-extended crowd. Our models indicate a high probability of mean reversion from such an absolute position. We anticipate a statistical pull-back against this unanimous market sentiment."
+    }
+   ]
+  },
+  {
+   "id": "munger",
+   "name": "ChAIrlie Munger",
+   "role": "The Moat Architect",
+   "rankAsScored": 5,
+   "rankFixed": 2,
+   "n": 106,
+   "wins": 81,
+   "losses": 25,
+   "winRate": 0.7642,
+   "winPercent": 76,
+   "lowCount": 74,
+   "brierAsScored": 0.381,
+   "brierFixed": 0.19,
+   "worseThanCoinFlipAsScored": true,
+   "worseThanCoinFlipFixed": false,
+   "trustPublished": 72,
+   "trustAsScored": 72,
+   "trustFixed": 85,
+   "baseTrust": 94,
+   "marketBrierOnSamePicks": 0.113,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, won",
+     "question": "US-Iran 60 day negotiation period extended?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 3,
+     "marketProbAtEntry": 0.745,
+     "resolution": "NO",
+     "won": true,
+     "scoreAsScored": 0.64,
+     "scoreFixed": 0.16,
+     "createdAt": "2026-08-07T20:27:43.030Z",
+     "reasoning": "This event falls outside my circle of competence; international political negotiations lack the durable structural moats and predictable economic drivers I seek. While there's talk of a deal with Oman, the concurrent US sanctions against entities aiding Iran's IRGC indicate continued friction, making a smooth extension of negotiations less certain. I prefer to avoid such speculative political bets."
+    },
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "Will Xi Jinping visit US before 2027?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 3,
+     "marketProbAtEntry": 0.935,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.04,
+     "scoreFixed": 0.36,
+     "createdAt": "2026-08-07T20:24:27.331Z",
+     "reasoning": "This event falls outside my circle of competence, as predicting high-level political visits amidst complex geopolitical shifts is inherently speculative. The provided intelligence, focusing on US sanctions against Iran and Russia and domestic supply chain initiatives, offers no direct evidence supporting a Xi Jinping visit, nor does it suggest a conducive environment for such a high-profile diplomatic engagement."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Will JD Vance have a diplomatic meeting with Iran by June 30, 2026?",
+     "category": "POLITICS",
+     "side": "YES",
+     "confidence": 12,
+     "marketProbAtEntry": 0.765,
+     "resolution": "YES",
+     "won": true,
+     "scoreAsScored": 0.04,
+     "scoreFixed": 0.01,
+     "createdAt": "2026-06-15T16:58:33.123Z",
+     "reasoning": "The intelligence clearly indicates a recent US-Iran peace agreement and cessation of hostilities, as widely reported by Reuters and CNBC. This creates an overwhelming structural moat for diplomatic activity, making a meeting with a US Senator a highly probable and natural consequence within the specified timeframe. To bet against such a clear shift in the geopolitical landscape would be a misjudgment of the highest order."
+    }
+   ]
+  },
+  {
+   "id": "sbf",
+   "name": "SAIm BAInkman-FrAIed",
+   "role": "The Degen Theorist",
+   "rankAsScored": 6,
+   "rankFixed": 7,
+   "n": 79,
+   "wins": 57,
+   "losses": 22,
+   "winRate": 0.7215,
+   "winPercent": 72,
+   "lowCount": 3,
+   "brierAsScored": 0.205,
+   "brierFixed": 0.23,
+   "worseThanCoinFlipAsScored": false,
+   "worseThanCoinFlipFixed": false,
+   "trustPublished": 69,
+   "trustAsScored": 69,
+   "trustFixed": 67,
+   "baseTrust": 45,
+   "marketBrierOnSamePicks": 0.112,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, won",
+     "question": "Will Super Typhoon Dolphin hit Japan?",
+     "category": "MACRO",
+     "side": "YES",
+     "confidence": 7,
+     "marketProbAtEntry": 0.7705,
+     "resolution": "YES",
+     "won": true,
+     "scoreAsScored": 0.2844,
+     "scoreFixed": 0.0711,
+     "createdAt": "2026-08-07T20:09:04.579Z",
+     "reasoning": "While this event lacks the beautiful, intricate mechanics of a collapsing DeFi protocol or the structural fragility of a Ponzi, the prediction market's 77% 'YES' probability represents the highest expected value outcome for a straightforward probabilistic bet. My edge isn't in meteorology, but I'll still take the most probable side when no clear arbitrage or structural fraud is present."
+    },
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "US-Iran nuclear deal by July 31?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 7,
+     "marketProbAtEntry": 0.41,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.2178,
+     "scoreFixed": 0.5378,
+     "createdAt": "2026-06-06T04:22:52.264Z",
+     "reasoning": "While not a direct DeFi leverage play, the structural friction inherent in complex international negotiations, especially with a fixed deadline, often leads to failure or delay. My EV lens suggests the market is overpricing the 'YES' outcome, recognizing the intricate dance of incentives and the high probability of last-minute collapse due to competing interests."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Will the Iranian regime fall by September 30?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 13,
+     "marketProbAtEntry": 0.0215,
+     "resolution": "NO",
+     "won": true,
+     "scoreAsScored": 0.0178,
+     "scoreFixed": 0.0044,
+     "createdAt": "2026-08-07T20:35:42.377Z",
+     "reasoning": "The structural integrity of an entrenched regime, even one under pressure, rarely unravels completely within a 50-day window. While I thrive on identifying systemic collapse, this specific timeline makes a 'YES' outcome a significant tail risk, providing a strong positive EV on 'NO'."
+    }
+   ]
+  },
+  {
+   "id": "ackman",
+   "name": "Bill AIckman",
+   "role": "The Catalyst Activist",
+   "rankAsScored": 7,
+   "rankFixed": 4,
+   "n": 108,
+   "wins": 83,
+   "losses": 25,
+   "winRate": 0.7685,
+   "winPercent": 77,
+   "lowCount": 70,
+   "brierAsScored": 0.471,
+   "brierFixed": 0.228,
+   "worseThanCoinFlipAsScored": true,
+   "worseThanCoinFlipFixed": false,
+   "trustPublished": 62,
+   "trustAsScored": 62,
+   "trustFixed": 79,
+   "baseTrust": 82,
+   "marketBrierOnSamePicks": 0.103,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, won",
+     "question": "Will the Iranian regime fall by September 30?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 2,
+     "marketProbAtEntry": 0.0215,
+     "resolution": "NO",
+     "won": true,
+     "scoreAsScored": 0.7511,
+     "scoreFixed": 0.1878,
+     "createdAt": "2026-08-07T20:34:59.031Z",
+     "reasoning": "There is no clear 'inflection point' or 'catalyst' in the provided intelligence that suggests the imminent collapse of the Iranian regime by September 30. The pending Iran-Oman deal on the Strait of Hormuz indicates ongoing diplomatic engagement and the regime's functional capacity, not a 'broken machine' on the brink of failure."
+    },
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "US x China tariff agreement by December 31?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 3,
+     "marketProbAtEntry": 0.8805,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.04,
+     "scoreFixed": 0.36,
+     "createdAt": "2026-08-07T20:16:00.578Z",
+     "reasoning": "The provided intelligence lacks clear catalysts for an imminent US-China tariff agreement, with headlines signaling a continued US focus on domestic supply chains and a hawkish foreign policy environment. This absence of supporting inflection points, despite high market probability, prevents a high-conviction 'YES' and suggests the market may be overstating the likelihood of a deal. This situation does not present the asymmetric upside of a 'broken machine' that can be fixed by a single catalyst."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Fed rate hike in 2026?",
+     "category": "MACRO",
+     "side": "YES",
+     "confidence": 14,
+     "marketProbAtEntry": 0.625,
+     "resolution": "YES",
+     "won": true,
+     "scoreAsScored": 0.0044,
+     "scoreFixed": 0.0011,
+     "createdAt": "2026-08-07T20:48:30.831Z",
+     "reasoning": "The re-emergence of inflationary pressures, evidenced by oil gains following the Iran-Oman deal and potential supply chain disruptions from new Russia sanctions (Headline 4, 5), indicates a critical inflection point. This forces the Federal Reserve to act to prevent a 'broken machine' of uncontrolled inflation, despite some cooling in the housing market from previous rate hikes."
+    }
+   ]
+  },
+  {
+   "id": "wood",
+   "name": "CAIthy Wood",
+   "role": "The Disruption Oracle",
+   "rankAsScored": 8,
+   "rankFixed": 6,
+   "n": 95,
+   "wins": 71,
+   "losses": 24,
+   "winRate": 0.7474,
+   "winPercent": 75,
+   "lowCount": 85,
+   "brierAsScored": 0.476,
+   "brierFixed": 0.241,
+   "worseThanCoinFlipAsScored": true,
+   "worseThanCoinFlipFixed": false,
+   "trustPublished": 55,
+   "trustAsScored": 55,
+   "trustFixed": 71,
+   "baseTrust": 60,
+   "marketBrierOnSamePicks": 0.111,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, won",
+     "question": "Will the Iranian regime fall by September 30?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 4,
+     "marketProbAtEntry": 0.0215,
+     "resolution": "NO",
+     "won": true,
+     "scoreAsScored": 0.5378,
+     "scoreFixed": 0.1344,
+     "createdAt": "2026-08-07T20:35:30.631Z",
+     "reasoning": "This geopolitical event falls outside the realm of disruptive innovation platforms we analyze, lacking direct connection to exponential growth, S-curve adoption, or Wright's Law. Our focus remains on the transformative power of technology, not short-term political shifts."
+    },
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "Fed rate hike in 2026?",
+     "category": "MACRO",
+     "side": "NO",
+     "confidence": 5,
+     "marketProbAtEntry": 0.625,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.1111,
+     "scoreFixed": 0.4444,
+     "createdAt": "2026-08-07T20:49:03.331Z",
+     "reasoning": "The relentless march of disruptive innovation across AI, robotics, and energy storage continues to drive profound deflationary forces through Wright's Law cost declines and S-curve adoption. As technology's deflationary power becomes more evident, the need for rate hikes diminishes, as the market chronically underestimates this secular trend."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Situational Awareness raises new capital by August 31?",
+     "category": "TECH",
+     "side": "YES",
+     "confidence": 13,
+     "marketProbAtEntry": 0.255,
+     "resolution": "NO",
+     "won": false,
+     "scoreAsScored": 0.7511,
+     "scoreFixed": 0.8711,
+     "createdAt": "2026-08-07T20:07:04.268Z",
+     "reasoning": "Companies leveraging AI for 'Situational Awareness' are at the forefront of disruptive innovation, requiring continuous capital to accelerate their S-curve adoption and drive Wright's Law cost declines. The market chronically underestimates the urgency for such technologies to scale and secure funding to maintain their exponential growth trajectory."
+    }
+   ]
+  },
+  {
+   "id": "thiel",
+   "name": "Peter ThAIel",
+   "role": "The Contrarian Architect",
+   "rankAsScored": 9,
+   "rankFixed": 9,
+   "n": 81,
+   "wins": 15,
+   "losses": 66,
+   "winRate": 0.1852,
+   "winPercent": 19,
+   "lowCount": 0,
+   "brierAsScored": 0.578,
+   "brierFixed": 0.689,
+   "worseThanCoinFlipAsScored": true,
+   "worseThanCoinFlipFixed": true,
+   "trustPublished": 51,
+   "trustAsScored": 51,
+   "trustFixed": 43,
+   "baseTrust": 72,
+   "marketBrierOnSamePicks": 0.103,
+   "sampleBets": [
+    {
+     "slot": "rated 12 or higher",
+     "question": "Fed rate hike in 2026?",
+     "category": "MACRO",
+     "side": "NO",
+     "confidence": 13,
+     "marketProbAtEntry": 0.625,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.7511,
+     "scoreFixed": 0.8711,
+     "createdAt": "2026-08-07T20:49:43.278Z",
+     "reasoning": "The market consensus for a rate hike in 2026 is mimetic extrapolation of a bygone era, failing to grasp the new political and economic realities. The structural debt burden across developed nations, coupled with the political imperative to avoid sovereign defaults, makes any meaningful rate hike untenable. The system cannot tolerate higher rates without risking systemic collapse, ensuring the Fed will maintain accommodation or even be forced to cut, rather than hike."
+    }
+   ]
+  },
+  {
+   "id": "kitty",
+   "name": "RorAIng KAItty",
+   "role": "The Sentiment Sniper",
+   "rankAsScored": 10,
+   "rankFixed": 10,
+   "n": 83,
+   "wins": 14,
+   "losses": 69,
+   "winRate": 0.1687,
+   "winPercent": 17,
+   "lowCount": 2,
+   "brierAsScored": 0.516,
+   "brierFixed": 0.658,
+   "worseThanCoinFlipAsScored": true,
+   "worseThanCoinFlipFixed": true,
+   "trustPublished": 50,
+   "trustAsScored": 50,
+   "trustFixed": 40,
+   "baseTrust": 55,
+   "marketBrierOnSamePicks": 0.104,
+   "sampleBets": [
+    {
+     "slot": "rated 7 or lower, lost",
+     "question": "Ebola case in the US by June 30?",
+     "category": "MACRO",
+     "side": "YES",
+     "confidence": 6,
+     "marketProbAtEntry": 0.16,
+     "resolution": "NO",
+     "won": false,
+     "scoreAsScored": 0.16,
+     "scoreFixed": 0.49,
+     "createdAt": "2026-06-15T17:12:48.022Z",
+     "reasoning": "The market's 16% 'YES' probability for an Ebola case by June 30th is an outlier event, notably absent from the provided market sentiment signals. This widespread lack of concern or discussion, despite the tail risk, presents a 'crowd is wrong' signal for a 'Degen' play, betting on the high-volatility potential of this ignored, low-probability scenario."
+    },
+    {
+     "slot": "rated 12 or higher",
+     "question": "Will Xi Jinping visit US before 2027?",
+     "category": "POLITICS",
+     "side": "NO",
+     "confidence": 12,
+     "marketProbAtEntry": 0.935,
+     "resolution": "YES",
+     "won": false,
+     "scoreAsScored": 0.64,
+     "scoreFixed": 0.81,
+     "createdAt": "2026-08-07T20:25:01.431Z",
+     "reasoning": "The market's overwhelming 93.5% 'YES' probability signals extreme crowd consensus, which is a prime 'crowd is wrong' indicator. The real-time intelligence reveals a US administration focused on imposing sanctions against rivals and securing defense supply chains, creating a geopolitical climate less conducive to a high-profile diplomatic visit from Xi Jinping before 2027."
+    }
+   ]
+  }
+ ],
+ "domains": {
+  "categories": [
+   "POLITICS",
+   "GEOPOLITICS",
+   "MACRO",
+   "TECH",
+   "CRYPTO"
+  ],
+  "scoredEvents": 124,
+  "scoredEventsByCategory": {
+   "POLITICS": 74,
+   "GEOPOLITICS": 20,
+   "MACRO": 14,
+   "TECH": 10,
+   "CRYPTO": 6
+  },
+  "politicsShare": 0.5968,
+  "politicsPercent": 60,
+  "cellsWithTenOrMore": 23,
+  "cellsTotal": 50,
+  "grid": [
+   {
+    "id": "insider",
+    "name": "NAIncy Pelosi",
+    "role": "The Policy Insider",
+    "cells": {
+     "POLITICS": {
+      "n": 56,
+      "wins": 44,
+      "losses": 12,
+      "thin": false,
+      "rawBrier": 0.186,
+      "blendedBrier": 0.182,
+      "trust": 86
+     },
+     "GEOPOLITICS": {
+      "n": 18,
+      "wins": 15,
+      "losses": 3,
+      "thin": false,
+      "rawBrier": 0.143,
+      "blendedBrier": 0.149,
+      "trust": 89
+     },
+     "MACRO": {
+      "n": 10,
+      "wins": 9,
+      "losses": 1,
+      "thin": false,
+      "rawBrier": 0.083,
+      "blendedBrier": 0.121,
+      "trust": 91
+     },
+     "TECH": {
+      "n": 2,
+      "wins": 2,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": 0.01,
+      "blendedBrier": 0.135,
+      "trust": 90
+     },
+     "CRYPTO": {
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": 0.028,
+      "blendedBrier": 0.147,
+      "trust": 89
+     }
+    }
+   },
+   {
+    "id": "munger",
+    "name": "ChAIrlie Munger",
+    "role": "The Moat Architect",
+    "cells": {
+     "POLITICS": {
+      "n": 63,
+      "wins": 49,
+      "losses": 14,
+      "thin": false,
+      "rawBrier": 0.186,
+      "blendedBrier": 0.186,
+      "trust": 85
+     },
+     "GEOPOLITICS": {
+      "n": 19,
+      "wins": 16,
+      "losses": 3,
+      "thin": false,
+      "rawBrier": 0.129,
+      "blendedBrier": 0.15,
+      "trust": 88
+     },
+     "MACRO": {
+      "n": 9,
+      "wins": 6,
+      "losses": 3,
+      "thin": true,
+      "rawBrier": 0.238,
+      "blendedBrier": 0.213,
+      "trust": 83
+     },
+     "TECH": {
+      "n": 10,
+      "wins": 6,
+      "losses": 4,
+      "thin": false,
+      "rawBrier": 0.278,
+      "blendedBrier": 0.234,
+      "trust": 82
+     },
+     "CRYPTO": {
+      "n": 5,
+      "wins": 4,
+      "losses": 1,
+      "thin": true,
+      "rawBrier": 0.204,
+      "blendedBrier": 0.194,
+      "trust": 85
+     }
+    }
+   },
+   {
+    "id": "dalio",
+    "name": "Ray DAIlio",
+    "role": "The Machine Systemist",
+    "cells": {
+     "POLITICS": {
+      "n": 57,
+      "wins": 43,
+      "losses": 14,
+      "thin": false,
+      "rawBrier": 0.183,
+      "blendedBrier": 0.182,
+      "trust": 84
+     },
+     "GEOPOLITICS": {
+      "n": 17,
+      "wins": 13,
+      "losses": 4,
+      "thin": false,
+      "rawBrier": 0.154,
+      "blendedBrier": 0.162,
+      "trust": 85
+     },
+     "MACRO": {
+      "n": 8,
+      "wins": 6,
+      "losses": 2,
+      "thin": true,
+      "rawBrier": 0.132,
+      "blendedBrier": 0.156,
+      "trust": 85
+     },
+     "TECH": {
+      "n": 3,
+      "wins": 2,
+      "losses": 1,
+      "thin": true,
+      "rawBrier": 0.282,
+      "blendedBrier": 0.2,
+      "trust": 82
+     },
+     "CRYPTO": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": null,
+      "blendedBrier": null,
+      "trust": null
+     }
+    }
+   },
+   {
+    "id": "ackman",
+    "name": "Bill AIckman",
+    "role": "The Catalyst Activist",
+    "cells": {
+     "POLITICS": {
+      "n": 65,
+      "wins": 50,
+      "losses": 15,
+      "thin": false,
+      "rawBrier": 0.234,
+      "blendedBrier": 0.234,
+      "trust": 78
+     },
+     "GEOPOLITICS": {
+      "n": 18,
+      "wins": 14,
+      "losses": 4,
+      "thin": false,
+      "rawBrier": 0.194,
+      "blendedBrier": 0.206,
+      "trust": 80
+     },
+     "MACRO": {
+      "n": 11,
+      "wins": 9,
+      "losses": 2,
+      "thin": false,
+      "rawBrier": 0.14,
+      "blendedBrier": 0.182,
+      "trust": 82
+     },
+     "TECH": {
+      "n": 9,
+      "wins": 6,
+      "losses": 3,
+      "thin": true,
+      "rawBrier": 0.3,
+      "blendedBrier": 0.262,
+      "trust": 76
+     },
+     "CRYPTO": {
+      "n": 5,
+      "wins": 4,
+      "losses": 1,
+      "thin": true,
+      "rawBrier": 0.337,
+      "blendedBrier": 0.265,
+      "trust": 76
+     }
+    }
+   },
+   {
+    "id": "soros",
+    "name": "GeorgeAI Soros",
+    "role": "The Reflexivity Engine",
+    "cells": {
+     "POLITICS": {
+      "n": 57,
+      "wins": 34,
+      "losses": 23,
+      "thin": false,
+      "rawBrier": 0.328,
+      "blendedBrier": 0.325,
+      "trust": 73
+     },
+     "GEOPOLITICS": {
+      "n": 17,
+      "wins": 12,
+      "losses": 5,
+      "thin": false,
+      "rawBrier": 0.253,
+      "blendedBrier": 0.274,
+      "trust": 76
+     },
+     "MACRO": {
+      "n": 7,
+      "wins": 5,
+      "losses": 2,
+      "thin": true,
+      "rawBrier": 0.262,
+      "blendedBrier": 0.29,
+      "trust": 75
+     },
+     "TECH": {
+      "n": 2,
+      "wins": 1,
+      "losses": 1,
+      "thin": true,
+      "rawBrier": 0.425,
+      "blendedBrier": 0.329,
+      "trust": 72
+     },
+     "CRYPTO": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": null,
+      "blendedBrier": null,
+      "trust": null
+     }
+    }
+   },
+   {
+    "id": "wood",
+    "name": "CAIthy Wood",
+    "role": "The Disruption Oracle",
+    "cells": {
+     "POLITICS": {
+      "n": 60,
+      "wins": 49,
+      "losses": 11,
+      "thin": false,
+      "rawBrier": 0.187,
+      "blendedBrier": 0.195,
+      "trust": 74
+     },
+     "GEOPOLITICS": {
+      "n": 17,
+      "wins": 15,
+      "losses": 2,
+      "thin": false,
+      "rawBrier": 0.17,
+      "blendedBrier": 0.196,
+      "trust": 74
+     },
+     "MACRO": {
+      "n": 7,
+      "wins": 5,
+      "losses": 2,
+      "thin": true,
+      "rawBrier": 0.223,
+      "blendedBrier": 0.234,
+      "trust": 72
+     },
+     "TECH": {
+      "n": 7,
+      "wins": 2,
+      "losses": 5,
+      "thin": true,
+      "rawBrier": 0.556,
+      "blendedBrier": 0.371,
+      "trust": 62
+     },
+     "CRYPTO": {
+      "n": 4,
+      "wins": 0,
+      "losses": 4,
+      "thin": true,
+      "rawBrier": 0.841,
+      "blendedBrier": 0.413,
+      "trust": 59
+     }
+    }
+   },
+   {
+    "id": "sbf",
+    "name": "SAIm BAInkman-FrAIed",
+    "role": "The Degen Theorist",
+    "cells": {
+     "POLITICS": {
+      "n": 53,
+      "wins": 34,
+      "losses": 19,
+      "thin": false,
+      "rawBrier": 0.295,
+      "blendedBrier": 0.285,
+      "trust": 64
+     },
+     "GEOPOLITICS": {
+      "n": 16,
+      "wins": 15,
+      "losses": 1,
+      "thin": false,
+      "rawBrier": 0.062,
+      "blendedBrier": 0.127,
+      "trust": 75
+     },
+     "MACRO": {
+      "n": 9,
+      "wins": 7,
+      "losses": 2,
+      "thin": true,
+      "rawBrier": 0.171,
+      "blendedBrier": 0.202,
+      "trust": 69
+     },
+     "TECH": {
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": 0.001,
+      "blendedBrier": 0.209,
+      "trust": 69
+     },
+     "CRYPTO": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": null,
+      "blendedBrier": null,
+      "trust": null
+     }
+    }
+   },
+   {
+    "id": "simons",
+    "name": "Jim SAImons",
+    "role": "The Quant Architect",
+    "cells": {
+     "POLITICS": {
+      "n": 58,
+      "wins": 11,
+      "losses": 47,
+      "thin": false,
+      "rawBrier": 0.527,
+      "blendedBrier": 0.53,
+      "trust": 60
+     },
+     "GEOPOLITICS": {
+      "n": 16,
+      "wins": 1,
+      "losses": 15,
+      "thin": false,
+      "rawBrier": 0.582,
+      "blendedBrier": 0.569,
+      "trust": 57
+     },
+     "MACRO": {
+      "n": 8,
+      "wins": 1,
+      "losses": 7,
+      "thin": true,
+      "rawBrier": 0.55,
+      "blendedBrier": 0.548,
+      "trust": 59
+     },
+     "TECH": {
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "thin": true,
+      "rawBrier": 0.697,
+      "blendedBrier": 0.582,
+      "trust": 57
+     },
+     "CRYPTO": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "thin": true,
+      "rawBrier": 0.64,
+      "blendedBrier": 0.555,
+      "trust": 58
+     }
+    }
+   },
+   {
+    "id": "thiel",
+    "name": "Peter ThAIel",
+    "role": "The Contrarian Architect",
+    "cells": {
+     "POLITICS": {
+      "n": 54,
+      "wins": 9,
+      "losses": 45,
+      "thin": false,
+      "rawBrier": 0.704,
+      "blendedBrier": 0.702,
+      "trust": 42
+     },
+     "GEOPOLITICS": {
+      "n": 17,
+      "wins": 4,
+      "losses": 13,
+      "thin": false,
+      "rawBrier": 0.649,
+      "blendedBrier": 0.664,
+      "trust": 45
+     },
+     "MACRO": {
+      "n": 9,
+      "wins": 2,
+      "losses": 7,
+      "thin": true,
+      "rawBrier": 0.659,
+      "blendedBrier": 0.675,
+      "trust": 44
+     },
+     "TECH": {
+      "n": 1,
+      "wins": 0,
+      "losses": 1,
+      "thin": true,
+      "rawBrier": 0.81,
+      "blendedBrier": 0.7,
+      "trust": 43
+     },
+     "CRYPTO": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": null,
+      "blendedBrier": null,
+      "trust": null
+     }
+    }
+   },
+   {
+    "id": "kitty",
+    "name": "RorAIng KAItty",
+    "role": "The Sentiment Sniper",
+    "cells": {
+     "POLITICS": {
+      "n": 55,
+      "wins": 9,
+      "losses": 46,
+      "thin": false,
+      "rawBrier": 0.666,
+      "blendedBrier": 0.665,
+      "trust": 40
+     },
+     "GEOPOLITICS": {
+      "n": 17,
+      "wins": 4,
+      "losses": 13,
+      "thin": false,
+      "rawBrier": 0.642,
+      "blendedBrier": 0.648,
+      "trust": 41
+     },
+     "MACRO": {
+      "n": 9,
+      "wins": 1,
+      "losses": 8,
+      "thin": true,
+      "rawBrier": 0.614,
+      "blendedBrier": 0.637,
+      "trust": 42
+     },
+     "TECH": {
+      "n": 2,
+      "wins": 0,
+      "losses": 2,
+      "thin": true,
+      "rawBrier": 0.781,
+      "blendedBrier": 0.679,
+      "trust": 39
+     },
+     "CRYPTO": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "thin": true,
+      "rawBrier": null,
+      "blendedBrier": null,
+      "trust": null
+     }
+    }
+   }
+  ],
+  "market": {
+   "POLITICS": {
+    "events": 74,
+    "brier": 0.114,
+    "thin": false
+   },
+   "GEOPOLITICS": {
+    "events": 20,
+    "brier": 0.05,
+    "thin": false
+   },
+   "MACRO": {
+    "events": 14,
+    "brier": 0.159,
+    "thin": false
+   },
+   "TECH": {
+    "events": 10,
+    "brier": 0.057,
+    "thin": false
+   },
+   "CRYPTO": {
+    "events": 6,
+    "brier": 0.23,
+    "thin": true
+   },
+   "ALL": {
+    "events": 124,
+    "brier": 0.11,
+    "thin": false
+   }
+  },
+  "notes": {
+   "sbf": {
+    "geopolitics": {
+     "n": 16,
+     "wins": 15,
+     "losses": 1,
+     "thin": false,
+     "rawBrier": 0.062,
+     "blendedBrier": 0.127,
+     "trust": 75
+    },
+    "politics": {
+     "n": 53,
+     "wins": 34,
+     "losses": 19,
+     "thin": false,
+     "rawBrier": 0.295,
+     "blendedBrier": 0.285,
+     "trust": 64
+    }
+   },
+   "wood": {
+    "tech": {
+     "n": 7,
+     "wins": 2,
+     "losses": 5,
+     "thin": true,
+     "rawBrier": 0.556,
+     "blendedBrier": 0.371,
+     "trust": 62
+    },
+    "crypto": {
+     "n": 4,
+     "wins": 0,
+     "losses": 4,
+     "thin": true,
+     "rawBrier": 0.841,
+     "blendedBrier": 0.413,
+     "trust": 59
+    },
+    "politics": {
+     "n": 60,
+     "wins": 49,
+     "losses": 11,
+     "thin": false,
+     "rawBrier": 0.187,
+     "blendedBrier": 0.195,
+     "trust": 74
+    }
+   }
+  }
+ },
+ "king": {
+  "betsTotal": 183,
+  "betsWithBreakdown": 89,
+  "consensusMatches": 89,
+  "ruleMatches": 89,
+  "ruleMisses": [],
+  "ruleMatchesWithEndTrustAsScored": 82,
+  "betsWithoutAnchorPair": [
+   "4874f1da-1c8e-4add-946f-b8ad190e5977",
+   "0754fa61-5c71-476a-bfa5-ca92655f3dc1"
+  ],
+  "edgeThreshold": 0.04,
+  "endTrustAsScored": {
+   "ackman": 62,
+   "dalio": 85,
+   "insider": 87,
+   "kitty": 50,
+   "munger": 72,
+   "sbf": 69,
+   "simons": 74,
+   "soros": 75,
+   "thiel": 51,
+   "wood": 55
+  },
+  "endTrustFixed": {
+   "ackman": 79,
+   "dalio": 84,
+   "insider": 88,
+   "kitty": 40,
+   "munger": 85,
+   "sbf": 67,
+   "simons": 59,
+   "soros": 74,
+   "thiel": 43,
+   "wood": 71
+  },
+  "changes": 9,
+  "decisionChanges": 6,
+  "leanOnlyChanges": 3,
+  "rows": [
+   {
+    "betId": "a6e2a084-9485-44d8-8262-dfc96e977734",
+    "question": "Will Trump praise Allah again by June 30?",
+    "category": "POLITICS",
+    "marketProb": 0.24,
+    "asScored": {
+     "decision": "EXECUTE",
+     "side": "NO",
+     "consensus": 0.2871
+    },
+    "fixed": {
+     "decision": "WAIT",
+     "side": "NO",
+     "consensus": 0.2437
+    },
+    "decisionChanged": true,
+    "realSignal": "EXECUTE",
+    "resolution": "NO"
+   },
+   {
+    "betId": "02257898-fdb3-4ce8-a268-daca761ade13",
+    "question": "US-Iran nuclear deal by July 31?",
+    "category": "POLITICS",
+    "marketProb": 0.41,
+    "asScored": {
+     "decision": "EXECUTE",
+     "side": "NO",
+     "consensus": 0.48
+    },
+    "fixed": {
+     "decision": "WAIT",
+     "side": "NO",
+     "consensus": 0.4423
+    },
+    "decisionChanged": true,
+    "realSignal": "WAIT",
+    "resolution": "YES"
+   },
+   {
+    "betId": "f1538d85-97f0-4abc-ad79-febd83a39a2f",
+    "question": "Will Iran withdraw from the NPT before 2027?",
+    "category": "POLITICS",
+    "marketProb": 0.075,
+    "asScored": {
+     "decision": "WAIT",
+     "side": "YES",
+     "consensus": 0.5067
+    },
+    "fixed": {
+     "decision": "EXECUTE",
+     "side": "NO",
+     "consensus": 0.4523
+    },
+    "decisionChanged": true,
+    "realSignal": "EXECUTE",
+    "resolution": "open"
+   },
+   {
+    "betId": "73177123-b16a-40cb-91a8-11fe6c2d21d0",
+    "question": "MegaETH market cap (FDV) >$3B one day after launch?",
+    "category": "CRYPTO",
+    "marketProb": 0.057,
+    "asScored": {
+     "decision": "WAIT",
+     "side": "YES",
+     "consensus": 0.5096
+    },
+    "fixed": {
+     "decision": "WAIT",
+     "side": "NO",
+     "consensus": 0.4912
+    },
+    "decisionChanged": false,
+    "realSignal": "WAIT",
+    "resolution": "NO"
+   },
+   {
+    "betId": "40521bc9-cec0-4e54-a33f-d678c0e24528",
+    "question": "Netanyahu out by June 30?",
+    "category": "POLITICS",
+    "marketProb": 0.055,
+    "asScored": {
+     "decision": "WAIT",
+     "side": "YES",
+     "consensus": 0.5053
+    },
+    "fixed": {
+     "decision": "EXECUTE",
+     "side": "NO",
+     "consensus": 0.4863
+    },
+    "decisionChanged": true,
+    "realSignal": "WAIT",
+    "resolution": "NO"
+   },
+   {
+    "betId": "b2f174ff-c22f-4468-a9e7-234bed15a24f",
+    "question": "MegaETH market cap (FDV) >$6B one day after launch?",
+    "category": "CRYPTO",
+    "marketProb": 0.021,
+    "asScored": {
+     "decision": "WAIT",
+     "side": "YES",
+     "consensus": 0.5187
+    },
+    "fixed": {
+     "decision": "WAIT",
+     "side": "NO",
+     "consensus": 0.4943
+    },
+    "decisionChanged": false,
+    "realSignal": "WAIT",
+    "resolution": "NO"
+   },
+   {
+    "betId": "09166262-b4dd-4bc3-925f-8ba6d425f6b8",
+    "question": "Will OpenAI’s market cap be between $1.25T and $1.5T at market close on IPO day?",
+    "category": "TECH",
+    "marketProb": 0.078,
+    "asScored": {
+     "decision": "WAIT",
+     "side": "YES",
+     "consensus": 0.5104
+    },
+    "fixed": {
+     "decision": "WAIT",
+     "side": "NO",
+     "consensus": 0.4917
+    },
+    "decisionChanged": false,
+    "realSignal": "WAIT",
+    "resolution": "open"
+   },
+   {
+    "betId": "b449e3b3-bc80-41b0-b2b2-1ba0d73ff467",
+    "question": "Will any country leave NATO by June 30, 2026?",
+    "category": "POLITICS",
+    "marketProb": 0.037,
+    "asScored": {
+     "decision": "EXECUTE",
+     "side": "NO",
+     "consensus": 0.0832
+    },
+    "fixed": {
+     "decision": "WAIT",
+     "side": "NO",
+     "consensus": 0.0662
+    },
+    "decisionChanged": true,
+    "realSignal": "EXECUTE",
+    "resolution": "NO"
+   },
+   {
+    "betId": "06a6346d-7a4e-4105-bab4-fedcbf7b5f0e",
+    "question": "Will Trump visit China by April 30?",
+    "category": "POLITICS",
+    "marketProb": 0.295,
+    "asScored": {
+     "decision": "WAIT",
+     "side": "NO",
+     "consensus": 0.2998
+    },
+    "fixed": {
+     "decision": "EXECUTE",
+     "side": "NO",
+     "consensus": 0.2531
+    },
+    "decisionChanged": true,
+    "realSignal": "EXECUTE",
+    "resolution": "NO"
+   }
+  ]
+ },
+ "change": {
+  "diff": [
+   "- p_side = confidence / 15",
+   "+ p_side = 0.5 + confidence / 30"
+  ],
+  "domainTrust": "0.3 x baseTrust + 70 x (1 - blendedBrier)",
+  "proposedResponses": {
+   "POLITICS": {
+    "ackman": {
+     "agentId": "ackman",
+     "baseTrust": 82,
+     "dynamicTrust": 62,
+     "brierScore": 0.471,
+     "settledCount": 108,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 65,
+      "brierScore": 0.234,
+      "blendedBrier": 0.234,
+      "trust": 78,
+      "thin": false
+     }
+    },
+    "dalio": {
+     "agentId": "dalio",
+     "baseTrust": 88,
+     "dynamicTrust": 85,
+     "brierScore": 0.17,
+     "settledCount": 85,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 57,
+      "brierScore": 0.183,
+      "blendedBrier": 0.182,
+      "trust": 84,
+      "thin": false
+     }
+    },
+    "insider": {
+     "agentId": "insider",
+     "baseTrust": 97,
+     "dynamicTrust": 87,
+     "brierScore": 0.169,
+     "settledCount": 87,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 56,
+      "brierScore": 0.186,
+      "blendedBrier": 0.182,
+      "trust": 86,
+      "thin": false
+     }
+    },
+    "kitty": {
+     "agentId": "kitty",
+     "baseTrust": 55,
+     "dynamicTrust": 50,
+     "brierScore": 0.516,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 55,
+      "brierScore": 0.666,
+      "blendedBrier": 0.665,
+      "trust": 40,
+      "thin": false
+     }
+    },
+    "munger": {
+     "agentId": "munger",
+     "baseTrust": 94,
+     "dynamicTrust": 72,
+     "brierScore": 0.381,
+     "settledCount": 106,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 63,
+      "brierScore": 0.186,
+      "blendedBrier": 0.186,
+      "trust": 85,
+      "thin": false
+     }
+    },
+    "sbf": {
+     "agentId": "sbf",
+     "baseTrust": 45,
+     "dynamicTrust": 69,
+     "brierScore": 0.205,
+     "settledCount": 79,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 53,
+      "brierScore": 0.295,
+      "blendedBrier": 0.285,
+      "trust": 64,
+      "thin": false
+     }
+    },
+    "simons": {
+     "agentId": "simons",
+     "baseTrust": 91,
+     "dynamicTrust": 74,
+     "brierScore": 0.329,
+     "settledCount": 86,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 58,
+      "brierScore": 0.527,
+      "blendedBrier": 0.53,
+      "trust": 60,
+      "thin": false
+     }
+    },
+    "soros": {
+     "agentId": "soros",
+     "baseTrust": 85,
+     "dynamicTrust": 75,
+     "brierScore": 0.287,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 57,
+      "brierScore": 0.328,
+      "blendedBrier": 0.325,
+      "trust": 73,
+      "thin": false
+     }
+    },
+    "thiel": {
+     "agentId": "thiel",
+     "baseTrust": 72,
+     "dynamicTrust": 51,
+     "brierScore": 0.578,
+     "settledCount": 81,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 54,
+      "brierScore": 0.704,
+      "blendedBrier": 0.702,
+      "trust": 42,
+      "thin": false
+     }
+    },
+    "wood": {
+     "agentId": "wood",
+     "baseTrust": 60,
+     "dynamicTrust": 55,
+     "brierScore": 0.476,
+     "settledCount": 95,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "POLITICS",
+      "scoring": "side-v2",
+      "settledCount": 60,
+      "brierScore": 0.187,
+      "blendedBrier": 0.195,
+      "trust": 74,
+      "thin": false
+     }
+    }
+   },
+   "GEOPOLITICS": {
+    "ackman": {
+     "agentId": "ackman",
+     "baseTrust": 82,
+     "dynamicTrust": 62,
+     "brierScore": 0.471,
+     "settledCount": 108,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 18,
+      "brierScore": 0.194,
+      "blendedBrier": 0.206,
+      "trust": 80,
+      "thin": false
+     }
+    },
+    "dalio": {
+     "agentId": "dalio",
+     "baseTrust": 88,
+     "dynamicTrust": 85,
+     "brierScore": 0.17,
+     "settledCount": 85,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 17,
+      "brierScore": 0.154,
+      "blendedBrier": 0.162,
+      "trust": 85,
+      "thin": false
+     }
+    },
+    "insider": {
+     "agentId": "insider",
+     "baseTrust": 97,
+     "dynamicTrust": 87,
+     "brierScore": 0.169,
+     "settledCount": 87,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 18,
+      "brierScore": 0.143,
+      "blendedBrier": 0.149,
+      "trust": 89,
+      "thin": false
+     }
+    },
+    "kitty": {
+     "agentId": "kitty",
+     "baseTrust": 55,
+     "dynamicTrust": 50,
+     "brierScore": 0.516,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 17,
+      "brierScore": 0.642,
+      "blendedBrier": 0.648,
+      "trust": 41,
+      "thin": false
+     }
+    },
+    "munger": {
+     "agentId": "munger",
+     "baseTrust": 94,
+     "dynamicTrust": 72,
+     "brierScore": 0.381,
+     "settledCount": 106,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 19,
+      "brierScore": 0.129,
+      "blendedBrier": 0.15,
+      "trust": 88,
+      "thin": false
+     }
+    },
+    "sbf": {
+     "agentId": "sbf",
+     "baseTrust": 45,
+     "dynamicTrust": 69,
+     "brierScore": 0.205,
+     "settledCount": 79,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 16,
+      "brierScore": 0.062,
+      "blendedBrier": 0.127,
+      "trust": 75,
+      "thin": false
+     }
+    },
+    "simons": {
+     "agentId": "simons",
+     "baseTrust": 91,
+     "dynamicTrust": 74,
+     "brierScore": 0.329,
+     "settledCount": 86,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 16,
+      "brierScore": 0.582,
+      "blendedBrier": 0.569,
+      "trust": 57,
+      "thin": false
+     }
+    },
+    "soros": {
+     "agentId": "soros",
+     "baseTrust": 85,
+     "dynamicTrust": 75,
+     "brierScore": 0.287,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 17,
+      "brierScore": 0.253,
+      "blendedBrier": 0.274,
+      "trust": 76,
+      "thin": false
+     }
+    },
+    "thiel": {
+     "agentId": "thiel",
+     "baseTrust": 72,
+     "dynamicTrust": 51,
+     "brierScore": 0.578,
+     "settledCount": 81,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 17,
+      "brierScore": 0.649,
+      "blendedBrier": 0.664,
+      "trust": 45,
+      "thin": false
+     }
+    },
+    "wood": {
+     "agentId": "wood",
+     "baseTrust": 60,
+     "dynamicTrust": 55,
+     "brierScore": 0.476,
+     "settledCount": 95,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "GEOPOLITICS",
+      "scoring": "side-v2",
+      "settledCount": 17,
+      "brierScore": 0.17,
+      "blendedBrier": 0.196,
+      "trust": 74,
+      "thin": false
+     }
+    }
+   },
+   "MACRO": {
+    "ackman": {
+     "agentId": "ackman",
+     "baseTrust": 82,
+     "dynamicTrust": 62,
+     "brierScore": 0.471,
+     "settledCount": 108,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 11,
+      "brierScore": 0.14,
+      "blendedBrier": 0.182,
+      "trust": 82,
+      "thin": false
+     }
+    },
+    "dalio": {
+     "agentId": "dalio",
+     "baseTrust": 88,
+     "dynamicTrust": 85,
+     "brierScore": 0.17,
+     "settledCount": 85,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 8,
+      "brierScore": 0.132,
+      "blendedBrier": 0.156,
+      "trust": 85,
+      "thin": true
+     }
+    },
+    "insider": {
+     "agentId": "insider",
+     "baseTrust": 97,
+     "dynamicTrust": 87,
+     "brierScore": 0.169,
+     "settledCount": 87,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 10,
+      "brierScore": 0.083,
+      "blendedBrier": 0.121,
+      "trust": 91,
+      "thin": false
+     }
+    },
+    "kitty": {
+     "agentId": "kitty",
+     "baseTrust": 55,
+     "dynamicTrust": 50,
+     "brierScore": 0.516,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 9,
+      "brierScore": 0.614,
+      "blendedBrier": 0.637,
+      "trust": 42,
+      "thin": true
+     }
+    },
+    "munger": {
+     "agentId": "munger",
+     "baseTrust": 94,
+     "dynamicTrust": 72,
+     "brierScore": 0.381,
+     "settledCount": 106,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 9,
+      "brierScore": 0.238,
+      "blendedBrier": 0.213,
+      "trust": 83,
+      "thin": true
+     }
+    },
+    "sbf": {
+     "agentId": "sbf",
+     "baseTrust": 45,
+     "dynamicTrust": 69,
+     "brierScore": 0.205,
+     "settledCount": 79,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 9,
+      "brierScore": 0.171,
+      "blendedBrier": 0.202,
+      "trust": 69,
+      "thin": true
+     }
+    },
+    "simons": {
+     "agentId": "simons",
+     "baseTrust": 91,
+     "dynamicTrust": 74,
+     "brierScore": 0.329,
+     "settledCount": 86,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 8,
+      "brierScore": 0.55,
+      "blendedBrier": 0.548,
+      "trust": 59,
+      "thin": true
+     }
+    },
+    "soros": {
+     "agentId": "soros",
+     "baseTrust": 85,
+     "dynamicTrust": 75,
+     "brierScore": 0.287,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 7,
+      "brierScore": 0.262,
+      "blendedBrier": 0.29,
+      "trust": 75,
+      "thin": true
+     }
+    },
+    "thiel": {
+     "agentId": "thiel",
+     "baseTrust": 72,
+     "dynamicTrust": 51,
+     "brierScore": 0.578,
+     "settledCount": 81,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 9,
+      "brierScore": 0.659,
+      "blendedBrier": 0.675,
+      "trust": 44,
+      "thin": true
+     }
+    },
+    "wood": {
+     "agentId": "wood",
+     "baseTrust": 60,
+     "dynamicTrust": 55,
+     "brierScore": 0.476,
+     "settledCount": 95,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "MACRO",
+      "scoring": "side-v2",
+      "settledCount": 7,
+      "brierScore": 0.223,
+      "blendedBrier": 0.234,
+      "trust": 72,
+      "thin": true
+     }
+    }
+   },
+   "TECH": {
+    "ackman": {
+     "agentId": "ackman",
+     "baseTrust": 82,
+     "dynamicTrust": 62,
+     "brierScore": 0.471,
+     "settledCount": 108,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 9,
+      "brierScore": 0.3,
+      "blendedBrier": 0.262,
+      "trust": 76,
+      "thin": true
+     }
+    },
+    "dalio": {
+     "agentId": "dalio",
+     "baseTrust": 88,
+     "dynamicTrust": 85,
+     "brierScore": 0.17,
+     "settledCount": 85,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 3,
+      "brierScore": 0.282,
+      "blendedBrier": 0.2,
+      "trust": 82,
+      "thin": true
+     }
+    },
+    "insider": {
+     "agentId": "insider",
+     "baseTrust": 97,
+     "dynamicTrust": 87,
+     "brierScore": 0.169,
+     "settledCount": 87,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 2,
+      "brierScore": 0.01,
+      "blendedBrier": 0.135,
+      "trust": 90,
+      "thin": true
+     }
+    },
+    "kitty": {
+     "agentId": "kitty",
+     "baseTrust": 55,
+     "dynamicTrust": 50,
+     "brierScore": 0.516,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 2,
+      "brierScore": 0.781,
+      "blendedBrier": 0.679,
+      "trust": 39,
+      "thin": true
+     }
+    },
+    "munger": {
+     "agentId": "munger",
+     "baseTrust": 94,
+     "dynamicTrust": 72,
+     "brierScore": 0.381,
+     "settledCount": 106,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 10,
+      "brierScore": 0.278,
+      "blendedBrier": 0.234,
+      "trust": 82,
+      "thin": false
+     }
+    },
+    "sbf": {
+     "agentId": "sbf",
+     "baseTrust": 45,
+     "dynamicTrust": 69,
+     "brierScore": 0.205,
+     "settledCount": 79,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 1,
+      "brierScore": 0.001,
+      "blendedBrier": 0.209,
+      "trust": 69,
+      "thin": true
+     }
+    },
+    "simons": {
+     "agentId": "simons",
+     "baseTrust": 91,
+     "dynamicTrust": 74,
+     "brierScore": 0.329,
+     "settledCount": 86,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 3,
+      "brierScore": 0.697,
+      "blendedBrier": 0.582,
+      "trust": 57,
+      "thin": true
+     }
+    },
+    "soros": {
+     "agentId": "soros",
+     "baseTrust": 85,
+     "dynamicTrust": 75,
+     "brierScore": 0.287,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 2,
+      "brierScore": 0.425,
+      "blendedBrier": 0.329,
+      "trust": 72,
+      "thin": true
+     }
+    },
+    "thiel": {
+     "agentId": "thiel",
+     "baseTrust": 72,
+     "dynamicTrust": 51,
+     "brierScore": 0.578,
+     "settledCount": 81,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 1,
+      "brierScore": 0.81,
+      "blendedBrier": 0.7,
+      "trust": 43,
+      "thin": true
+     }
+    },
+    "wood": {
+     "agentId": "wood",
+     "baseTrust": 60,
+     "dynamicTrust": 55,
+     "brierScore": 0.476,
+     "settledCount": 95,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "TECH",
+      "scoring": "side-v2",
+      "settledCount": 7,
+      "brierScore": 0.556,
+      "blendedBrier": 0.371,
+      "trust": 62,
+      "thin": true
+     }
+    }
+   },
+   "CRYPTO": {
+    "ackman": {
+     "agentId": "ackman",
+     "baseTrust": 82,
+     "dynamicTrust": 62,
+     "brierScore": 0.471,
+     "settledCount": 108,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 5,
+      "brierScore": 0.337,
+      "blendedBrier": 0.265,
+      "trust": 76,
+      "thin": true
+     }
+    },
+    "dalio": {
+     "agentId": "dalio",
+     "baseTrust": 88,
+     "dynamicTrust": 85,
+     "brierScore": 0.17,
+     "settledCount": 85,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 0,
+      "brierScore": null,
+      "blendedBrier": null,
+      "trust": null,
+      "thin": true
+     }
+    },
+    "insider": {
+     "agentId": "insider",
+     "baseTrust": 97,
+     "dynamicTrust": 87,
+     "brierScore": 0.169,
+     "settledCount": 87,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 1,
+      "brierScore": 0.028,
+      "blendedBrier": 0.147,
+      "trust": 89,
+      "thin": true
+     }
+    },
+    "kitty": {
+     "agentId": "kitty",
+     "baseTrust": 55,
+     "dynamicTrust": 50,
+     "brierScore": 0.516,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 0,
+      "brierScore": null,
+      "blendedBrier": null,
+      "trust": null,
+      "thin": true
+     }
+    },
+    "munger": {
+     "agentId": "munger",
+     "baseTrust": 94,
+     "dynamicTrust": 72,
+     "brierScore": 0.381,
+     "settledCount": 106,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 5,
+      "brierScore": 0.204,
+      "blendedBrier": 0.194,
+      "trust": 85,
+      "thin": true
+     }
+    },
+    "sbf": {
+     "agentId": "sbf",
+     "baseTrust": 45,
+     "dynamicTrust": 69,
+     "brierScore": 0.205,
+     "settledCount": 79,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 0,
+      "brierScore": null,
+      "blendedBrier": null,
+      "trust": null,
+      "thin": true
+     }
+    },
+    "simons": {
+     "agentId": "simons",
+     "baseTrust": 91,
+     "dynamicTrust": 74,
+     "brierScore": 0.329,
+     "settledCount": 86,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 1,
+      "brierScore": 0.64,
+      "blendedBrier": 0.555,
+      "trust": 58,
+      "thin": true
+     }
+    },
+    "soros": {
+     "agentId": "soros",
+     "baseTrust": 85,
+     "dynamicTrust": 75,
+     "brierScore": 0.287,
+     "settledCount": 83,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 0,
+      "brierScore": null,
+      "blendedBrier": null,
+      "trust": null,
+      "thin": true
+     }
+    },
+    "thiel": {
+     "agentId": "thiel",
+     "baseTrust": 72,
+     "dynamicTrust": 51,
+     "brierScore": 0.578,
+     "settledCount": 81,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 0,
+      "brierScore": null,
+      "blendedBrier": null,
+      "trust": null,
+      "thin": true
+     }
+    },
+    "wood": {
+     "agentId": "wood",
+     "baseTrust": 60,
+     "dynamicTrust": 55,
+     "brierScore": 0.476,
+     "settledCount": 95,
+     "baseWeight": 0.3,
+     "domain": {
+      "category": "CRYPTO",
+      "scoring": "side-v2",
+      "settledCount": 4,
+      "brierScore": 0.841,
+      "blendedBrier": 0.413,
+      "trust": 59,
+      "thin": true
+     }
+    }
+   }
+  },
+  "tests": [
+   {
+    "name": "test_rebuilds_published_brier",
+    "status": "passed"
+   },
+   {
+    "name": "test_rebuilds_published_trust",
+    "status": "passed"
+   },
+   {
+    "name": "test_king_consensus_matches",
+    "status": "passed"
+   },
+   {
+    "name": "test_king_rule_fidelity",
+    "status": "passed"
+   },
+   {
+    "name": "test_as_scored_rewards_losing",
+    "status": "passed"
+   },
+   {
+    "name": "test_fixed_never_rewards_losing",
+    "status": "passed"
+   },
+   {
+    "name": "test_blend",
+    "status": "passed"
+   }
+  ],
+  "runIt": "python -I analysis/fetch.py && python -I analysis/rescore.py && pytest analysis"
+ },
+ "batches": [
+  {
+   "week": 13,
+   "year": 2026,
+   "start": "2026-03-23",
+   "end": "2026-03-29",
+   "state": "full",
+   "status": "active",
+   "selected": 15,
+   "eventCount": 84,
+   "predictionCount": 150,
+   "settledCount": 140,
+   "createdAt": "2026-03-24T15:17:14.963Z"
+  },
+  {
+   "week": 14,
+   "year": 2026,
+   "start": "2026-03-30",
+   "end": "2026-04-05",
+   "state": "partial",
+   "status": "active",
+   "selected": 7,
+   "eventCount": 74,
+   "predictionCount": 70,
+   "settledCount": 50,
+   "createdAt": "2026-03-29T18:16:56.210Z"
+  },
+  {
+   "week": 15,
+   "year": 2026,
+   "start": "2026-04-06",
+   "end": "2026-04-12",
+   "state": "full",
+   "status": "active",
+   "selected": 15,
+   "eventCount": 100,
+   "predictionCount": 150,
+   "settledCount": 140,
+   "createdAt": "2026-04-07T16:07:37.537Z"
+  },
+  {
+   "week": 16,
+   "year": 2026,
+   "start": "2026-04-13",
+   "end": "2026-04-19",
+   "state": "partial",
+   "status": "active",
+   "selected": 4,
+   "eventCount": 100,
+   "predictionCount": 40,
+   "settledCount": 20,
+   "createdAt": "2026-04-13T14:03:09.519Z"
+  },
+  {
+   "week": 17,
+   "year": 2026,
+   "start": "2026-04-20",
+   "end": "2026-04-26",
+   "state": "partial",
+   "status": "active",
+   "selected": 6,
+   "eventCount": 100,
+   "predictionCount": 60,
+   "settledCount": 60,
+   "createdAt": "2026-04-17T08:02:17.329Z"
+  },
+  {
+   "week": 18,
+   "year": 2026,
+   "start": "2026-04-27",
+   "end": "2026-05-03",
+   "state": "partial",
+   "status": "active",
+   "selected": 2,
+   "eventCount": 100,
+   "predictionCount": 20,
+   "settledCount": 10,
+   "createdAt": "2026-04-27T13:18:21.440Z"
+  },
+  {
+   "week": 19,
+   "year": 2026,
+   "start": "2026-05-04",
+   "end": "2026-05-10",
+   "state": "partial",
+   "status": "active",
+   "selected": 3,
+   "eventCount": 100,
+   "predictionCount": 30,
+   "settledCount": 20,
+   "createdAt": "2026-05-01T08:03:42.880Z"
+  },
+  {
+   "week": 20,
+   "year": 2026,
+   "start": "2026-05-11",
+   "end": "2026-05-17",
+   "state": "full",
+   "status": "active",
+   "selected": 15,
+   "eventCount": 51,
+   "predictionCount": 352,
+   "settledCount": 202,
+   "createdAt": "2026-05-08T08:04:33.495Z"
+  },
+  {
+   "week": 21,
+   "year": 2026,
+   "start": "2026-05-18",
+   "end": "2026-05-24",
+   "state": "full",
+   "status": "active",
+   "selected": 15,
+   "eventCount": 45,
+   "predictionCount": 195,
+   "settledCount": 141,
+   "createdAt": "2026-05-15T08:01:27.758Z"
+  },
+  {
+   "week": 22,
+   "year": 2026,
+   "start": "2026-05-25",
+   "end": "2026-05-31",
+   "state": "partial",
+   "status": "active",
+   "selected": 13,
+   "eventCount": 44,
+   "predictionCount": 130,
+   "settledCount": 60,
+   "createdAt": "2026-05-28T15:29:41.873Z"
+  },
+  {
+   "week": 23,
+   "year": 2026,
+   "start": "2026-06-01",
+   "end": "2026-06-07",
+   "state": "partial",
+   "status": "active",
+   "selected": 7,
+   "eventCount": 44,
+   "predictionCount": 70,
+   "settledCount": 20,
+   "createdAt": "2026-05-29T08:03:52.572Z"
+  },
+  {
+   "week": 24,
+   "year": 2026,
+   "start": "2026-06-08",
+   "end": "2026-06-14",
+   "state": "curating",
+   "status": "curating",
+   "selected": 0,
+   "eventCount": 51,
+   "predictionCount": 208,
+   "settledCount": 99,
+   "createdAt": "2026-06-05T08:03:32.120Z"
+  },
+  {
+   "week": 25,
+   "year": 2026,
+   "start": "2026-06-15",
+   "end": "2026-06-21",
+   "state": "partial",
+   "status": "active",
+   "selected": 13,
+   "eventCount": 49,
+   "predictionCount": 490,
+   "settledCount": 200,
+   "createdAt": "2026-06-12T08:04:57.364Z"
+  },
+  {
+   "week": 26,
+   "year": 2026,
+   "start": "2026-06-22",
+   "end": "2026-06-28",
+   "state": "curating",
+   "status": "curating",
+   "selected": 0,
+   "eventCount": 47,
+   "predictionCount": 0,
+   "settledCount": 0,
+   "createdAt": "2026-06-19T08:03:32.991Z"
+  },
+  {
+   "week": 27,
+   "year": 2026,
+   "start": "2026-06-29",
+   "end": "2026-07-05",
+   "state": "curating",
+   "status": "curating",
+   "selected": 0,
+   "eventCount": 38,
+   "predictionCount": 0,
+   "settledCount": 0,
+   "createdAt": "2026-06-26T08:03:44.034Z"
+  },
+  {
+   "week": 28,
+   "year": 2026,
+   "start": "2026-07-06",
+   "end": "2026-07-12",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 29,
+   "year": 2026,
+   "start": "2026-07-13",
+   "end": "2026-07-19",
+   "state": "full",
+   "status": "active",
+   "selected": 15,
+   "eventCount": 52,
+   "predictionCount": 274,
+   "settledCount": 90,
+   "createdAt": "2026-07-10T08:08:20.692Z"
+  },
+  {
+   "week": 30,
+   "year": 2026,
+   "start": "2026-07-20",
+   "end": "2026-07-26",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 31,
+   "year": 2026,
+   "start": "2026-07-27",
+   "end": "2026-08-02",
+   "state": "curating",
+   "status": "curating",
+   "selected": 0,
+   "eventCount": 42,
+   "predictionCount": 0,
+   "settledCount": 0,
+   "createdAt": "2026-07-24T08:04:14.628Z"
+  },
+  {
+   "week": 32,
+   "year": 2026,
+   "start": "2026-08-03",
+   "end": "2026-08-09",
+   "state": "curating",
+   "status": "curating",
+   "selected": 0,
+   "eventCount": 36,
+   "predictionCount": 332,
+   "settledCount": 100,
+   "createdAt": "2026-07-31T08:02:26.041Z"
+  },
+  {
+   "week": 33,
+   "year": 2026,
+   "start": "2026-08-10",
+   "end": "2026-08-16",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 34,
+   "year": 2026,
+   "start": "2026-08-17",
+   "end": "2026-08-23",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 35,
+   "year": 2026,
+   "start": "2026-08-24",
+   "end": "2026-08-30",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 36,
+   "year": 2026,
+   "start": "2026-08-31",
+   "end": "2026-09-06",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 37,
+   "year": 2026,
+   "start": "2026-09-07",
+   "end": "2026-09-13",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 38,
+   "year": 2026,
+   "start": "2026-09-14",
+   "end": "2026-09-20",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 39,
+   "year": 2026,
+   "start": "2026-09-21",
+   "end": "2026-09-27",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 40,
+   "year": 2026,
+   "start": "2026-09-28",
+   "end": "2026-10-04",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  },
+  {
+   "week": 41,
+   "year": 2026,
+   "start": "2026-10-05",
+   "end": "2026-10-11",
+   "state": "none",
+   "status": null,
+   "selected": 0,
+   "eventCount": null,
+   "predictionCount": null,
+   "settledCount": null,
+   "createdAt": null
+  }
+ ],
+ "supply": {
+  "complete": true,
+  "filters": {
+   "closed": "false",
+   "volume_num_min": "5000",
+   "end_date_min": "2026-10-18",
+   "end_date_max": "2027-01-13",
+   "limit": "100"
+  },
+  "excludedTags": [
+   "awards",
+   "celebrities",
+   "esports",
+   "games",
+   "movies",
+   "music",
+   "pop-culture",
+   "sports"
+  ],
+  "marketsPulled": 5606,
+  "eventsPulled": 2429,
+  "marketsAfterTagFilter": 4414,
+  "alreadyInAgentStreet": 167,
+  "markets": 4247,
+  "events": 1853
+ },
+ "checks": {
+  "proofTenOfTen": true,
+  "kingConsensusAll": true,
+  "pick3WinsScores064LosesScores004": true,
+  "lossBetterExactlyAt1to7": true,
+  "simonsAsScored4thFixed8th": true,
+  "simonsDrops4Places": true,
+  "mungerAsScored5thFixed2nd": true,
+  "ackmanAsScored7thFixed4th": true,
+  "ackmanWins77AndWorseThanCoinFlipAsScored": true,
+  "simonsWins15": true,
+  "sbfBestGeopoliticsRaw": true,
+  "sbfBestGeopoliticsBlended": true,
+  "marketBeatsEveryAgentFixed": true,
+  "marketOverallBeatsBestAgentFixed": true
+ }
+}

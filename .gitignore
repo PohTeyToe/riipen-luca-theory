@@ -1,0 +1,11 @@
+BRIEF.md
+REVIEW.md
+_review_screenshots/
+data/raw/
+__pycache__/
+.pytest_cache/
+node_modules/
+dist/
+.vercel/
+.playwright-cli/
+*.tsbuildinfo

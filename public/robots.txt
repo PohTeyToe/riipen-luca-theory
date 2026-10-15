@@ -1,0 +1,16 @@
+# Not for search engines. Link-preview bots may read the page so a shared
+# link shows its title and image; every other crawler is turned away.
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Slackbot-LinkExpanding
+Allow: /
+
+User-agent: *
+Disallow: /

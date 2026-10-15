@@ -1,0 +1,9 @@
+BRIEF.md
+REVIEW.md
+_review_screenshots/
+data/raw/
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+.playwright-cli/
