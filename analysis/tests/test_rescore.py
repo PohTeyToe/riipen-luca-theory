@@ -76,15 +76,26 @@ def test_blend(snap, rows):
         assert lo - 1e-12 <= x["blended"] <= hi + 1e-12
 
 
-def test_luck_counts_each_contract_once():
-    def pick(event, side):
-        return {"eventId": event, "prediction": side, "marketProbAtEntry": 0.5}
+def test_repeat_bets_share_one_outcome():
+    def pick(event, side, p_yes=0.5):
+        return {"eventId": event, "prediction": side, "marketProbAtEntry": p_yes}
     contract_of = {"e1": "c1", "e2": "c1", "e3": "c2"}
-    # Two bets on one contract, same side: one outcome, so twice the spread of two independent bets.
-    assert rs.contract_spread([pick("e1", "YES"), pick("e2", "YES")], contract_of) == (1.0, 1)
-    assert rs.contract_spread([pick("e1", "YES"), pick("e3", "YES")], contract_of) == (0.5, 2)
-    # A YES and a NO on one contract: exactly one wins, so luck adds nothing.
-    assert rs.contract_spread([pick("e1", "YES"), pick("e2", "NO")], contract_of) == (0.0, 1)
+    # Two bets on one contract, same side: both win or both lose.
+    assert rs.win_distribution([pick("e1", "YES"), pick("e2", "YES")], contract_of) == ([0.5, 0.0, 0.5], 1.0, 1)
+    # Two bets on different contracts: independent.
+    assert rs.win_distribution([pick("e1", "YES"), pick("e3", "YES")], contract_of) == ([0.25, 0.5, 0.25], 1.0, 2)
+    # A YES and a NO on one contract, even at different prices: exactly one wins, and the
+    # expected wins agree with that (Codex round-2 finding: they didn't when each bet kept its own price).
+    dist, expected, _ = rs.win_distribution([pick("e1", "YES", 0.175), pick("e2", "NO", 0.375)], contract_of)
+    assert dist == [0.0, 1.0] and expected == 1.0
+
+
+def test_luck_range_is_exact():
+    contract_of = {f"e{i}": f"c{i}" for i in range(4)}
+    picks = [{"eventId": f"e{i}", "prediction": "YES", "marketProbAtEntry": 0.5, "pnl": 1} for i in range(4)]
+    # 4 independent coin flips: 0 or 4 wins each have chance 1/16 > 2.5%, so all 4 wins is inside.
+    vs = rs.against_market(picks, contract_of)
+    assert vs["inside"] and vs["chanceAtOrAbove"] == 1 / 16 and vs["luckHigh"] == 0.5
 
 
 def test_every_scored_event_has_a_contract(snap):

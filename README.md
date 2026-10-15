@@ -34,7 +34,7 @@ python -I analysis/rescore.py    # checks the pull, runs the tests, then writes 
 pytest analysis                  # the tests run on the committed snapshot, no network needed
 ```
 
-`rescore.py` checks every raw file against the pull's `manifest.json` (size and SHA-256) before using it, and writes nothing if a test fails. The raw files aren't committed: they're LUCA's API responses and site code, so they're linked, not republished. Their hashes are committed in `data/page.json` → `sources`, so any copy of the pull can be checked against them.
+`rescore.py` checks that the pull's `manifest.json` lists every raw file it reads and that each one matches its size and SHA-256, and it writes nothing if a test or a copy check fails. The raw files aren't committed: they're LUCA's API responses and site code, so they're linked, not republished. Their hashes are committed in `data/page.json` → `sources`, so any copy of the pull can be checked against them.
 
 The page imports `data/page.json` and computes nothing itself. Every number on it comes from that file.
 
@@ -51,7 +51,7 @@ All public, pulled on 2026-10-15 between 18:02 and 18:11 UTC. `data/SOURCES.md` 
 
 - Real, from the pull: every pick, outcome, published score, King call and batch row. Agent Street ran on play money, and the page says so in every source line.
 - LUCA's, unchanged: the trust formula and the King's consensus formula.
-- Mine, labelled on the page as proposals or approximations: the fixed reading of confidence (a stopgap), the comparison of each agent's win rate with the market price at entry, its luck range (repeat bets on one contract count as one shared outcome) and the bets needed to see a 5-point edge, the per-domain blend, domain trust, the approximate King execute rule (it shows on the page only as a test), and the proposed `/api/trust-scores?category=` response.
+- Mine, labelled on the page as proposals or approximations: the fixed reading of confidence (a stopgap), the comparison of each agent's win rate with the market price at entry, its exact luck range (repeat bets on one contract count as one shared outcome), the rough estimate of bets needed to see a 5-point edge, the per-domain blend, domain trust, the approximate King execute rule (it shows on the page only as a test), and the proposed `/api/trust-scores?category=` response.
 - Mock: nothing. There is no generated or LLM-written data here.
 
 ## Deploy

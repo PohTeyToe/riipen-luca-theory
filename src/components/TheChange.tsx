@@ -14,7 +14,8 @@ const gloss: Record<string, string> = {
   test_as_scored_rewards_losing: 'As scored, a loss beats a win at every rating from 1 to 7, and only there',
   test_fixed_never_rewards_losing: 'Fixed, a win never scores worse than a loss',
   test_blend: 'Empty cells get no value; a blend lands between the cell and the agent overall',
-  test_luck_counts_each_contract_once: 'Repeat bets on one contract share its outcome in the luck range',
+  test_repeat_bets_share_one_outcome: 'Repeat bets on one contract share its outcome, at any prices',
+  test_luck_range_is_exact: 'The luck range is the exact middle 95%, not an approximation',
   test_every_scored_event_has_a_contract: 'Every scored bet maps to a Polymarket contract',
 }
 
@@ -87,9 +88,8 @@ export function TheChange() {
         </h3>
         <p className="part-note">
           Every field you return today keeps its name and meaning, so existing clients don't break. The highlighted block is
-          new: domain trust, plus section 3's test on the domain's bets (<code>wonRate</code> against{' '}
-          <code>marketPrice</code>, and <code>luckRange</code>, which is null under 10 picks). One agent shown; the response
-          has all {agentCount}.
+          new: domain trust, plus the domain's <code>wonRate</code> next to <code>marketImplied</code>, the win rate the
+          market's prices implied. One agent shown; the response has all {agentCount}.
         </p>
         <pre className="code json" aria-label="Proposed JSON response">
           {responseLines().map((l, i) => (

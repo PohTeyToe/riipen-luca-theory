@@ -154,8 +154,8 @@
   "blend": "(sum of fixed cell scores + 10 x agent's overall fixed Brier) / (n + 10)",
   "thinBelow": 10,
   "prior": 10,
-  "againstMarket": "Win rate minus the mean market price at entry of the side picked. Luck range: 1.96 x sqrt(spread) / n, the 95% range of the win rate if the market's prices were right. Repeat bets on one contract share its outcome: each contract adds (a - b)^2 x q(1 - q) to the spread, for a YES and b NO bets at mean entry price q.",
-  "betsForEdge": "Settled bets, each on a different contract at the agent's Season 1 prices, for a real 5-point edge to clear the luck range 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2.",
+  "againstMarket": "Win rate minus the win rate the market's prices at entry implied, if each contract resolved at the mean entry price of the agent's bets on it. Repeat bets on one contract share its outcome. Luck range: the middle 95% of win rates under that model, computed exactly.",
+  "betsForEdge": "Rough planning estimate (normal approximation): settled bets, each on a different contract at the agent's Season 1 prices, for a real 5-point edge to clear the luck range about 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2.",
   "kingRule": "Approximate: side YES if consensus > 0.5; EXECUTE if both named anchors voted that side and |consensus - market| >= 0.04, else WAIT."
  },
  "proof": {
@@ -568,10 +568,11 @@
     "role": "The Policy Insider",
     "n": 87,
     "wonPercent": 82,
-    "marketPercent": 76,
+    "marketPercent": 75,
     "contracts": 80,
-    "gapPoints": 6.0,
-    "luckPoints": 7.8
+    "gapPoints": 6.3,
+    "luckLowPoints": -7.5,
+    "luckHighPoints": 7.4
    },
    {
     "id": "sbf",
@@ -579,10 +580,11 @@
     "role": "The Degen Theorist",
     "n": 79,
     "wonPercent": 72,
-    "marketPercent": 67,
+    "marketPercent": 68,
     "contracts": 69,
-    "gapPoints": 4.8,
-    "luckPoints": 8.6
+    "gapPoints": 4.2,
+    "luckLowPoints": -8.4,
+    "luckHighPoints": 8.0
    },
    {
     "id": "dalio",
@@ -590,10 +592,11 @@
     "role": "The Machine Systemist",
     "n": 85,
     "wonPercent": 75,
-    "marketPercent": 72,
+    "marketPercent": 71,
     "contracts": 77,
-    "gapPoints": 3.3,
-    "luckPoints": 7.3
+    "gapPoints": 4.2,
+    "luckLowPoints": -7.5,
+    "luckHighPoints": 6.6
    },
    {
     "id": "munger",
@@ -604,7 +607,8 @@
     "marketPercent": 74,
     "contracts": 97,
     "gapPoints": 2.1,
-    "luckPoints": 7.3
+    "luckLowPoints": -7.4,
+    "luckHighPoints": 6.8
    },
    {
     "id": "ackman",
@@ -614,8 +618,9 @@
     "wonPercent": 77,
     "marketPercent": 77,
     "contracts": 97,
-    "gapPoints": 0.1,
-    "luckPoints": 6.9
+    "gapPoints": 0.3,
+    "luckLowPoints": -7.1,
+    "luckHighPoints": 6.7
    },
    {
     "id": "soros",
@@ -625,8 +630,9 @@
     "wonPercent": 63,
     "marketPercent": 64,
     "contracts": 75,
-    "gapPoints": -0.9,
-    "luckPoints": 7.8
+    "gapPoints": -1.2,
+    "luckLowPoints": -8.4,
+    "luckHighPoints": 7.2
    },
    {
     "id": "wood",
@@ -636,8 +642,9 @@
     "wonPercent": 75,
     "marketPercent": 77,
     "contracts": 87,
-    "gapPoints": -2.3,
-    "luckPoints": 7.4
+    "gapPoints": -2.1,
+    "luckLowPoints": -7.4,
+    "luckHighPoints": 7.4
    },
    {
     "id": "thiel",
@@ -645,10 +652,11 @@
     "role": "The Contrarian Architect",
     "n": 81,
     "wonPercent": 19,
-    "marketPercent": 22,
+    "marketPercent": 23,
     "contracts": 72,
-    "gapPoints": -3.6,
-    "luckPoints": 7.7
+    "gapPoints": -4.5,
+    "luckLowPoints": -7.0,
+    "luckHighPoints": 7.8
    },
    {
     "id": "simons",
@@ -656,10 +664,11 @@
     "role": "The Quant Architect",
     "n": 86,
     "wonPercent": 15,
-    "marketPercent": 20,
+    "marketPercent": 21,
     "contracts": 77,
-    "gapPoints": -5.0,
-    "luckPoints": 7.4
+    "gapPoints": -5.7,
+    "luckLowPoints": -6.8,
+    "luckHighPoints": 7.1
    },
    {
     "id": "kitty",
@@ -667,10 +676,11 @@
     "role": "The Sentiment Sniper",
     "n": 83,
     "wonPercent": 17,
-    "marketPercent": 22,
+    "marketPercent": 23,
     "contracts": 75,
-    "gapPoints": -5.6,
-    "luckPoints": 7.6
+    "gapPoints": -6.2,
+    "luckLowPoints": -7.4,
+    "luckHighPoints": 8.2
    }
   ],
   "closest": "insider",
@@ -701,7 +711,7 @@
    "trustAsScored": 87,
    "trustFixed": 88,
    "baseTrust": 97,
-   "marketPercent": 76,
+   "marketPercent": 75,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -767,7 +777,7 @@
    "trustAsScored": 85,
    "trustFixed": 84,
    "baseTrust": 88,
-   "marketPercent": 72,
+   "marketPercent": 71,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -871,7 +881,7 @@
    "trustAsScored": 74,
    "trustFixed": 59,
    "baseTrust": 91,
-   "marketPercent": 20,
+   "marketPercent": 21,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -1003,7 +1013,7 @@
    "trustAsScored": 69,
    "trustFixed": 67,
    "baseTrust": 45,
-   "marketPercent": 67,
+   "marketPercent": 68,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, won",
@@ -1201,7 +1211,7 @@
    "trustAsScored": 51,
    "trustFixed": 43,
    "baseTrust": 72,
-   "marketPercent": 22,
+   "marketPercent": 23,
    "sampleBets": [
     {
      "slot": "rated 12 or higher",
@@ -1239,7 +1249,7 @@
    "trustAsScored": 50,
    "trustFixed": 40,
    "baseTrust": 55,
-   "marketPercent": 22,
+   "marketPercent": 23,
    "sampleBets": [
     {
      "slot": "rated 7 or lower, lost",
@@ -1308,8 +1318,7 @@
       "trust": 86,
       "wonPercent": 79,
       "marketPercent": 77,
-      "gapPoints": 1.8,
-      "luckPoints": 9.5
+      "gapPoints": 2.0
      },
      "GEOPOLITICS": {
       "n": 18,
@@ -1321,8 +1330,7 @@
       "trust": 89,
       "wonPercent": 83,
       "marketPercent": 80,
-      "gapPoints": 3.2,
-      "luckPoints": 12.9
+      "gapPoints": 3.4
      },
      "MACRO": {
       "n": 10,
@@ -1334,8 +1342,7 @@
       "trust": 91,
       "wonPercent": 90,
       "marketPercent": 65,
-      "gapPoints": 25.5,
-      "luckPoints": 32.5
+      "gapPoints": 25.5
      },
      "TECH": {
       "n": 2,
@@ -1347,8 +1354,7 @@
       "trust": 90,
       "wonPercent": 100,
       "marketPercent": 75,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 25.2
      },
      "CRYPTO": {
       "n": 1,
@@ -1360,8 +1366,7 @@
       "trust": 89,
       "wonPercent": 100,
       "marketPercent": 35,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 65.0
      }
     }
    },
@@ -1380,8 +1385,7 @@
       "trust": 85,
       "wonPercent": 78,
       "marketPercent": 73,
-      "gapPoints": 4.6,
-      "luckPoints": 9.7
+      "gapPoints": 4.6
      },
      "GEOPOLITICS": {
       "n": 19,
@@ -1393,8 +1397,7 @@
       "trust": 88,
       "wonPercent": 84,
       "marketPercent": 85,
-      "gapPoints": -0.8,
-      "luckPoints": 13.2
+      "gapPoints": -0.8
      },
      "MACRO": {
       "n": 9,
@@ -1406,8 +1409,7 @@
       "trust": 83,
       "wonPercent": 67,
       "marketPercent": 61,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 5.6
      },
      "TECH": {
       "n": 10,
@@ -1419,8 +1421,7 @@
       "trust": 82,
       "wonPercent": 60,
       "marketPercent": 63,
-      "gapPoints": -3.0,
-      "luckPoints": 21.1
+      "gapPoints": -3.0
      },
      "CRYPTO": {
       "n": 5,
@@ -1432,8 +1433,7 @@
       "trust": 85,
       "wonPercent": 80,
       "marketPercent": 95,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -15.0
      }
     }
    },
@@ -1451,9 +1451,8 @@
       "blendedBrier": 0.182,
       "trust": 84,
       "wonPercent": 75,
-      "marketPercent": 75,
-      "gapPoints": 0.8,
-      "luckPoints": 8.3
+      "marketPercent": 73,
+      "gapPoints": 2.0
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1465,8 +1464,7 @@
       "trust": 85,
       "wonPercent": 76,
       "marketPercent": 75,
-      "gapPoints": 1.7,
-      "luckPoints": 13.5
+      "gapPoints": 2.0
      },
      "MACRO": {
       "n": 8,
@@ -1478,8 +1476,7 @@
       "trust": 85,
       "wonPercent": 75,
       "marketPercent": 53,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 21.6
      },
      "TECH": {
       "n": 3,
@@ -1491,8 +1488,7 @@
       "trust": 82,
       "wonPercent": 67,
       "marketPercent": 54,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 13.0
      },
      "CRYPTO": {
       "n": 0,
@@ -1504,8 +1500,7 @@
       "trust": null,
       "wonPercent": null,
       "marketPercent": null,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": null
      }
     }
    },
@@ -1524,8 +1519,7 @@
       "trust": 78,
       "wonPercent": 77,
       "marketPercent": 78,
-      "gapPoints": -1.1,
-      "luckPoints": 8.8
+      "gapPoints": -0.8
      },
      "GEOPOLITICS": {
       "n": 18,
@@ -1537,8 +1531,7 @@
       "trust": 80,
       "wonPercent": 78,
       "marketPercent": 81,
-      "gapPoints": -2.8,
-      "luckPoints": 13.8
+      "gapPoints": -2.8
      },
      "MACRO": {
       "n": 11,
@@ -1550,8 +1543,7 @@
       "trust": 82,
       "wonPercent": 82,
       "marketPercent": 61,
-      "gapPoints": 20.6,
-      "luckPoints": 30.3
+      "gapPoints": 20.6
      },
      "TECH": {
       "n": 9,
@@ -1563,8 +1555,7 @@
       "trust": 76,
       "wonPercent": 67,
       "marketPercent": 69,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -2.1
      },
      "CRYPTO": {
       "n": 5,
@@ -1576,8 +1567,7 @@
       "trust": 76,
       "wonPercent": 80,
       "marketPercent": 95,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -15.0
      }
     }
    },
@@ -1596,8 +1586,7 @@
       "trust": 73,
       "wonPercent": 60,
       "marketPercent": 66,
-      "gapPoints": -6.1,
-      "luckPoints": 9.8
+      "gapPoints": -6.5
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1609,8 +1598,7 @@
       "trust": 76,
       "wonPercent": 71,
       "marketPercent": 63,
-      "gapPoints": 7.5,
-      "luckPoints": 14.4
+      "gapPoints": 7.5
      },
      "MACRO": {
       "n": 7,
@@ -1621,9 +1609,8 @@
       "blendedBrier": 0.29,
       "trust": 75,
       "wonPercent": 71,
-      "marketPercent": 52,
-      "gapPoints": null,
-      "luckPoints": null
+      "marketPercent": 53,
+      "gapPoints": 18.1
      },
      "TECH": {
       "n": 2,
@@ -1635,8 +1622,7 @@
       "trust": 72,
       "wonPercent": 50,
       "marketPercent": 43,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 6.8
      },
      "CRYPTO": {
       "n": 0,
@@ -1648,8 +1634,7 @@
       "trust": null,
       "wonPercent": null,
       "marketPercent": null,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": null
      }
     }
    },
@@ -1667,9 +1652,8 @@
       "blendedBrier": 0.195,
       "trust": 74,
       "wonPercent": 82,
-      "marketPercent": 82,
-      "gapPoints": 0.1,
-      "luckPoints": 9.3
+      "marketPercent": 81,
+      "gapPoints": 0.5
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1681,8 +1665,7 @@
       "trust": 74,
       "wonPercent": 88,
       "marketPercent": 89,
-      "gapPoints": -0.7,
-      "luckPoints": 14.2
+      "gapPoints": -0.7
      },
      "MACRO": {
       "n": 7,
@@ -1694,8 +1677,7 @@
       "trust": 72,
       "wonPercent": 71,
       "marketPercent": 71,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 0.4
      },
      "TECH": {
       "n": 7,
@@ -1707,8 +1689,7 @@
       "trust": 62,
       "wonPercent": 29,
       "marketPercent": 43,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -14.9
      },
      "CRYPTO": {
       "n": 4,
@@ -1720,8 +1701,7 @@
       "trust": 59,
       "wonPercent": 0,
       "marketPercent": 28,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -28.4
      }
     }
    },
@@ -1740,8 +1720,7 @@
       "trust": 64,
       "wonPercent": 64,
       "marketPercent": 65,
-      "gapPoints": -1.1,
-      "luckPoints": 10.9
+      "gapPoints": -1.1
      },
      "GEOPOLITICS": {
       "n": 16,
@@ -1753,8 +1732,7 @@
       "trust": 75,
       "wonPercent": 94,
       "marketPercent": 80,
-      "gapPoints": 13.9,
-      "luckPoints": 14.9
+      "gapPoints": 13.9
      },
      "MACRO": {
       "n": 9,
@@ -1765,9 +1743,8 @@
       "blendedBrier": 0.202,
       "trust": 69,
       "wonPercent": 78,
-      "marketPercent": 56,
-      "gapPoints": null,
-      "luckPoints": null
+      "marketPercent": 62,
+      "gapPoints": 16.1
      },
      "TECH": {
       "n": 1,
@@ -1779,8 +1756,7 @@
       "trust": 69,
       "wonPercent": 100,
       "marketPercent": 75,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": 25.0
      },
      "CRYPTO": {
       "n": 0,
@@ -1792,8 +1768,7 @@
       "trust": null,
       "wonPercent": null,
       "marketPercent": null,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": null
      }
     }
    },
@@ -1812,8 +1787,7 @@
       "trust": 60,
       "wonPercent": 19,
       "marketPercent": 22,
-      "gapPoints": -2.8,
-      "luckPoints": 9.0
+      "gapPoints": -3.0
      },
      "GEOPOLITICS": {
       "n": 16,
@@ -1825,8 +1799,7 @@
       "trust": 57,
       "wonPercent": 6,
       "marketPercent": 11,
-      "gapPoints": -5.0,
-      "luckPoints": 15.0
+      "gapPoints": -5.0
      },
      "MACRO": {
       "n": 8,
@@ -1837,9 +1810,8 @@
       "blendedBrier": 0.548,
       "trust": 59,
       "wonPercent": 13,
-      "marketPercent": 23,
-      "gapPoints": null,
-      "luckPoints": null
+      "marketPercent": 29,
+      "gapPoints": -16.4
      },
      "TECH": {
       "n": 3,
@@ -1851,8 +1823,7 @@
       "trust": 57,
       "wonPercent": 0,
       "marketPercent": 32,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -31.8
      },
      "CRYPTO": {
       "n": 1,
@@ -1864,8 +1835,7 @@
       "trust": 58,
       "wonPercent": 0,
       "marketPercent": 5,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -4.9
      }
     }
    },
@@ -1884,8 +1854,7 @@
       "trust": 42,
       "wonPercent": 17,
       "marketPercent": 20,
-      "gapPoints": -3.0,
-      "luckPoints": 9.4
+      "gapPoints": -3.6
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1897,8 +1866,7 @@
       "trust": 45,
       "wonPercent": 24,
       "marketPercent": 26,
-      "gapPoints": -2.5,
-      "luckPoints": 14.4
+      "gapPoints": -2.5
      },
      "MACRO": {
       "n": 9,
@@ -1909,9 +1877,8 @@
       "blendedBrier": 0.675,
       "trust": 44,
       "wonPercent": 22,
-      "marketPercent": 29,
-      "gapPoints": null,
-      "luckPoints": null
+      "marketPercent": 34,
+      "gapPoints": -11.6
      },
      "TECH": {
       "n": 1,
@@ -1923,8 +1890,7 @@
       "trust": 43,
       "wonPercent": 0,
       "marketPercent": 26,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -25.5
      },
      "CRYPTO": {
       "n": 0,
@@ -1936,8 +1902,7 @@
       "trust": null,
       "wonPercent": null,
       "marketPercent": null,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": null
      }
     }
    },
@@ -1955,9 +1920,8 @@
       "blendedBrier": 0.665,
       "trust": 40,
       "wonPercent": 16,
-      "marketPercent": 22,
-      "gapPoints": -6.1,
-      "luckPoints": 9.3
+      "marketPercent": 23,
+      "gapPoints": -6.2
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1969,8 +1933,7 @@
       "trust": 41,
       "wonPercent": 24,
       "marketPercent": 21,
-      "gapPoints": 2.8,
-      "luckPoints": 14.5
+      "gapPoints": 2.8
      },
      "MACRO": {
       "n": 9,
@@ -1981,9 +1944,8 @@
       "blendedBrier": 0.637,
       "trust": 42,
       "wonPercent": 11,
-      "marketPercent": 25,
-      "gapPoints": null,
-      "luckPoints": null
+      "marketPercent": 30,
+      "gapPoints": -19.0
      },
      "TECH": {
       "n": 2,
@@ -1995,8 +1957,7 @@
       "trust": 39,
       "wonPercent": 0,
       "marketPercent": 25,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": -25.3
      },
      "CRYPTO": {
       "n": 0,
@@ -2008,8 +1969,7 @@
       "trust": null,
       "wonPercent": null,
       "marketPercent": null,
-      "gapPoints": null,
-      "luckPoints": null
+      "gapPoints": null
      }
     }
    }
@@ -2026,8 +1986,7 @@
      "trust": 75,
      "wonPercent": 94,
      "marketPercent": 80,
-     "gapPoints": 13.9,
-     "luckPoints": 14.9
+     "gapPoints": 13.9
     },
     "politics": {
      "n": 53,
@@ -2039,8 +1998,7 @@
      "trust": 64,
      "wonPercent": 64,
      "marketPercent": 65,
-     "gapPoints": -1.1,
-     "luckPoints": 10.9
+     "gapPoints": -1.1
     }
    },
    "wood": {
@@ -2054,8 +2012,7 @@
      "trust": 62,
      "wonPercent": 29,
      "marketPercent": 43,
-     "gapPoints": null,
-     "luckPoints": null
+     "gapPoints": -14.9
     },
     "crypto": {
      "n": 4,
@@ -2067,8 +2024,7 @@
      "trust": 59,
      "wonPercent": 0,
      "marketPercent": 28,
-     "gapPoints": null,
-     "luckPoints": null
+     "gapPoints": -28.4
     },
     "politics": {
      "n": 60,
@@ -2079,9 +2035,8 @@
      "blendedBrier": 0.195,
      "trust": 74,
      "wonPercent": 82,
-     "marketPercent": 82,
-     "gapPoints": 0.1,
-     "luckPoints": 9.3
+     "marketPercent": 81,
+     "gapPoints": 0.5
     }
    }
   }
@@ -2122,8 +2077,7 @@
       "trust": 78,
       "thin": false,
       "wonRate": 0.769,
-      "marketPrice": 0.78,
-      "luckRange": 0.088
+      "marketImplied": 0.778
      }
     },
     "dalio": {
@@ -2142,8 +2096,7 @@
       "trust": 84,
       "thin": false,
       "wonRate": 0.754,
-      "marketPrice": 0.747,
-      "luckRange": 0.083
+      "marketImplied": 0.734
      }
     },
     "insider": {
@@ -2162,8 +2115,7 @@
       "trust": 86,
       "thin": false,
       "wonRate": 0.786,
-      "marketPrice": 0.768,
-      "luckRange": 0.095
+      "marketImplied": 0.766
      }
     },
     "kitty": {
@@ -2182,8 +2134,7 @@
       "trust": 40,
       "thin": false,
       "wonRate": 0.164,
-      "marketPrice": 0.225,
-      "luckRange": 0.093
+      "marketImplied": 0.226
      }
     },
     "munger": {
@@ -2202,8 +2153,7 @@
       "trust": 85,
       "thin": false,
       "wonRate": 0.778,
-      "marketPrice": 0.732,
-      "luckRange": 0.097
+      "marketImplied": 0.732
      }
     },
     "sbf": {
@@ -2222,8 +2172,7 @@
       "trust": 64,
       "thin": false,
       "wonRate": 0.642,
-      "marketPrice": 0.652,
-      "luckRange": 0.109
+      "marketImplied": 0.652
      }
     },
     "simons": {
@@ -2242,8 +2191,7 @@
       "trust": 60,
       "thin": false,
       "wonRate": 0.19,
-      "marketPrice": 0.218,
-      "luckRange": 0.09
+      "marketImplied": 0.22
      }
     },
     "soros": {
@@ -2262,8 +2210,7 @@
       "trust": 73,
       "thin": false,
       "wonRate": 0.596,
-      "marketPrice": 0.658,
-      "luckRange": 0.098
+      "marketImplied": 0.661
      }
     },
     "thiel": {
@@ -2282,8 +2229,7 @@
       "trust": 42,
       "thin": false,
       "wonRate": 0.167,
-      "marketPrice": 0.197,
-      "luckRange": 0.094
+      "marketImplied": 0.203
      }
     },
     "wood": {
@@ -2302,8 +2248,7 @@
       "trust": 74,
       "thin": false,
       "wonRate": 0.817,
-      "marketPrice": 0.815,
-      "luckRange": 0.093
+      "marketImplied": 0.812
      }
     }
    },
@@ -2324,8 +2269,7 @@
       "trust": 80,
       "thin": false,
       "wonRate": 0.778,
-      "marketPrice": 0.805,
-      "luckRange": 0.138
+      "marketImplied": 0.805
      }
     },
     "dalio": {
@@ -2344,8 +2288,7 @@
       "trust": 85,
       "thin": false,
       "wonRate": 0.765,
-      "marketPrice": 0.748,
-      "luckRange": 0.135
+      "marketImplied": 0.745
      }
     },
     "insider": {
@@ -2364,8 +2307,7 @@
       "trust": 89,
       "thin": false,
       "wonRate": 0.833,
-      "marketPrice": 0.802,
-      "luckRange": 0.129
+      "marketImplied": 0.799
      }
     },
     "kitty": {
@@ -2384,8 +2326,7 @@
       "trust": 41,
       "thin": false,
       "wonRate": 0.235,
-      "marketPrice": 0.208,
-      "luckRange": 0.145
+      "marketImplied": 0.208
      }
     },
     "munger": {
@@ -2404,8 +2345,7 @@
       "trust": 88,
       "thin": false,
       "wonRate": 0.842,
-      "marketPrice": 0.85,
-      "luckRange": 0.132
+      "marketImplied": 0.85
      }
     },
     "sbf": {
@@ -2424,8 +2364,7 @@
       "trust": 75,
       "thin": false,
       "wonRate": 0.938,
-      "marketPrice": 0.799,
-      "luckRange": 0.149
+      "marketImplied": 0.799
      }
     },
     "simons": {
@@ -2444,8 +2383,7 @@
       "trust": 57,
       "thin": false,
       "wonRate": 0.063,
-      "marketPrice": 0.113,
-      "luckRange": 0.15
+      "marketImplied": 0.113
      }
     },
     "soros": {
@@ -2464,8 +2402,7 @@
       "trust": 76,
       "thin": false,
       "wonRate": 0.706,
-      "marketPrice": 0.631,
-      "luckRange": 0.144
+      "marketImplied": 0.631
      }
     },
     "thiel": {
@@ -2484,8 +2421,7 @@
       "trust": 45,
       "thin": false,
       "wonRate": 0.235,
-      "marketPrice": 0.261,
-      "luckRange": 0.144
+      "marketImplied": 0.261
      }
     },
     "wood": {
@@ -2504,8 +2440,7 @@
       "trust": 74,
       "thin": false,
       "wonRate": 0.882,
-      "marketPrice": 0.889,
-      "luckRange": 0.142
+      "marketImplied": 0.889
      }
     }
    },
@@ -2526,8 +2461,7 @@
       "trust": 82,
       "thin": false,
       "wonRate": 0.818,
-      "marketPrice": 0.612,
-      "luckRange": 0.303
+      "marketImplied": 0.612
      }
     },
     "dalio": {
@@ -2546,8 +2480,7 @@
       "trust": 85,
       "thin": true,
       "wonRate": 0.75,
-      "marketPrice": 0.534,
-      "luckRange": null
+      "marketImplied": 0.534
      }
     },
     "insider": {
@@ -2566,8 +2499,7 @@
       "trust": 91,
       "thin": false,
       "wonRate": 0.9,
-      "marketPrice": 0.645,
-      "luckRange": 0.325
+      "marketImplied": 0.645
      }
     },
     "kitty": {
@@ -2586,8 +2518,7 @@
       "trust": 42,
       "thin": true,
       "wonRate": 0.111,
-      "marketPrice": 0.251,
-      "luckRange": null
+      "marketImplied": 0.301
      }
     },
     "munger": {
@@ -2606,8 +2537,7 @@
       "trust": 83,
       "thin": true,
       "wonRate": 0.667,
-      "marketPrice": 0.611,
-      "luckRange": null
+      "marketImplied": 0.61
      }
     },
     "sbf": {
@@ -2626,8 +2556,7 @@
       "trust": 69,
       "thin": true,
       "wonRate": 0.778,
-      "marketPrice": 0.562,
-      "luckRange": null
+      "marketImplied": 0.616
      }
     },
     "simons": {
@@ -2646,8 +2575,7 @@
       "trust": 59,
       "thin": true,
       "wonRate": 0.125,
-      "marketPrice": 0.233,
-      "luckRange": null
+      "marketImplied": 0.289
      }
     },
     "soros": {
@@ -2666,8 +2594,7 @@
       "trust": 75,
       "thin": true,
       "wonRate": 0.714,
-      "marketPrice": 0.523,
-      "luckRange": null
+      "marketImplied": 0.533
      }
     },
     "thiel": {
@@ -2686,8 +2613,7 @@
       "trust": 44,
       "thin": true,
       "wonRate": 0.222,
-      "marketPrice": 0.288,
-      "luckRange": null
+      "marketImplied": 0.338
      }
     },
     "wood": {
@@ -2706,8 +2632,7 @@
       "trust": 72,
       "thin": true,
       "wonRate": 0.714,
-      "marketPrice": 0.71,
-      "luckRange": null
+      "marketImplied": 0.71
      }
     }
    },
@@ -2728,8 +2653,7 @@
       "trust": 76,
       "thin": true,
       "wonRate": 0.667,
-      "marketPrice": 0.687,
-      "luckRange": null
+      "marketImplied": 0.687
      }
     },
     "dalio": {
@@ -2748,8 +2672,7 @@
       "trust": 82,
       "thin": true,
       "wonRate": 0.667,
-      "marketPrice": 0.537,
-      "luckRange": null
+      "marketImplied": 0.537
      }
     },
     "insider": {
@@ -2768,8 +2691,7 @@
       "trust": 90,
       "thin": true,
       "wonRate": 1.0,
-      "marketPrice": 0.748,
-      "luckRange": null
+      "marketImplied": 0.748
      }
     },
     "kitty": {
@@ -2788,8 +2710,7 @@
       "trust": 39,
       "thin": true,
       "wonRate": 0.0,
-      "marketPrice": 0.253,
-      "luckRange": null
+      "marketImplied": 0.253
      }
     },
     "munger": {
@@ -2808,8 +2729,7 @@
       "trust": 82,
       "thin": false,
       "wonRate": 0.6,
-      "marketPrice": 0.63,
-      "luckRange": 0.211
+      "marketImplied": 0.63
      }
     },
     "sbf": {
@@ -2828,8 +2748,7 @@
       "trust": 69,
       "thin": true,
       "wonRate": 1.0,
-      "marketPrice": 0.75,
-      "luckRange": null
+      "marketImplied": 0.75
      }
     },
     "simons": {
@@ -2848,8 +2767,7 @@
       "trust": 57,
       "thin": true,
       "wonRate": 0.0,
-      "marketPrice": 0.318,
-      "luckRange": null
+      "marketImplied": 0.318
      }
     },
     "soros": {
@@ -2868,8 +2786,7 @@
       "trust": 72,
       "thin": true,
       "wonRate": 0.5,
-      "marketPrice": 0.433,
-      "luckRange": null
+      "marketImplied": 0.433
      }
     },
     "thiel": {
@@ -2888,8 +2805,7 @@
       "trust": 43,
       "thin": true,
       "wonRate": 0.0,
-      "marketPrice": 0.255,
-      "luckRange": null
+      "marketImplied": 0.255
      }
     },
     "wood": {
@@ -2908,8 +2824,7 @@
       "trust": 62,
       "thin": true,
       "wonRate": 0.286,
-      "marketPrice": 0.434,
-      "luckRange": null
+      "marketImplied": 0.434
      }
     }
    },
@@ -2930,8 +2845,7 @@
       "trust": 76,
       "thin": true,
       "wonRate": 0.8,
-      "marketPrice": 0.95,
-      "luckRange": null
+      "marketImplied": 0.95
      }
     },
     "dalio": {
@@ -2950,8 +2864,7 @@
       "trust": null,
       "thin": true,
       "wonRate": null,
-      "marketPrice": null,
-      "luckRange": null
+      "marketImplied": null
      }
     },
     "insider": {
@@ -2970,8 +2883,7 @@
       "trust": 89,
       "thin": true,
       "wonRate": 1.0,
-      "marketPrice": 0.35,
-      "luckRange": null
+      "marketImplied": 0.35
      }
     },
     "kitty": {
@@ -2990,8 +2902,7 @@
       "trust": null,
       "thin": true,
       "wonRate": null,
-      "marketPrice": null,
-      "luckRange": null
+      "marketImplied": null
      }
     },
     "munger": {
@@ -3010,8 +2921,7 @@
       "trust": 85,
       "thin": true,
       "wonRate": 0.8,
-      "marketPrice": 0.95,
-      "luckRange": null
+      "marketImplied": 0.95
      }
     },
     "sbf": {
@@ -3030,8 +2940,7 @@
       "trust": null,
       "thin": true,
       "wonRate": null,
-      "marketPrice": null,
-      "luckRange": null
+      "marketImplied": null
      }
     },
     "simons": {
@@ -3050,8 +2959,7 @@
       "trust": 58,
       "thin": true,
       "wonRate": 0.0,
-      "marketPrice": 0.049,
-      "luckRange": null
+      "marketImplied": 0.049
      }
     },
     "soros": {
@@ -3070,8 +2978,7 @@
       "trust": null,
       "thin": true,
       "wonRate": null,
-      "marketPrice": null,
-      "luckRange": null
+      "marketImplied": null
      }
     },
     "thiel": {
@@ -3090,8 +2997,7 @@
       "trust": null,
       "thin": true,
       "wonRate": null,
-      "marketPrice": null,
-      "luckRange": null
+      "marketImplied": null
      }
     },
     "wood": {
@@ -3110,8 +3016,7 @@
       "trust": 59,
       "thin": true,
       "wonRate": 0.0,
-      "marketPrice": 0.285,
-      "luckRange": null
+      "marketImplied": 0.285
      }
     }
    }
@@ -3146,7 +3051,11 @@
     "status": "passed"
    },
    {
-    "name": "test_luck_counts_each_contract_once",
+    "name": "test_repeat_bets_share_one_outcome",
+    "status": "passed"
+   },
+   {
+    "name": "test_luck_range_is_exact",
     "status": "passed"
    },
    {
@@ -3609,7 +3518,7 @@
  },
  "inputs": {
   "data/snapshot.json": "e065061595cba6b696b97a09b293166be2af5dd576d5a5a482660e3ede614ec0",
-  "analysis/rescore.py": "b536af6cb809df8842abe3dfbee0240d9d26eae5a41914651685a390a6a70c3f",
-  "analysis/tests/test_rescore.py": "3fd78562b764a93fddc8196bfdd3f8569b0d2e85111a494bfd4ebd432fe167c1"
+  "analysis/rescore.py": "71d4a107ed2b63831d3b853df9419bb1a6404ee7d1455f2f946645ef2e321995",
+  "analysis/tests/test_rescore.py": "0e9103de38bfb1ce455bde6f4b7e654fb7fb3590dbeaa2252d8658aa3617f1c2"
  }
 }

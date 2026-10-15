@@ -52,7 +52,7 @@ export interface Agent {
   trustAsScored: number
   trustFixed: number
   baseTrust: number
-  /** Mean market price at entry of the sides it picked, in percent. */
+  /** The win rate the market's prices at entry implied for its bets, in percent. */
   marketPercent: number
   sampleBets: SampleBet[]
 }
@@ -65,12 +65,10 @@ export interface Cell {
   rawBrier: number | null
   blendedBrier: number | null
   trust: number | null
-  /** Null when the cell has no picks. */
+  /** Won, the win rate the market's prices implied, and the gap in points. Null when the cell has no picks. */
   wonPercent: number | null
   marketPercent: number | null
-  /** Win rate minus market price and its luck range, in points. Null under 10 picks. */
   gapPoints: number | null
-  luckPoints: number | null
 }
 
 export interface Band {
@@ -92,10 +90,11 @@ export interface MarketRow {
   contracts: number
   wonPercent: number
   marketPercent: number
-  /** Win rate minus market price, in points. */
+  /** Win rate minus the win rate the market's prices implied, in points. */
   gapPoints: number
-  /** How far luck alone moves the win rate (95%), in points. Repeat bets on one contract share its outcome. */
-  luckPoints: number
+  /** The middle 95% of gaps luck alone produces, in points. Repeat bets on one contract share its outcome. */
+  luckLowPoints: number
+  luckHighPoints: number
 }
 
 export interface ProofRow {
@@ -145,7 +144,7 @@ export interface PageData {
     rows: MarketRow[]
     closest: string
     edgePoints: number
-    /** Settled bets, each on a different contract, for a real 5-point edge to clear luck 4 times in 5. */
+    /** Rough planning number: settled bets, each on a different contract, for a real 5-point edge to clear luck about 4 times in 5. */
     betsForEdgeMin: number
     betsForEdgeMax: number
     settledMin: number

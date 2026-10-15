@@ -45,7 +45,7 @@ export function RatingBands() {
 }
 
 // Points either side of zero: the widest gap or luck range, rounded up to a multiple of 5.
-const AXIS = Math.ceil(Math.max(...market.rows.map((r) => Math.max(Math.abs(r.gapPoints), r.luckPoints))) / 5) * 5
+const AXIS = Math.ceil(Math.max(...market.rows.flatMap((r) => [r.gapPoints, r.luckLowPoints, r.luckHighPoints].map(Math.abs))) / 5) * 5
 const x = (points: number) => `${50 + (points / AXIS) * 50}%`
 
 /** Exhibit 3. Each agent's win rate minus the market price of the sides it picked, inside the range luck alone covers. */
@@ -75,8 +75,9 @@ export function MarketGap() {
         {market.rows.map((r) => (
           <li key={r.id} className="gc-row">
             <span className="sr-only">
-              {r.name}: won {r.wonPercent}% of {r.n} settled bets on {r.contracts} contracts, market price {r.marketPercent}%, a gap of {signed(r.gapPoints)}{' '}
-              points. Luck alone covers {r.luckPoints} points either way.
+              {r.name}: won {r.wonPercent}% of {r.n} settled bets on {r.contracts} contracts, where the market's prices implied{' '}
+              {r.marketPercent}%, a gap of {signed(r.gapPoints)} points. Luck alone covers {signed(r.luckLowPoints)} to{' '}
+              {signed(r.luckHighPoints)} points.
             </span>
             <span className="gc-agent" aria-hidden="true">
               <span className="agent-name">{r.name}</span>
@@ -91,7 +92,7 @@ export function MarketGap() {
               {r.marketPercent}%
             </span>
             <span className="gc-axis" aria-hidden="true">
-              <span className="gc-luck" style={{ left: x(-r.luckPoints), right: `calc(100% - ${x(r.luckPoints)})` }} />
+              <span className="gc-luck" style={{ left: x(r.luckLowPoints), right: `calc(100% - ${x(r.luckHighPoints)})` }} />
               <span className="gc-zero" />
               <span className="gc-dot" style={{ left: x(r.gapPoints) }} />
             </span>

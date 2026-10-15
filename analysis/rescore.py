@@ -4,7 +4,7 @@ Reads data/raw/<date>/ (the newest folder unless --raw is given) after checking
 each file against the pull's manifest, builds the snapshot (only what the tests
 need), runs the tests on it, then writes data/snapshot.json and data/page.json
 (everything the page shows, with the test results and a hash of each input).
-If a test fails, neither file is touched.
+If a test or a copy check fails, neither file is touched.
 
 Standard library only; pytest for the test step.
 Run from the repo root:  python -I analysis/rescore.py
@@ -12,6 +12,7 @@ Run from the repo root:  python -I analysis/rescore.py
 import argparse
 import collections
 import hashlib
+import itertools
 import json
 import math
 import os
@@ -36,7 +37,7 @@ LOW = 7         # ratings at or below this score better when they lose, as score
 HIGH = 12       # sample bets also show one high-conviction pick at or above this
 EDGE_POINTS = 5  # the win-rate edge over the market price used for "how many bets to tell it from luck"
 Z95 = 1.96
-Z80 = 0.8416    # 80% power: a real edge clears the 95% luck range 4 times in 5
+Z80 = 0.8416    # for the planning estimate: a real edge clears the luck range about 4 times in 5
 STRIP_WEEKS = range(13, 42)
 STRIP_YEAR = 2026
 # Gamma supply count: Agent Street publishes "No sports. No entertainment."
@@ -268,8 +269,8 @@ def agent_table(snap):
 def domain_cells(snap, rows):
     """Per agent and domain: the fixed Brier, blended toward the agent's overall score
     (every cell, so a 10-pick cell is half its own score), and the cell's win rate against
-    the market price of its own bets. The luck range needs 10 or more bets: below that the
-    1.96-sigma range isn't a fair 95% (Wood's 4 crypto bets sit right at its edge)."""
+    the win rate the market's prices implied for its own bets. The page shows no luck range
+    per cell: with 50 cells, two or three would land outside a 95% range by luck alone."""
     cat = {e["id"]: e["category"] for e in snap["events"]}
     contract_of = contracts(snap)
     cells = {}
@@ -285,55 +286,66 @@ def domain_cells(snap, rows):
                 "blended": blended,
                 "trust": trust(snap["published"][a]["baseTrust"], blended) if blended is not None else None,
                 "thin": len(cp) < THIN,
-                "won": sum(won(p) for p in cp) / len(cp) if cp else None,
-                "market": sum(side_price(p) for p in cp) / len(cp) if cp else None,
-                "vs": against_market(cp, contract_of) if len(cp) >= THIN else None,
+                "vs": against_market(cp, contract_of) if cp else None,
             }
     return cells
 
 
-def contract_spread(picks, contract_of):
-    """Variance of the win count if the market's prices were right.
+def win_distribution(picks, contract_of):
+    """The chance of each total win count if every contract resolved at the market's price.
 
-    Repeat bets on one Polymarket contract share its outcome, so each contract
-    counts once: with a bets on YES and b on NO at an average entry price q for
-    YES, its wins vary by (a - b)^2 x q(1 - q). Two bets on the same side vary
-    twice as much as two independent ones; a YES and a NO cancel out.
+    Repeat bets on one Polymarket contract share its outcome. With a bets on YES
+    and b on NO at a mean entry price q for YES, the contract adds a wins with
+    chance q and b wins otherwise. Returns the distribution (index = wins), the
+    expected wins under it, and the number of contracts.
     """
     by_contract = collections.defaultdict(list)
     for p in picks:
         by_contract[contract_of[p["eventId"]]].append(p)
-    spread = 0.0
+    dist, expected = [1.0], 0.0
     for xs in by_contract.values():
         yes = sum(p["prediction"] == "YES" for p in xs)
+        no = len(xs) - yes
         q = sum(p["marketProbAtEntry"] for p in xs) / len(xs)
-        spread += (2 * yes - len(xs)) ** 2 * q * (1 - q)
-    return spread, len(by_contract)
+        expected += yes * q + no * (1 - q)
+        nxt = [0.0] * (len(dist) + max(yes, no))
+        for k, chance in enumerate(dist):
+            nxt[k + yes] += chance * q
+            nxt[k + no] += chance * (1 - q)
+        dist = nxt
+    return dist, expected, len(by_contract)
 
 
 def against_market(picks, contract_of):
-    """How often picks won, against the market price of the side picked.
+    """How often picks won, against the win rate the market's prices at entry implied.
 
-    Luck alone moves the win rate by about 1.96 x sqrt(spread) / n either way
-    (95%), with spread from contract_spread. A gap outside that range is an edge
-    luck doesn't explain. It doesn't model links between different contracts
-    (two markets on one election). betsFor5PointEdge is how many settled bets,
-    each on a different contract at these prices, it takes before a real 5-point
-    edge clears the range 4 times in 5.
+    The luck range is exact: the middle 95% of win counts under win_distribution,
+    leaving at most 2.5% on each side. A win rate outside it is an edge luck
+    doesn't explain. It doesn't model links between different contracts (two
+    markets on one election). betsFor5PointEdge is a rough planning number from
+    the usual normal approximation: settled bets, each on a different contract at
+    these prices, for a real 5-point edge to clear the range about 4 times in 5.
     """
     n = len(picks)
-    prices = [side_price(p) for p in picks]
-    spread, n_contracts = contract_spread(picks, contract_of)
-    won_rate = sum(won(p) for p in picks) / n
-    market = sum(prices) / n
-    per_bet = sum(x * (1 - x) for x in prices) / n
+    wins = sum(won(p) for p in picks)
+    dist, expected, n_contracts = win_distribution(picks, contract_of)
+    at_or_below = list(itertools.accumulate(dist))
+    at_or_above = [1 - (at_or_below[k - 1] if k else 0) for k in range(len(dist))]
+    tail = (1 - 0.95) / 2
+    low = min(k for k in range(len(dist)) if at_or_below[k] > tail)
+    high = max(k for k in range(len(dist)) if at_or_above[k] > tail)
+    market = expected / n
+    per_bet = sum(side_price(p) * (1 - side_price(p)) for p in picks) / n
     return {
         "n": n,
         "contracts": n_contracts,
-        "won": won_rate,
+        "won": wins / n,
         "market": market,
-        "gap": won_rate - market,
-        "luck": Z95 * spread ** 0.5 / n,
+        "gap": wins / n - market,
+        "luckLow": low / n - market,
+        "luckHigh": high / n - market,
+        "inside": low <= wins <= high,
+        "chanceAtOrAbove": at_or_above[wins],
         "betsFor5PointEdge": math.ceil((Z95 + Z80) ** 2 * per_bet / (EDGE_POINTS / 100) ** 2),
     }
 
@@ -522,8 +534,7 @@ def cell_out(x):
     return {"n": x["n"], "wins": x["wins"], "losses": x["n"] - x["wins"], "thin": x["thin"],
             "rawBrier": r3(x["raw"]), "blendedBrier": r3(x["blended"]),
             "trust": None if x["trust"] is None else as_int(x["trust"]),
-            "wonPercent": pct(x["won"]), "marketPercent": pct(x["market"]),
-            "gapPoints": points(vs.get("gap")), "luckPoints": points(vs.get("luck"))}
+            "wonPercent": pct(vs.get("won")), "marketPercent": pct(vs.get("market")), "gapPoints": points(vs.get("gap"))}
 
 
 def reading_out(c, reading):
@@ -604,8 +615,12 @@ def build_page(snap, raw, tests):
         return min(xs)[1] if xs else None
 
     vs_rows = sorted(snap["agents"], key=lambda a: -vs[a]["gap"])
-    # "comes closest" to clearly beating the market: the largest gap above the price, against its luck range
-    closest = max((a for a in snap["agents"] if vs[a]["gap"] > 0), key=lambda a: vs[a]["gap"] / vs[a]["luck"])
+    # "comes closest" to clearly beating the market: of the agents above the market, the one luck explains least
+    closest = min((a for a in snap["agents"] if vs[a]["gap"] > 0), key=lambda a: vs[a]["chanceAtOrAbove"])
+
+    def vs_cell(a, c, key):
+        x = cells[(a, c)]["vs"]
+        return None if x is None else x[key]
     bets_needed = sorted(vs[a]["betsFor5PointEdge"] for a in snap["agents"])
 
     def proposed(c):
@@ -618,9 +633,8 @@ def build_page(snap, raw, tests):
                 "domain": {
                     "category": c, "scoring": "side-v2", "settledCount": x["n"], "brierScore": x["rawBrier"],
                     "blendedBrier": x["blendedBrier"], "trust": x["trust"], "thin": x["thin"],
-                    "wonRate": half_up(cells[(a, c)]["won"], 3) if x["n"] else None,
-                    "marketPrice": half_up(cells[(a, c)]["market"], 3) if x["n"] else None,
-                    "luckRange": None if x["luckPoints"] is None else half_up(x["luckPoints"] / 100, 3),
+                    "wonRate": r3(vs_cell(a, c, "won")),
+                    "marketImplied": r3(vs_cell(a, c, "market")),
                 },
             }
         return body
@@ -652,12 +666,12 @@ def build_page(snap, raw, tests):
         "sbfBestGeopoliticsRaw": best_in("GEOPOLITICS", "raw") == "sbf",
         "sbfBestGeopoliticsBlended": best_in("GEOPOLITICS", "blended") == "sbf",
         "sbfPoliticsWithin2OfMarket": abs(sbf_pol["gap"]) <= 0.02,
-        "sbfGeopoliticsInsideLuck": 0 < sbf_geo["gap"] <= sbf_geo["luck"],
+        "sbfGeopoliticsInsideLuck": sbf_geo["gap"] > 0 and sbf_geo["inside"],
         # "Neither reading is a probability": in both bands each reading misses the
         # win rate by 10 points or more, and the market price lands within 2.
         "readingsMissWinRateInBothBands": all(abs(b[k] - b["won"]) >= 0.10 for b in bands for k in ("asScored", "fixed")),
         "marketWithin2OfWinRateInBothBands": all(abs(b["market"] - b["won"]) <= 0.02 for b in bands),
-        "noAgentOutsideLuck": all(abs(vs[a]["gap"]) <= vs[a]["luck"] for a in snap["agents"]),
+        "noAgentOutsideLuck": all(vs[a]["inside"] for a in snap["agents"]),
         "insiderClosestToAnEdge": closest == "insider",
         # "within about 2 points": the unrounded gap rounds to 2 points or less
         "mungerAckmanAbout2OfMarket": all(abs(vs[a]["gap"]) < 0.025 for a in ("munger", "ackman")),
@@ -680,8 +694,8 @@ def build_page(snap, raw, tests):
             "blend": f"(sum of fixed cell scores + {PRIOR} x agent's overall fixed Brier) / (n + {PRIOR})",
             "thinBelow": THIN,
             "prior": PRIOR,
-            "againstMarket": "Win rate minus the mean market price at entry of the side picked. Luck range: 1.96 x sqrt(spread) / n, the 95% range of the win rate if the market's prices were right. Repeat bets on one contract share its outcome: each contract adds (a - b)^2 x q(1 - q) to the spread, for a YES and b NO bets at mean entry price q.",
-            "betsForEdge": "Settled bets, each on a different contract at the agent's Season 1 prices, for a real 5-point edge to clear the luck range 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2.",
+            "againstMarket": "Win rate minus the win rate the market's prices at entry implied, if each contract resolved at the mean entry price of the agent's bets on it. Repeat bets on one contract share its outcome. Luck range: the middle 95% of win rates under that model, computed exactly.",
+            "betsForEdge": "Rough planning estimate (normal approximation): settled bets, each on a different contract at the agent's Season 1 prices, for a real 5-point edge to clear the luck range about 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2.",
             "kingRule": "Approximate: side YES if consensus > 0.5; EXECUTE if both named anchors voted that side and |consensus - market| >= 0.04, else WAIT.",
         },
         "proof": {
@@ -703,7 +717,8 @@ def build_page(snap, raw, tests):
         "market": {
             "rows": [{**agent_meta(a), "n": vs[a]["n"], "wonPercent": pct(vs[a]["won"]), "marketPercent": pct(vs[a]["market"]),
                       "contracts": vs[a]["contracts"],
-                      "gapPoints": points(vs[a]["gap"]), "luckPoints": points(vs[a]["luck"])}
+                      "gapPoints": points(vs[a]["gap"]),
+                      "luckLowPoints": points(vs[a]["luckLow"]), "luckHighPoints": points(vs[a]["luckHigh"])}
                      for a in vs_rows],
             "closest": closest,
             "edgePoints": EDGE_POINTS,
@@ -769,8 +784,18 @@ def run_tests(snapshot_text):
         return tests, proc.returncode, proc.stdout + proc.stderr
 
 
+# Every raw file rescore.py reads. gamma_supply.json is optional (the plan's supply line).
+PULL_FILES = ["predictions.json", "events.json", "king_bets.json", "trust_scores.json", "calibration.json",
+              "batches.json", "season.json", "street_bundle.js", "site_bundle.js"]
+
+
 def verify_pull(raw):
-    """Every file the manifest lists must match its recorded size and SHA-256."""
+    """Each file rescore.py reads must be listed once in the manifest and match its size and SHA-256."""
+    entries = collections.Counter(f["file"] for f in load(raw, "manifest.json")["files"])
+    needed = PULL_FILES + (["gamma_supply.json"] if (raw / "gamma_supply.json").exists() else [])
+    for name in needed:
+        if entries[name] != 1:
+            raise SystemExit(f"{raw.name}/manifest.json lists {name} {entries[name]} times, not once")
     for f in load(raw, "manifest.json")["files"]:
         body = (raw / f["file"]).read_bytes()
         if len(body) != f["bytes"] or hashlib.sha256(body).hexdigest() != f["sha256"]:
@@ -801,14 +826,18 @@ def main():
         print(log)
         raise SystemExit("tests failed; data/snapshot.json and data/page.json not written")
     page = build_page(snap, raw, tests)
+    failed_checks = [k for k, v in page["checks"].items() if not v]
+    if failed_checks:
+        # Rewrite the sentence and its check in build_page, then rerun. The old files stay as they were.
+        raise SystemExit("copy checks that no longer hold: " + ", ".join(failed_checks)
+                         + "; data/snapshot.json and data/page.json not written")
     page["inputs"] = {path: text_hash(snapshot_text if path == "data/snapshot.json" else (ROOT / path).read_text(encoding="utf-8"))
                       for path in INPUTS}
+    page_text = json.dumps(page, indent=1, ensure_ascii=False) + "\n"
     (DATA / "snapshot.json").write_text(snapshot_text, encoding="utf-8", newline="\n")
-    (DATA / "page.json").write_text(json.dumps(page, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
-    failed_checks = [k for k, v in page["checks"].items() if not v]
-    print(f"pull {raw.name}: {len(tests)} tests passed; wrote data/snapshot.json and data/page.json")
-    if failed_checks:
-        print("copy checks that no longer hold:", ", ".join(failed_checks))
+    (DATA / "page.json").write_text(page_text, encoding="utf-8", newline="\n")
+    print(f"pull {raw.name}: {len(tests)} tests passed, {len(page['checks'])} copy checks hold; "
+          "wrote data/snapshot.json and data/page.json")
 
 
 if __name__ == "__main__":

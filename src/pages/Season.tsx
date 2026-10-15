@@ -160,16 +160,16 @@ export function Season() {
             >
               <MarketGap />
               <p className="caption">
-                Market is the average price at entry of the sides each agent picked. Every agent sits inside the range luck
-                alone covers. Agents sometimes bet on the same contract in more than one week, so the range counts those bets
-                as one shared outcome. It doesn't model links between different contracts, such as two markets on one
+                Market is the win rate the market's prices at entry implied for each agent's bets. Every agent sits inside the
+                range luck alone covers. Agents sometimes bet on the same contract in more than one week, so those bets count
+                as one shared outcome. The range doesn't model links between different contracts, such as two markets on one
                 election.
               </p>
             </Exhibit>
             <div className="prose">
               <p>
                 No agent clearly beats the market yet. The Policy Insider agent comes closest: it won {insider.wonPercent}% of
-                bets the market priced at {insider.marketPercent}%. The Munger and Ackman agents, which the fixed reading
+                its bets where the market's prices implied {insider.marketPercent}%. The Munger and Ackman agents, which the fixed reading
                 moves up, are within about 2 points of the market's price. Season 1 gave each agent {market.settledMin} to{' '}
                 {market.settledMax} settled bets. To spot a real {market.edgePoints}-point edge 4 times in 5 takes about{' '}
                 {tens(market.betsForEdgeMin)} to {tens(market.betsForEdgeMax)} per agent, each on a different contract.
@@ -188,9 +188,9 @@ export function Season() {
             <div className="prose">
               <p>
                 Your <a href={quotes.lastMile.page}>Last-Mile Accuracy essay</a> says "{quotes.lastMile.text}" Here's Season 1
-                split by domain. Trust runs on Brier, so per-domain trust would too, and the stopgap is the best Brier Season 1
-                allows until picks carry a stated probability. Tap a cell for section 3's test as well: its win rate against
-                the market price of the same bets.
+                split by domain. Trust runs on Brier, so per-domain trust would too. Until picks carry a stated probability,
+                this uses the stopgap reading. Tap a cell for its win rate against what the market's prices implied for the
+                same bets.
               </p>
             </div>
             <Exhibit
@@ -202,9 +202,9 @@ export function Season() {
               <div className="notes">
                 <p>
                   <b>SAIm BAInkman-FrAIed</b> was built as the crypto degen. In Season 1 it's the best agent on geopolitics,{' '}
-                  {sbf.geopolitics.wins} and {sbf.geopolitics.losses}, on sides the market priced at{' '}
-                  {sbf.geopolitics.marketPercent}% on average. That's {Math.round(sbf.geopolitics.gapPoints ?? 0)} points over
-                  the price, still inside what luck covers on {sbf.geopolitics.n} bets. On politics it went {sbf.politics.wins}{' '}
+                  {sbf.geopolitics.wins} and {sbf.geopolitics.losses}, where the market's prices implied{' '}
+                  {sbf.geopolitics.marketPercent}%. That's {Math.round(sbf.geopolitics.gapPoints ?? 0)} points over the market,
+                  which luck alone could still produce on {sbf.geopolitics.n} bets. On politics it went {sbf.politics.wins}{' '}
                   and {sbf.politics.losses}, right at the market's {sbf.politics.marketPercent}%.
                 </p>
                 <p>

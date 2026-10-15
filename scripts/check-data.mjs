@@ -17,7 +17,8 @@ const TESTS = [
   'test_as_scored_rewards_losing',
   'test_fixed_never_rewards_losing',
   'test_blend',
-  'test_luck_counts_each_contract_once',
+  'test_repeat_bets_share_one_outcome',
+  'test_luck_range_is_exact',
   'test_every_scored_event_has_a_contract',
 ]
 const INPUTS = ['data/snapshot.json', 'analysis/rescore.py', 'analysis/tests/test_rescore.py']

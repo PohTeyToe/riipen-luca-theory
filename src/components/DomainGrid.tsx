@@ -108,12 +108,12 @@ function Detail({ sel }: { sel: Selection }) {
         Blended as if it had {PRIOR} more picks at this agent's overall score ({brier3(a.brierFixed)}).
         {cell.thin && ` Under ${THIN} picks, so the blend carries most of the weight.`}
       </p>
-      <p className="detail-note">
-        Against the market: won {cell.wonPercent}% on sides priced at {cell.marketPercent}%.{' '}
-        {cell.gapPoints === null || cell.luckPoints === null
-          ? `Under ${THIN} picks, so no luck range.`
-          : `${signed(cell.gapPoints)} points; luck alone covers ${cell.luckPoints.toFixed(1)} either way on these ${cell.n}.`}
-      </p>
+      {cell.gapPoints !== null && (
+        <p className="detail-note">
+          Against the market: won {cell.wonPercent}% where the market's prices implied {cell.marketPercent}%, a gap of{' '}
+          {signed(cell.gapPoints)} points.
+        </p>
+      )}
     </>
   )
 }

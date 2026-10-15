@@ -118,8 +118,8 @@ export function AgentPanel({ id, onClose }: Props) {
       </div>
       <div className="panel-body" ref={body}>
         <p className="panel-summary">
-          Rates {lowLine} of its {a.n} bets at {low} or lower. Wins {a.winPercent}%, on sides the market priced at{' '}
-          {a.marketPercent}% on average.
+          Rates {lowLine} of its {a.n} bets at {low} or lower. Wins {a.winPercent}%, where the market's prices at entry
+          implied {a.marketPercent}%.
         </p>
         <table className="data panel-stats">
           <thead>
