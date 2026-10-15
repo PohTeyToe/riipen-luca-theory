@@ -117,7 +117,7 @@ export function Walkthrough() {
 
           <section className="prose about" aria-label="About me">
             <p>
-              I'm {OWNER.name}, a 4th-year Computer Engineering student at TMU. This summer I finished a Level UP project
+              I'm {OWNER.name}, a Computer Engineering student at TMU. This summer I finished a Level UP project
               with BESI: an AI hiring-assessment prototype where every quote the model cites is checked against the
               candidate's own answers, and no model output can set a score.
             </p>
