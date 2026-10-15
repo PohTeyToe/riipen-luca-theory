@@ -22,7 +22,7 @@ npm run build      # checks the data, type-checks, builds to dist/
 npm run preview    # serves dist/ on port 5104
 ```
 
-`npm run build` runs `scripts/check-data.mjs` first. It doesn't run pytest (the build has no Python). `rescore.py` runs the tests and records the results in `data/page.json`, with a yes/no check for each claim the copy depends on (for example "the Simons agent drops 4 places"). The build stops unless every expected test and check is there and passed. After a re-pull, a failure there means a sentence on the page needs rewriting, not working around.
+`npm run build` runs `scripts/check-data.mjs` first. It doesn't run pytest (the build has no Python). `rescore.py` runs the tests and records the results in `data/page.json`, with a yes/no check for each claim the copy depends on (for example "the Simons agent drops 4 places") and a SHA-256 of `data/snapshot.json`, `analysis/rescore.py` and the tests. The build stops unless every expected test and check is there and passed, and unless those three files still match their hashes, so a `page.json` left over from older data or older code can't ship. After a re-pull, a failed check means a sentence on the page needs rewriting, not working around.
 
 ## Rerun the analysis
 
@@ -30,9 +30,11 @@ Python 3 (run here on 3.12), standard library plus pytest.
 
 ```
 python -I analysis/fetch.py      # pulls the public sources into data/raw/<date>/ (not committed)
-python -I analysis/rescore.py    # writes data/snapshot.json and data/page.json, runs the tests
+python -I analysis/rescore.py    # checks the pull, runs the tests, then writes data/snapshot.json and data/page.json
 pytest analysis                  # the tests run on the committed snapshot, no network needed
 ```
+
+`rescore.py` checks every raw file against the pull's `manifest.json` (size and SHA-256) before using it, and writes nothing if a test fails. The raw files aren't committed: they're LUCA's API responses and site code, so they're linked, not republished. Their hashes are committed in `data/page.json` → `sources`, so any copy of the pull can be checked against them.
 
 The page imports `data/page.json` and computes nothing itself. Every number on it comes from that file.
 
@@ -41,14 +43,15 @@ The page imports `data/page.json` and computes nothing itself. Every number on i
 All public, pulled on 2026-10-15 between 18:02 and 18:11 UTC. `data/SOURCES.md` lists every URL with its retrieval time and how the Polymarket count was made.
 
 - Agent Street's public API: `/api/predictions`, `/api/events`, `/api/king/bets`, `/api/trust-scores`, `/api/analytics/calibration`, `/api/batches/all`, `/api/seasons/current`.
-- The methodology page (for the trust formula and the quoted lines) and two essays on lucatheory.com (for the two quotes). Both sites ship their text in a JavaScript bundle; `rescore.py` checks every quote against it.
+- The methodology page (for the trust formula and the quoted lines) and three essays on lucatheory.com (one quote each). Both sites ship their text in a JavaScript bundle; `rescore.py` checks every one of these quotes against it.
+- One LinkedIn post by David Oram (Aug 7, 2026), quoted once. LinkedIn needs a sign-in for scripts, so that line was checked by hand; `data/SOURCES.md` says how.
 - Polymarket's public Gamma API, for one line in the plan section: how many open markets pass Agent Street's published event filters.
 
 ## What's real, what's proposed, what's mock
 
 - Real, from the pull: every pick, outcome, published score, King call and batch row. Agent Street ran on play money, and the page says so in every source line.
 - LUCA's, unchanged: the trust formula and the King's consensus formula.
-- Mine, labelled on the page as proposals or approximations: the fixed reading of confidence (a stopgap), the comparison of each agent's win rate with the market price at entry and its luck range, the per-domain blend for thin cells, domain trust, the market-price row, the approximate King execute rule (it shows on the page only as a test), and the proposed `/api/trust-scores?category=` response.
+- Mine, labelled on the page as proposals or approximations: the fixed reading of confidence (a stopgap), the comparison of each agent's win rate with the market price at entry, its luck range (repeat bets on one contract count as one shared outcome) and the bets needed to see a 5-point edge, the per-domain blend, domain trust, the approximate King execute rule (it shows on the page only as a test), and the proposed `/api/trust-scores?category=` response.
 - Mock: nothing. There is no generated or LLM-written data here.
 
 ## Deploy

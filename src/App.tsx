@@ -10,7 +10,13 @@ export function App() {
 
   useEffect(() => {
     // Content renders after the browser's own anchor jump, so redo it once it exists.
-    const id = decodeURIComponent(window.location.hash.slice(1))
+    // A malformed fragment (say #%) makes decodeURIComponent throw; ignore it and show the page.
+    let id = ''
+    try {
+      id = decodeURIComponent(window.location.hash.slice(1))
+    } catch {
+      return
+    }
     if (id) document.getElementById(id)?.scrollIntoView()
   }, [season])
 

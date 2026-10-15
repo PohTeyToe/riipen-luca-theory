@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { prefersReducedMotion } from '../motion'
-import { agent, brier3, categoryLabel, categoryShort, page, record, type Category, type Cell, type MarketCell } from '../data'
+import { agent, brier3, categoryLabel, categoryShort, page, record, signed, type Category, type Cell } from '../data'
 
 const { domains } = page
 const COIN = page.line.coinFlipBrier
 const THIN = Number(page.method.thinBelow)
+const PRIOR = Number(page.method.prior)
 
 // Diverging fill around the coin flip. Blue reaches full strength at 0.10, orange at 0.65:
 // the observed spread is wider on the bad side, so each half gets its own range.
@@ -26,7 +27,7 @@ export function fillFor(brier: number) {
   }
 }
 
-type Selection = { kind: 'agent'; id: string; cat: Category } | { kind: 'market'; cat: Category } | null
+type Selection = { id: string; cat: Category } | null
 
 function AgentCell({ cell, id, cat, selected, onSelect }: { cell: Cell; id: string; cat: Category; selected: boolean; onSelect: () => void }) {
   const a = agent(id)
@@ -55,71 +56,12 @@ function AgentCell({ cell, id, cat, selected, onSelect }: { cell: Cell; id: stri
   )
 }
 
-function MarketCellView({ m, cat, selected, onSelect }: { m: MarketCell; cat: Category; selected: boolean; onSelect: () => void }) {
-  if (m.brier === null) {
-    return (
-      <td className="cell none">
-        <button type="button" aria-pressed={selected} onClick={onSelect} aria-label={`Market price at entry, ${categoryLabel[cat]}: no scored events`}>
-          <span className="cell-v">no events</span>
-        </button>
-      </td>
-    )
-  }
-  const { background, dark } = fillFor(m.brier)
-  return (
-    <td className={`cell${m.thin ? ' thin' : ''}${dark && !m.thin ? ' dark' : ''}`} style={{ ['--fill' as string]: background }}>
-      <button
-        type="button"
-        aria-pressed={selected}
-        onClick={onSelect}
-        aria-label={`Market price at entry, ${categoryLabel[cat]}: Brier ${brier3(m.brier)} over ${m.events} events${m.thin ? ', thin' : ''}`}
-      >
-        <span className="cell-v">{brier3(m.brier)}</span>
-        <span className="cell-r">
-          {m.events}
-          <span className="wide-only"> events</span>
-        </span>
-      </button>
-    </td>
-  )
-}
-
 function Detail({ sel }: { sel: Selection }) {
   if (!sel) {
     return (
       <p className="detail-empty">
         Tap a cell for its numbers. Try the SBF agent's geopolitics cell, then the Wood agent's crypto cell.
       </p>
-    )
-  }
-  if (sel.kind === 'market') {
-    const m = domains.market[sel.cat]
-    if (m.brier === null) {
-      return (
-        <>
-          <p className="detail-title">Market price at entry, {categoryLabel[sel.cat]}</p>
-          <p className="detail-note">No scored events in this domain, so there's nothing to score.</p>
-        </>
-      )
-    }
-    return (
-      <>
-        <p className="detail-title">Market price at entry, {categoryLabel[sel.cat]}</p>
-        <dl className="detail-stats">
-          <div>
-            <dt>Scored events</dt>
-            <dd>{m.events}</dd>
-          </div>
-          <div>
-            <dt>Brier</dt>
-            <dd>{brier3(m.brier)}</dd>
-          </div>
-        </dl>
-        <p className="detail-note">
-          One forecast per scored event: the average market price at entry across the agents' picks, scored against how it
-          resolved.{m.thin && ` Under ${THIN} events, so it's thin too.`}
-        </p>
-      </>
     )
   }
   const row = domains.grid.find((g) => g.id === sel.id)!
@@ -161,21 +103,22 @@ function Detail({ sel }: { sel: Selection }) {
           <dt>Cell trust</dt>
           <dd>{cell.trust}</dd>
         </div>
-        <div>
-          <dt>Market price</dt>
-          <dd>{cell.marketPercent}%</dd>
-        </div>
       </dl>
       <p className="detail-note">
-        Blended as if it had 10 more picks at this agent's overall score ({brier3(a.brierFixed)}).
-        {cell.thin && ` Under ${THIN} picks, so the blend carries most of the weight.`} Market price is the average price at
-        entry of the sides it picked.
+        Blended as if it had {PRIOR} more picks at this agent's overall score ({brier3(a.brierFixed)}).
+        {cell.thin && ` Under ${THIN} picks, so the blend carries most of the weight.`}
+      </p>
+      <p className="detail-note">
+        Against the market: won {cell.wonPercent}% on sides priced at {cell.marketPercent}%.{' '}
+        {cell.gapPoints === null || cell.luckPoints === null
+          ? `Under ${THIN} picks, so no luck range.`
+          : `${signed(cell.gapPoints)} points; luck alone covers ${cell.luckPoints.toFixed(1)} either way on these ${cell.n}.`}
       </p>
     </>
   )
 }
 
-/** Exhibit 2. Per-domain trust as the Proof of Trust essay describes it, with thin cells left visibly thin. */
+/** Exhibit 4. Per-domain trust as the Proof of Trust essay describes it, with thin cells left visibly thin. */
 export function DomainGrid() {
   const [sel, setSel] = useState<Selection>(null)
   const detail = useRef<HTMLDivElement>(null)
@@ -215,28 +158,13 @@ export function DomainGrid() {
                   <span className="agent-name">{row.name}</span>
                 </th>
                 {cats.map((c) => {
-                  const s: Selection = { kind: 'agent', id: row.id, cat: c }
+                  const s: Selection = { id: row.id, cat: c }
                   return (
                     <AgentCell key={c} cell={row.cells[c]} id={row.id} cat={c} selected={isSel(s)} onSelect={() => setSel(isSel(s) ? null : s)} />
                   )
                 })}
               </tr>
             ))}
-          </tbody>
-          <tbody className="market-row">
-            <tr className="rule-row" aria-hidden="true">
-              <td colSpan={cats.length + 1} />
-            </tr>
-            <tr>
-              <th scope="row">
-                <span className="agent-name">Market price at entry</span>
-                <span className="beat">What Season 2 has to beat</span>
-              </th>
-              {cats.map((c) => {
-                const s: Selection = { kind: 'market', cat: c }
-                return <MarketCellView key={c} m={domains.market[c]} cat={c} selected={isSel(s)} onSelect={() => setSel(isSel(s) ? null : s)} />
-              })}
-            </tr>
           </tbody>
         </table>
 
@@ -257,7 +185,7 @@ export function DomainGrid() {
             </span>
           </span>
           <span className="thin-key">
-            <span className="swatch thin" /> under {THIN} picks, blended
+            <span className="swatch thin" /> under {THIN} picks
           </span>
         </div>
       </div>

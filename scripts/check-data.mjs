@@ -4,6 +4,9 @@
 // drops 4 places, the proof strip is 10 of 10, and so on). This stops the
 // build unless every expected test and check is there and passed, so a
 // re-pull that breaks a sentence gets the sentence rewritten, not shipped.
+// It also stops the build unless page.json was written from the snapshot and
+// the analysis code in this checkout: rescore.py records a hash of each.
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 
 const TESTS = [
@@ -14,7 +17,10 @@ const TESTS = [
   'test_as_scored_rewards_losing',
   'test_fixed_never_rewards_losing',
   'test_blend',
+  'test_luck_counts_each_contract_once',
+  'test_every_scored_event_has_a_contract',
 ]
+const INPUTS = ['data/snapshot.json', 'analysis/rescore.py', 'analysis/tests/test_rescore.py']
 const CHECKS = [
   'proofTenOfTen',
   'kingConsensusAll',
@@ -25,21 +31,32 @@ const CHECKS = [
   'mungerAsScored5thFixed2nd',
   'ackmanAsScored7thFixed4th',
   'ackmanWins77AndWorseThanCoinFlipAsScored',
+  'ackmanExampleWinScoresWorseThanALoss',
+  'allAgentsAtTrustFloor',
   'simonsWins15',
   'sbfBestGeopoliticsRaw',
   'sbfBestGeopoliticsBlended',
   'sbfPoliticsWithin2OfMarket',
-  'marketOverallBeatsBestAgentFixed',
+  'sbfGeopoliticsInsideLuck',
   'readingsMissWinRateInBothBands',
   'marketWithin2OfWinRateInBothBands',
   'noAgentOutsideLuck',
   'insiderClosestToAnEdge',
-  'mungerAckmanWithin2OfMarket',
+  'mungerAckmanAbout2OfMarket',
   'simonsLossesMostlyRated8Up',
 ]
 
-const page = JSON.parse(readFileSync(new URL('../data/page.json', import.meta.url), 'utf8'))
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
+const page = JSON.parse(read('data/page.json'))
 const problems = []
+
+// Same hash as rescore.py's text_hash: SHA-256 of the text with CRLF read as LF.
+const textHash = (text) => createHash('sha256').update(text.replaceAll('\r\n', '\n'), 'utf8').digest('hex')
+const inputs = page.inputs ?? {}
+for (const path of INPUTS) {
+  if (!inputs[path]) problems.push(`no input hash for ${path}; rerun python -I analysis/rescore.py`)
+  else if (inputs[path] !== textHash(read(path))) problems.push(`${path} changed since page.json was written; rerun python -I analysis/rescore.py`)
+}
 
 const checks = page.checks ?? {}
 for (const name of CHECKS) {

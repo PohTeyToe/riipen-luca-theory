@@ -12,62 +12,86 @@
   {
    "file": "predictions.json",
    "url": "https://street.lucatheory.com/api/predictions",
-   "retrievedAt": "2026-10-15T18:02:22+00:00"
+   "retrievedAt": "2026-10-15T18:02:22+00:00",
+   "bytes": 1676545,
+   "sha256": "a8fe04385fed1009599d86ac00c5d382a37718c52d24d2427247af789ec378a9"
   },
   {
    "file": "events.json",
    "url": "https://street.lucatheory.com/api/events",
-   "retrievedAt": "2026-10-15T18:02:23+00:00"
+   "retrievedAt": "2026-10-15T18:02:23+00:00",
+   "bytes": 516741,
+   "sha256": "1c966c71497ebf2488e89a8b12534e960bcbe478efd77e998f91d3ff01ea768f"
   },
   {
    "file": "king_bets.json",
    "url": "https://street.lucatheory.com/api/king/bets",
-   "retrievedAt": "2026-10-15T18:02:25+00:00"
+   "retrievedAt": "2026-10-15T18:02:25+00:00",
+   "bytes": 196791,
+   "sha256": "7ebcda559f28745cfe260971c0b61a53138e077cca1c926e4aa971029d742464"
   },
   {
    "file": "trust_scores.json",
    "url": "https://street.lucatheory.com/api/trust-scores",
-   "retrievedAt": "2026-10-15T18:02:26+00:00"
+   "retrievedAt": "2026-10-15T18:02:26+00:00",
+   "bytes": 1156,
+   "sha256": "edb35b6975f968e5cbfdc570f5130e07e18c694fe72197647b8200568e17fe28"
   },
   {
    "file": "calibration.json",
    "url": "https://street.lucatheory.com/api/analytics/calibration",
-   "retrievedAt": "2026-10-15T18:02:28+00:00"
+   "retrievedAt": "2026-10-15T18:02:28+00:00",
+   "bytes": 17262,
+   "sha256": "add2d231afc272cd4e1aa1f3ba4d2a209ca8622c90f433ae686b18eb1d11715f"
   },
   {
    "file": "batches.json",
    "url": "https://street.lucatheory.com/api/batches/all",
-   "retrievedAt": "2026-10-15T18:02:32+00:00"
+   "retrievedAt": "2026-10-15T18:02:32+00:00",
+   "bytes": 3373,
+   "sha256": "6218548694f84d7a17e925defb62ef87d28c2560fceb95eaba781c4e0d0ea29c"
   },
   {
    "file": "season.json",
    "url": "https://street.lucatheory.com/api/seasons/current",
-   "retrievedAt": "2026-10-15T18:02:33+00:00"
+   "retrievedAt": "2026-10-15T18:02:33+00:00",
+   "bytes": 190,
+   "sha256": "04c202917a72f48798a792a6d38a7218a875d175abd352506a68bcc13711307a"
   },
   {
    "file": "street_index.html",
    "url": "https://street.lucatheory.com/",
-   "retrievedAt": "2026-10-15T18:02:34+00:00"
+   "retrievedAt": "2026-10-15T18:02:34+00:00",
+   "bytes": 1814,
+   "sha256": "bad0fd78f960a1f36f645ab2074f1b69ea2e90d40a374247d27ab72bf68c3244"
   },
   {
    "file": "street_bundle.js",
    "url": "https://street.lucatheory.com/assets/index-CGCh0oXP.js",
-   "retrievedAt": "2026-10-15T18:02:36+00:00"
+   "retrievedAt": "2026-10-15T18:02:36+00:00",
+   "bytes": 659226,
+   "sha256": "bf30b6a03777b8f37c4ca40f18eefae69d01d36f64841c8ac43c8d1b151bdd1b"
   },
   {
    "file": "site_index.html",
    "url": "https://lucatheory.com/",
-   "retrievedAt": "2026-10-15T18:02:37+00:00"
+   "retrievedAt": "2026-10-15T18:02:37+00:00",
+   "bytes": 3265,
+   "sha256": "4c0a1a6fe406517c905982a8330130d34845c350bac668e5490dd0b588dca35d"
   },
   {
    "file": "site_bundle.js",
    "url": "https://lucatheory.com/assets/index-C1_mihoM.js",
-   "retrievedAt": "2026-10-15T18:02:38+00:00"
+   "retrievedAt": "2026-10-15T18:02:38+00:00",
+   "bytes": 708478,
+   "sha256": "f4f90d8638ed72d51d6a7b9bd0409d58b66c824b7e0442e4bd7315b10f2bf228"
   },
   {
    "file": "gamma_supply.json",
    "url": "https://gamma-api.polymarket.com/markets/keyset (57 pages) + /events (50 requests)",
-   "retrievedAt": "2026-10-15T18:11:08+00:00"
+   "retrievedAt": "2026-10-15T18:11:08+00:00",
+   "bytes": 2422048,
+   "sha256": "2a50236f04d761bddc9650d1e0ed5fad4d4d1efc22c76bbc6ed278736ffc346a"
   }
  ],
  "quotes": {
@@ -90,6 +114,11 @@
    "text": "Every agent commits a YES or NO prediction with a confidence rating (1–15). No hedging.",
    "page": "https://street.lucatheory.com/methodology",
    "foundIn": "https://street.lucatheory.com/assets/index-CGCh0oXP.js"
+  },
+  "calibration": {
+   "text": "calibration, a property that closed-book benchmarks barely measure and live markets measure constantly.",
+   "page": "https://lucatheory.com/thinking/benchmarks-vs-markets",
+   "foundIn": "https://lucatheory.com/assets/index-C1_mihoM.js"
   },
   "positionSize": {
    "text": "The confidence rating (1–15) determines position size.",
@@ -124,8 +153,9 @@
   "trust": "baseTrust x 0.3 + (1 - brier) x 100 x 0.7 (LUCA's formula at the 0.3 floor)",
   "blend": "(sum of fixed cell scores + 10 x agent's overall fixed Brier) / (n + 10)",
   "thinBelow": 10,
-  "marketRow": "Per scored event, the mean market price at entry (P(YES)) over its scored picks, scored against the resolution.",
-  "againstMarket": "Win rate minus the mean market price at entry of the side picked. Luck band: 1.96 x sqrt(sum p(1-p)) / n, the 95% range of the win rate if the market's prices were right.",
+  "prior": 10,
+  "againstMarket": "Win rate minus the mean market price at entry of the side picked. Luck range: 1.96 x sqrt(spread) / n, the 95% range of the win rate if the market's prices were right. Repeat bets on one contract share its outcome: each contract adds (a - b)^2 x q(1 - q) to the spread, for a YES and b NO bets at mean entry price q.",
+  "betsForEdge": "Settled bets, each on a different contract at the agent's Season 1 prices, for a real 5-point edge to clear the luck range 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2.",
   "kingRule": "Approximate: side YES if consensus > 0.5; EXECUTE if both named anchors voted that side and |consensus - market| >= 0.04, else WAIT."
  },
  "proof": {
@@ -539,8 +569,9 @@
     "n": 87,
     "wonPercent": 82,
     "marketPercent": 76,
+    "contracts": 80,
     "gapPoints": 6.0,
-    "luckPoints": 7.4
+    "luckPoints": 7.8
    },
    {
     "id": "sbf",
@@ -549,8 +580,9 @@
     "n": 79,
     "wonPercent": 72,
     "marketPercent": 67,
+    "contracts": 69,
     "gapPoints": 4.8,
-    "luckPoints": 7.8
+    "luckPoints": 8.6
    },
    {
     "id": "dalio",
@@ -559,8 +591,9 @@
     "n": 85,
     "wonPercent": 75,
     "marketPercent": 72,
+    "contracts": 77,
     "gapPoints": 3.3,
-    "luckPoints": 7.4
+    "luckPoints": 7.3
    },
    {
     "id": "munger",
@@ -569,8 +602,9 @@
     "n": 106,
     "wonPercent": 76,
     "marketPercent": 74,
+    "contracts": 97,
     "gapPoints": 2.1,
-    "luckPoints": 6.5
+    "luckPoints": 7.3
    },
    {
     "id": "ackman",
@@ -579,8 +613,9 @@
     "n": 108,
     "wonPercent": 77,
     "marketPercent": 77,
+    "contracts": 97,
     "gapPoints": 0.1,
-    "luckPoints": 6.3
+    "luckPoints": 6.9
    },
    {
     "id": "soros",
@@ -589,8 +624,9 @@
     "n": 83,
     "wonPercent": 63,
     "marketPercent": 64,
+    "contracts": 75,
     "gapPoints": -0.9,
-    "luckPoints": 7.4
+    "luckPoints": 7.8
    },
    {
     "id": "wood",
@@ -599,8 +635,9 @@
     "n": 95,
     "wonPercent": 75,
     "marketPercent": 77,
+    "contracts": 87,
     "gapPoints": -2.3,
-    "luckPoints": 6.9
+    "luckPoints": 7.4
    },
    {
     "id": "thiel",
@@ -609,6 +646,7 @@
     "n": 81,
     "wonPercent": 19,
     "marketPercent": 22,
+    "contracts": 72,
     "gapPoints": -3.6,
     "luckPoints": 7.7
    },
@@ -619,8 +657,9 @@
     "n": 86,
     "wonPercent": 15,
     "marketPercent": 20,
+    "contracts": 77,
     "gapPoints": -5.0,
-    "luckPoints": 7.2
+    "luckPoints": 7.4
    },
    {
     "id": "kitty",
@@ -629,14 +668,15 @@
     "n": 83,
     "wonPercent": 17,
     "marketPercent": 22,
+    "contracts": 75,
     "gapPoints": -5.6,
     "luckPoints": 7.6
    }
   ],
   "closest": "insider",
   "edgePoints": 5,
-  "betsFor5PointsMin": 174,
-  "betsFor5PointsMax": 194,
+  "betsForEdgeMin": 355,
+  "betsForEdgeMax": 396,
   "settledMin": 79,
   "settledMax": 108
  },
@@ -1266,7 +1306,10 @@
       "rawBrier": 0.186,
       "blendedBrier": 0.182,
       "trust": 86,
-      "marketPercent": 77
+      "wonPercent": 79,
+      "marketPercent": 77,
+      "gapPoints": 1.8,
+      "luckPoints": 9.5
      },
      "GEOPOLITICS": {
       "n": 18,
@@ -1276,7 +1319,10 @@
       "rawBrier": 0.143,
       "blendedBrier": 0.149,
       "trust": 89,
-      "marketPercent": 80
+      "wonPercent": 83,
+      "marketPercent": 80,
+      "gapPoints": 3.2,
+      "luckPoints": 12.9
      },
      "MACRO": {
       "n": 10,
@@ -1286,7 +1332,10 @@
       "rawBrier": 0.083,
       "blendedBrier": 0.121,
       "trust": 91,
-      "marketPercent": 65
+      "wonPercent": 90,
+      "marketPercent": 65,
+      "gapPoints": 25.5,
+      "luckPoints": 32.5
      },
      "TECH": {
       "n": 2,
@@ -1296,7 +1345,10 @@
       "rawBrier": 0.01,
       "blendedBrier": 0.135,
       "trust": 90,
-      "marketPercent": 75
+      "wonPercent": 100,
+      "marketPercent": 75,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 1,
@@ -1306,7 +1358,10 @@
       "rawBrier": 0.028,
       "blendedBrier": 0.147,
       "trust": 89,
-      "marketPercent": 35
+      "wonPercent": 100,
+      "marketPercent": 35,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1323,7 +1378,10 @@
       "rawBrier": 0.186,
       "blendedBrier": 0.186,
       "trust": 85,
-      "marketPercent": 73
+      "wonPercent": 78,
+      "marketPercent": 73,
+      "gapPoints": 4.6,
+      "luckPoints": 9.7
      },
      "GEOPOLITICS": {
       "n": 19,
@@ -1333,7 +1391,10 @@
       "rawBrier": 0.129,
       "blendedBrier": 0.15,
       "trust": 88,
-      "marketPercent": 85
+      "wonPercent": 84,
+      "marketPercent": 85,
+      "gapPoints": -0.8,
+      "luckPoints": 13.2
      },
      "MACRO": {
       "n": 9,
@@ -1343,7 +1404,10 @@
       "rawBrier": 0.238,
       "blendedBrier": 0.213,
       "trust": 83,
-      "marketPercent": 61
+      "wonPercent": 67,
+      "marketPercent": 61,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 10,
@@ -1353,7 +1417,10 @@
       "rawBrier": 0.278,
       "blendedBrier": 0.234,
       "trust": 82,
-      "marketPercent": 63
+      "wonPercent": 60,
+      "marketPercent": 63,
+      "gapPoints": -3.0,
+      "luckPoints": 21.1
      },
      "CRYPTO": {
       "n": 5,
@@ -1363,7 +1430,10 @@
       "rawBrier": 0.204,
       "blendedBrier": 0.194,
       "trust": 85,
-      "marketPercent": 95
+      "wonPercent": 80,
+      "marketPercent": 95,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1380,7 +1450,10 @@
       "rawBrier": 0.183,
       "blendedBrier": 0.182,
       "trust": 84,
-      "marketPercent": 75
+      "wonPercent": 75,
+      "marketPercent": 75,
+      "gapPoints": 0.8,
+      "luckPoints": 8.3
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1390,7 +1463,10 @@
       "rawBrier": 0.154,
       "blendedBrier": 0.162,
       "trust": 85,
-      "marketPercent": 75
+      "wonPercent": 76,
+      "marketPercent": 75,
+      "gapPoints": 1.7,
+      "luckPoints": 13.5
      },
      "MACRO": {
       "n": 8,
@@ -1400,7 +1476,10 @@
       "rawBrier": 0.132,
       "blendedBrier": 0.156,
       "trust": 85,
-      "marketPercent": 53
+      "wonPercent": 75,
+      "marketPercent": 53,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 3,
@@ -1410,7 +1489,10 @@
       "rawBrier": 0.282,
       "blendedBrier": 0.2,
       "trust": 82,
-      "marketPercent": 54
+      "wonPercent": 67,
+      "marketPercent": 54,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 0,
@@ -1420,7 +1502,10 @@
       "rawBrier": null,
       "blendedBrier": null,
       "trust": null,
-      "marketPercent": null
+      "wonPercent": null,
+      "marketPercent": null,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1437,7 +1522,10 @@
       "rawBrier": 0.234,
       "blendedBrier": 0.234,
       "trust": 78,
-      "marketPercent": 78
+      "wonPercent": 77,
+      "marketPercent": 78,
+      "gapPoints": -1.1,
+      "luckPoints": 8.8
      },
      "GEOPOLITICS": {
       "n": 18,
@@ -1447,7 +1535,10 @@
       "rawBrier": 0.194,
       "blendedBrier": 0.206,
       "trust": 80,
-      "marketPercent": 81
+      "wonPercent": 78,
+      "marketPercent": 81,
+      "gapPoints": -2.8,
+      "luckPoints": 13.8
      },
      "MACRO": {
       "n": 11,
@@ -1457,7 +1548,10 @@
       "rawBrier": 0.14,
       "blendedBrier": 0.182,
       "trust": 82,
-      "marketPercent": 61
+      "wonPercent": 82,
+      "marketPercent": 61,
+      "gapPoints": 20.6,
+      "luckPoints": 30.3
      },
      "TECH": {
       "n": 9,
@@ -1467,7 +1561,10 @@
       "rawBrier": 0.3,
       "blendedBrier": 0.262,
       "trust": 76,
-      "marketPercent": 69
+      "wonPercent": 67,
+      "marketPercent": 69,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 5,
@@ -1477,7 +1574,10 @@
       "rawBrier": 0.337,
       "blendedBrier": 0.265,
       "trust": 76,
-      "marketPercent": 95
+      "wonPercent": 80,
+      "marketPercent": 95,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1494,7 +1594,10 @@
       "rawBrier": 0.328,
       "blendedBrier": 0.325,
       "trust": 73,
-      "marketPercent": 66
+      "wonPercent": 60,
+      "marketPercent": 66,
+      "gapPoints": -6.1,
+      "luckPoints": 9.8
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1504,7 +1607,10 @@
       "rawBrier": 0.253,
       "blendedBrier": 0.274,
       "trust": 76,
-      "marketPercent": 63
+      "wonPercent": 71,
+      "marketPercent": 63,
+      "gapPoints": 7.5,
+      "luckPoints": 14.4
      },
      "MACRO": {
       "n": 7,
@@ -1514,7 +1620,10 @@
       "rawBrier": 0.262,
       "blendedBrier": 0.29,
       "trust": 75,
-      "marketPercent": 52
+      "wonPercent": 71,
+      "marketPercent": 52,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 2,
@@ -1524,7 +1633,10 @@
       "rawBrier": 0.425,
       "blendedBrier": 0.329,
       "trust": 72,
-      "marketPercent": 43
+      "wonPercent": 50,
+      "marketPercent": 43,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 0,
@@ -1534,7 +1646,10 @@
       "rawBrier": null,
       "blendedBrier": null,
       "trust": null,
-      "marketPercent": null
+      "wonPercent": null,
+      "marketPercent": null,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1551,7 +1666,10 @@
       "rawBrier": 0.187,
       "blendedBrier": 0.195,
       "trust": 74,
-      "marketPercent": 82
+      "wonPercent": 82,
+      "marketPercent": 82,
+      "gapPoints": 0.1,
+      "luckPoints": 9.3
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1561,7 +1679,10 @@
       "rawBrier": 0.17,
       "blendedBrier": 0.196,
       "trust": 74,
-      "marketPercent": 89
+      "wonPercent": 88,
+      "marketPercent": 89,
+      "gapPoints": -0.7,
+      "luckPoints": 14.2
      },
      "MACRO": {
       "n": 7,
@@ -1571,7 +1692,10 @@
       "rawBrier": 0.223,
       "blendedBrier": 0.234,
       "trust": 72,
-      "marketPercent": 71
+      "wonPercent": 71,
+      "marketPercent": 71,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 7,
@@ -1581,7 +1705,10 @@
       "rawBrier": 0.556,
       "blendedBrier": 0.371,
       "trust": 62,
-      "marketPercent": 43
+      "wonPercent": 29,
+      "marketPercent": 43,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 4,
@@ -1591,7 +1718,10 @@
       "rawBrier": 0.841,
       "blendedBrier": 0.413,
       "trust": 59,
-      "marketPercent": 28
+      "wonPercent": 0,
+      "marketPercent": 28,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1608,7 +1738,10 @@
       "rawBrier": 0.295,
       "blendedBrier": 0.285,
       "trust": 64,
-      "marketPercent": 65
+      "wonPercent": 64,
+      "marketPercent": 65,
+      "gapPoints": -1.1,
+      "luckPoints": 10.9
      },
      "GEOPOLITICS": {
       "n": 16,
@@ -1618,7 +1751,10 @@
       "rawBrier": 0.062,
       "blendedBrier": 0.127,
       "trust": 75,
-      "marketPercent": 80
+      "wonPercent": 94,
+      "marketPercent": 80,
+      "gapPoints": 13.9,
+      "luckPoints": 14.9
      },
      "MACRO": {
       "n": 9,
@@ -1628,7 +1764,10 @@
       "rawBrier": 0.171,
       "blendedBrier": 0.202,
       "trust": 69,
-      "marketPercent": 56
+      "wonPercent": 78,
+      "marketPercent": 56,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 1,
@@ -1638,7 +1777,10 @@
       "rawBrier": 0.001,
       "blendedBrier": 0.209,
       "trust": 69,
-      "marketPercent": 75
+      "wonPercent": 100,
+      "marketPercent": 75,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 0,
@@ -1648,7 +1790,10 @@
       "rawBrier": null,
       "blendedBrier": null,
       "trust": null,
-      "marketPercent": null
+      "wonPercent": null,
+      "marketPercent": null,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1665,7 +1810,10 @@
       "rawBrier": 0.527,
       "blendedBrier": 0.53,
       "trust": 60,
-      "marketPercent": 22
+      "wonPercent": 19,
+      "marketPercent": 22,
+      "gapPoints": -2.8,
+      "luckPoints": 9.0
      },
      "GEOPOLITICS": {
       "n": 16,
@@ -1675,7 +1823,10 @@
       "rawBrier": 0.582,
       "blendedBrier": 0.569,
       "trust": 57,
-      "marketPercent": 11
+      "wonPercent": 6,
+      "marketPercent": 11,
+      "gapPoints": -5.0,
+      "luckPoints": 15.0
      },
      "MACRO": {
       "n": 8,
@@ -1685,7 +1836,10 @@
       "rawBrier": 0.55,
       "blendedBrier": 0.548,
       "trust": 59,
-      "marketPercent": 23
+      "wonPercent": 13,
+      "marketPercent": 23,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 3,
@@ -1695,7 +1849,10 @@
       "rawBrier": 0.697,
       "blendedBrier": 0.582,
       "trust": 57,
-      "marketPercent": 32
+      "wonPercent": 0,
+      "marketPercent": 32,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 1,
@@ -1705,7 +1862,10 @@
       "rawBrier": 0.64,
       "blendedBrier": 0.555,
       "trust": 58,
-      "marketPercent": 5
+      "wonPercent": 0,
+      "marketPercent": 5,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1722,7 +1882,10 @@
       "rawBrier": 0.704,
       "blendedBrier": 0.702,
       "trust": 42,
-      "marketPercent": 20
+      "wonPercent": 17,
+      "marketPercent": 20,
+      "gapPoints": -3.0,
+      "luckPoints": 9.4
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1732,7 +1895,10 @@
       "rawBrier": 0.649,
       "blendedBrier": 0.664,
       "trust": 45,
-      "marketPercent": 26
+      "wonPercent": 24,
+      "marketPercent": 26,
+      "gapPoints": -2.5,
+      "luckPoints": 14.4
      },
      "MACRO": {
       "n": 9,
@@ -1742,7 +1908,10 @@
       "rawBrier": 0.659,
       "blendedBrier": 0.675,
       "trust": 44,
-      "marketPercent": 29
+      "wonPercent": 22,
+      "marketPercent": 29,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 1,
@@ -1752,7 +1921,10 @@
       "rawBrier": 0.81,
       "blendedBrier": 0.7,
       "trust": 43,
-      "marketPercent": 26
+      "wonPercent": 0,
+      "marketPercent": 26,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 0,
@@ -1762,7 +1934,10 @@
       "rawBrier": null,
       "blendedBrier": null,
       "trust": null,
-      "marketPercent": null
+      "wonPercent": null,
+      "marketPercent": null,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    },
@@ -1779,7 +1954,10 @@
       "rawBrier": 0.666,
       "blendedBrier": 0.665,
       "trust": 40,
-      "marketPercent": 22
+      "wonPercent": 16,
+      "marketPercent": 22,
+      "gapPoints": -6.1,
+      "luckPoints": 9.3
      },
      "GEOPOLITICS": {
       "n": 17,
@@ -1789,7 +1967,10 @@
       "rawBrier": 0.642,
       "blendedBrier": 0.648,
       "trust": 41,
-      "marketPercent": 21
+      "wonPercent": 24,
+      "marketPercent": 21,
+      "gapPoints": 2.8,
+      "luckPoints": 14.5
      },
      "MACRO": {
       "n": 9,
@@ -1799,7 +1980,10 @@
       "rawBrier": 0.614,
       "blendedBrier": 0.637,
       "trust": 42,
-      "marketPercent": 25
+      "wonPercent": 11,
+      "marketPercent": 25,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "TECH": {
       "n": 2,
@@ -1809,7 +1993,10 @@
       "rawBrier": 0.781,
       "blendedBrier": 0.679,
       "trust": 39,
-      "marketPercent": 25
+      "wonPercent": 0,
+      "marketPercent": 25,
+      "gapPoints": null,
+      "luckPoints": null
      },
      "CRYPTO": {
       "n": 0,
@@ -1819,43 +2006,14 @@
       "rawBrier": null,
       "blendedBrier": null,
       "trust": null,
-      "marketPercent": null
+      "wonPercent": null,
+      "marketPercent": null,
+      "gapPoints": null,
+      "luckPoints": null
      }
     }
    }
   ],
-  "market": {
-   "POLITICS": {
-    "events": 74,
-    "brier": 0.114,
-    "thin": false
-   },
-   "GEOPOLITICS": {
-    "events": 20,
-    "brier": 0.05,
-    "thin": false
-   },
-   "MACRO": {
-    "events": 14,
-    "brier": 0.159,
-    "thin": false
-   },
-   "TECH": {
-    "events": 10,
-    "brier": 0.057,
-    "thin": false
-   },
-   "CRYPTO": {
-    "events": 6,
-    "brier": 0.23,
-    "thin": true
-   },
-   "ALL": {
-    "events": 124,
-    "brier": 0.11,
-    "thin": false
-   }
-  },
   "notes": {
    "sbf": {
     "geopolitics": {
@@ -1866,7 +2024,10 @@
      "rawBrier": 0.062,
      "blendedBrier": 0.127,
      "trust": 75,
-     "marketPercent": 80
+     "wonPercent": 94,
+     "marketPercent": 80,
+     "gapPoints": 13.9,
+     "luckPoints": 14.9
     },
     "politics": {
      "n": 53,
@@ -1876,7 +2037,10 @@
      "rawBrier": 0.295,
      "blendedBrier": 0.285,
      "trust": 64,
-     "marketPercent": 65
+     "wonPercent": 64,
+     "marketPercent": 65,
+     "gapPoints": -1.1,
+     "luckPoints": 10.9
     }
    },
    "wood": {
@@ -1888,7 +2052,10 @@
      "rawBrier": 0.556,
      "blendedBrier": 0.371,
      "trust": 62,
-     "marketPercent": 43
+     "wonPercent": 29,
+     "marketPercent": 43,
+     "gapPoints": null,
+     "luckPoints": null
     },
     "crypto": {
      "n": 4,
@@ -1898,7 +2065,10 @@
      "rawBrier": 0.841,
      "blendedBrier": 0.413,
      "trust": 59,
-     "marketPercent": 28
+     "wonPercent": 0,
+     "marketPercent": 28,
+     "gapPoints": null,
+     "luckPoints": null
     },
     "politics": {
      "n": 60,
@@ -1908,7 +2078,10 @@
      "rawBrier": 0.187,
      "blendedBrier": 0.195,
      "trust": 74,
-     "marketPercent": 82
+     "wonPercent": 82,
+     "marketPercent": 82,
+     "gapPoints": 0.1,
+     "luckPoints": 9.3
     }
    }
   }
@@ -1947,7 +2120,10 @@
       "brierScore": 0.234,
       "blendedBrier": 0.234,
       "trust": 78,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.769,
+      "marketPrice": 0.78,
+      "luckRange": 0.088
      }
     },
     "dalio": {
@@ -1964,7 +2140,10 @@
       "brierScore": 0.183,
       "blendedBrier": 0.182,
       "trust": 84,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.754,
+      "marketPrice": 0.747,
+      "luckRange": 0.083
      }
     },
     "insider": {
@@ -1981,7 +2160,10 @@
       "brierScore": 0.186,
       "blendedBrier": 0.182,
       "trust": 86,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.786,
+      "marketPrice": 0.768,
+      "luckRange": 0.095
      }
     },
     "kitty": {
@@ -1998,7 +2180,10 @@
       "brierScore": 0.666,
       "blendedBrier": 0.665,
       "trust": 40,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.164,
+      "marketPrice": 0.225,
+      "luckRange": 0.093
      }
     },
     "munger": {
@@ -2015,7 +2200,10 @@
       "brierScore": 0.186,
       "blendedBrier": 0.186,
       "trust": 85,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.778,
+      "marketPrice": 0.732,
+      "luckRange": 0.097
      }
     },
     "sbf": {
@@ -2032,7 +2220,10 @@
       "brierScore": 0.295,
       "blendedBrier": 0.285,
       "trust": 64,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.642,
+      "marketPrice": 0.652,
+      "luckRange": 0.109
      }
     },
     "simons": {
@@ -2049,7 +2240,10 @@
       "brierScore": 0.527,
       "blendedBrier": 0.53,
       "trust": 60,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.19,
+      "marketPrice": 0.218,
+      "luckRange": 0.09
      }
     },
     "soros": {
@@ -2066,7 +2260,10 @@
       "brierScore": 0.328,
       "blendedBrier": 0.325,
       "trust": 73,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.596,
+      "marketPrice": 0.658,
+      "luckRange": 0.098
      }
     },
     "thiel": {
@@ -2083,7 +2280,10 @@
       "brierScore": 0.704,
       "blendedBrier": 0.702,
       "trust": 42,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.167,
+      "marketPrice": 0.197,
+      "luckRange": 0.094
      }
     },
     "wood": {
@@ -2100,7 +2300,10 @@
       "brierScore": 0.187,
       "blendedBrier": 0.195,
       "trust": 74,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.817,
+      "marketPrice": 0.815,
+      "luckRange": 0.093
      }
     }
    },
@@ -2119,7 +2322,10 @@
       "brierScore": 0.194,
       "blendedBrier": 0.206,
       "trust": 80,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.778,
+      "marketPrice": 0.805,
+      "luckRange": 0.138
      }
     },
     "dalio": {
@@ -2136,7 +2342,10 @@
       "brierScore": 0.154,
       "blendedBrier": 0.162,
       "trust": 85,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.765,
+      "marketPrice": 0.748,
+      "luckRange": 0.135
      }
     },
     "insider": {
@@ -2153,7 +2362,10 @@
       "brierScore": 0.143,
       "blendedBrier": 0.149,
       "trust": 89,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.833,
+      "marketPrice": 0.802,
+      "luckRange": 0.129
      }
     },
     "kitty": {
@@ -2170,7 +2382,10 @@
       "brierScore": 0.642,
       "blendedBrier": 0.648,
       "trust": 41,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.235,
+      "marketPrice": 0.208,
+      "luckRange": 0.145
      }
     },
     "munger": {
@@ -2187,7 +2402,10 @@
       "brierScore": 0.129,
       "blendedBrier": 0.15,
       "trust": 88,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.842,
+      "marketPrice": 0.85,
+      "luckRange": 0.132
      }
     },
     "sbf": {
@@ -2204,7 +2422,10 @@
       "brierScore": 0.062,
       "blendedBrier": 0.127,
       "trust": 75,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.938,
+      "marketPrice": 0.799,
+      "luckRange": 0.149
      }
     },
     "simons": {
@@ -2221,7 +2442,10 @@
       "brierScore": 0.582,
       "blendedBrier": 0.569,
       "trust": 57,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.063,
+      "marketPrice": 0.113,
+      "luckRange": 0.15
      }
     },
     "soros": {
@@ -2238,7 +2462,10 @@
       "brierScore": 0.253,
       "blendedBrier": 0.274,
       "trust": 76,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.706,
+      "marketPrice": 0.631,
+      "luckRange": 0.144
      }
     },
     "thiel": {
@@ -2255,7 +2482,10 @@
       "brierScore": 0.649,
       "blendedBrier": 0.664,
       "trust": 45,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.235,
+      "marketPrice": 0.261,
+      "luckRange": 0.144
      }
     },
     "wood": {
@@ -2272,7 +2502,10 @@
       "brierScore": 0.17,
       "blendedBrier": 0.196,
       "trust": 74,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.882,
+      "marketPrice": 0.889,
+      "luckRange": 0.142
      }
     }
    },
@@ -2291,7 +2524,10 @@
       "brierScore": 0.14,
       "blendedBrier": 0.182,
       "trust": 82,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.818,
+      "marketPrice": 0.612,
+      "luckRange": 0.303
      }
     },
     "dalio": {
@@ -2308,7 +2544,10 @@
       "brierScore": 0.132,
       "blendedBrier": 0.156,
       "trust": 85,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.75,
+      "marketPrice": 0.534,
+      "luckRange": null
      }
     },
     "insider": {
@@ -2325,7 +2564,10 @@
       "brierScore": 0.083,
       "blendedBrier": 0.121,
       "trust": 91,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.9,
+      "marketPrice": 0.645,
+      "luckRange": 0.325
      }
     },
     "kitty": {
@@ -2342,7 +2584,10 @@
       "brierScore": 0.614,
       "blendedBrier": 0.637,
       "trust": 42,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.111,
+      "marketPrice": 0.251,
+      "luckRange": null
      }
     },
     "munger": {
@@ -2359,7 +2604,10 @@
       "brierScore": 0.238,
       "blendedBrier": 0.213,
       "trust": 83,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.667,
+      "marketPrice": 0.611,
+      "luckRange": null
      }
     },
     "sbf": {
@@ -2376,7 +2624,10 @@
       "brierScore": 0.171,
       "blendedBrier": 0.202,
       "trust": 69,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.778,
+      "marketPrice": 0.562,
+      "luckRange": null
      }
     },
     "simons": {
@@ -2393,7 +2644,10 @@
       "brierScore": 0.55,
       "blendedBrier": 0.548,
       "trust": 59,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.125,
+      "marketPrice": 0.233,
+      "luckRange": null
      }
     },
     "soros": {
@@ -2410,7 +2664,10 @@
       "brierScore": 0.262,
       "blendedBrier": 0.29,
       "trust": 75,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.714,
+      "marketPrice": 0.523,
+      "luckRange": null
      }
     },
     "thiel": {
@@ -2427,7 +2684,10 @@
       "brierScore": 0.659,
       "blendedBrier": 0.675,
       "trust": 44,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.222,
+      "marketPrice": 0.288,
+      "luckRange": null
      }
     },
     "wood": {
@@ -2444,7 +2704,10 @@
       "brierScore": 0.223,
       "blendedBrier": 0.234,
       "trust": 72,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.714,
+      "marketPrice": 0.71,
+      "luckRange": null
      }
     }
    },
@@ -2463,7 +2726,10 @@
       "brierScore": 0.3,
       "blendedBrier": 0.262,
       "trust": 76,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.667,
+      "marketPrice": 0.687,
+      "luckRange": null
      }
     },
     "dalio": {
@@ -2480,7 +2746,10 @@
       "brierScore": 0.282,
       "blendedBrier": 0.2,
       "trust": 82,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.667,
+      "marketPrice": 0.537,
+      "luckRange": null
      }
     },
     "insider": {
@@ -2497,7 +2766,10 @@
       "brierScore": 0.01,
       "blendedBrier": 0.135,
       "trust": 90,
-      "thin": true
+      "thin": true,
+      "wonRate": 1.0,
+      "marketPrice": 0.748,
+      "luckRange": null
      }
     },
     "kitty": {
@@ -2514,7 +2786,10 @@
       "brierScore": 0.781,
       "blendedBrier": 0.679,
       "trust": 39,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.0,
+      "marketPrice": 0.253,
+      "luckRange": null
      }
     },
     "munger": {
@@ -2531,7 +2806,10 @@
       "brierScore": 0.278,
       "blendedBrier": 0.234,
       "trust": 82,
-      "thin": false
+      "thin": false,
+      "wonRate": 0.6,
+      "marketPrice": 0.63,
+      "luckRange": 0.211
      }
     },
     "sbf": {
@@ -2548,7 +2826,10 @@
       "brierScore": 0.001,
       "blendedBrier": 0.209,
       "trust": 69,
-      "thin": true
+      "thin": true,
+      "wonRate": 1.0,
+      "marketPrice": 0.75,
+      "luckRange": null
      }
     },
     "simons": {
@@ -2565,7 +2846,10 @@
       "brierScore": 0.697,
       "blendedBrier": 0.582,
       "trust": 57,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.0,
+      "marketPrice": 0.318,
+      "luckRange": null
      }
     },
     "soros": {
@@ -2582,7 +2866,10 @@
       "brierScore": 0.425,
       "blendedBrier": 0.329,
       "trust": 72,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.5,
+      "marketPrice": 0.433,
+      "luckRange": null
      }
     },
     "thiel": {
@@ -2599,7 +2886,10 @@
       "brierScore": 0.81,
       "blendedBrier": 0.7,
       "trust": 43,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.0,
+      "marketPrice": 0.255,
+      "luckRange": null
      }
     },
     "wood": {
@@ -2616,7 +2906,10 @@
       "brierScore": 0.556,
       "blendedBrier": 0.371,
       "trust": 62,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.286,
+      "marketPrice": 0.434,
+      "luckRange": null
      }
     }
    },
@@ -2635,7 +2928,10 @@
       "brierScore": 0.337,
       "blendedBrier": 0.265,
       "trust": 76,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.8,
+      "marketPrice": 0.95,
+      "luckRange": null
      }
     },
     "dalio": {
@@ -2652,7 +2948,10 @@
       "brierScore": null,
       "blendedBrier": null,
       "trust": null,
-      "thin": true
+      "thin": true,
+      "wonRate": null,
+      "marketPrice": null,
+      "luckRange": null
      }
     },
     "insider": {
@@ -2669,7 +2968,10 @@
       "brierScore": 0.028,
       "blendedBrier": 0.147,
       "trust": 89,
-      "thin": true
+      "thin": true,
+      "wonRate": 1.0,
+      "marketPrice": 0.35,
+      "luckRange": null
      }
     },
     "kitty": {
@@ -2686,7 +2988,10 @@
       "brierScore": null,
       "blendedBrier": null,
       "trust": null,
-      "thin": true
+      "thin": true,
+      "wonRate": null,
+      "marketPrice": null,
+      "luckRange": null
      }
     },
     "munger": {
@@ -2703,7 +3008,10 @@
       "brierScore": 0.204,
       "blendedBrier": 0.194,
       "trust": 85,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.8,
+      "marketPrice": 0.95,
+      "luckRange": null
      }
     },
     "sbf": {
@@ -2720,7 +3028,10 @@
       "brierScore": null,
       "blendedBrier": null,
       "trust": null,
-      "thin": true
+      "thin": true,
+      "wonRate": null,
+      "marketPrice": null,
+      "luckRange": null
      }
     },
     "simons": {
@@ -2737,7 +3048,10 @@
       "brierScore": 0.64,
       "blendedBrier": 0.555,
       "trust": 58,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.0,
+      "marketPrice": 0.049,
+      "luckRange": null
      }
     },
     "soros": {
@@ -2754,7 +3068,10 @@
       "brierScore": null,
       "blendedBrier": null,
       "trust": null,
-      "thin": true
+      "thin": true,
+      "wonRate": null,
+      "marketPrice": null,
+      "luckRange": null
      }
     },
     "thiel": {
@@ -2771,7 +3088,10 @@
       "brierScore": null,
       "blendedBrier": null,
       "trust": null,
-      "thin": true
+      "thin": true,
+      "wonRate": null,
+      "marketPrice": null,
+      "luckRange": null
      }
     },
     "wood": {
@@ -2788,7 +3108,10 @@
       "brierScore": 0.841,
       "blendedBrier": 0.413,
       "trust": 59,
-      "thin": true
+      "thin": true,
+      "wonRate": 0.0,
+      "marketPrice": 0.285,
+      "luckRange": null
      }
     }
    }
@@ -2820,6 +3143,14 @@
    },
    {
     "name": "test_blend",
+    "status": "passed"
+   },
+   {
+    "name": "test_luck_counts_each_contract_once",
+    "status": "passed"
+   },
+   {
+    "name": "test_every_scored_event_has_a_contract",
     "status": "passed"
    }
   ],
@@ -3262,16 +3593,23 @@
   "mungerAsScored5thFixed2nd": true,
   "ackmanAsScored7thFixed4th": true,
   "ackmanWins77AndWorseThanCoinFlipAsScored": true,
+  "ackmanExampleWinScoresWorseThanALoss": true,
+  "allAgentsAtTrustFloor": true,
   "simonsWins15": true,
   "sbfBestGeopoliticsRaw": true,
   "sbfBestGeopoliticsBlended": true,
   "sbfPoliticsWithin2OfMarket": true,
-  "marketOverallBeatsBestAgentFixed": true,
+  "sbfGeopoliticsInsideLuck": true,
   "readingsMissWinRateInBothBands": true,
   "marketWithin2OfWinRateInBothBands": true,
   "noAgentOutsideLuck": true,
   "insiderClosestToAnEdge": true,
-  "mungerAckmanWithin2OfMarket": true,
+  "mungerAckmanAbout2OfMarket": true,
   "simonsLossesMostlyRated8Up": true
+ },
+ "inputs": {
+  "data/snapshot.json": "e065061595cba6b696b97a09b293166be2af5dd576d5a5a482660e3ede614ec0",
+  "analysis/rescore.py": "b536af6cb809df8842abe3dfbee0240d9d26eae5a41914651685a390a6a70c3f",
+  "analysis/tests/test_rescore.py": "3fd78562b764a93fddc8196bfdd3f8569b0d2e85111a494bfd4ebd432fe167c1"
  }
 }

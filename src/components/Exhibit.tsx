@@ -35,9 +35,9 @@ export function Section({ id, n, title, kicker, children }: SectionProps) {
     <section id={id} className="section" aria-labelledby={`${id}-h`}>
       {kicker && <p className="kicker">{kicker}</p>}
       <h2 id={`${id}-h`}>
-        <a className="secnum" href={`#${id}`} aria-label={`Section ${n}, link`}>
+        <span className="secnum" aria-hidden="true">
           {n}
-        </a>
+        </span>
         {title}
       </h2>
       {children}

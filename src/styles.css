@@ -1258,21 +1258,6 @@ table.grid {
   font-weight: 500;
   color: var(--muted);
 }
-.rule-row td {
-  height: 10px;
-  padding: 0;
-  border-bottom: 1px solid var(--ink);
-}
-.market-row th {
-  line-height: 1.25;
-}
-.beat {
-  display: block;
-  margin-top: 2px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--coin-ink);
-}
 .grid-legend {
   display: flex;
   flex-wrap: wrap;
@@ -1351,6 +1336,9 @@ table.grid {
   font-size: 13.5px;
   line-height: 1.5;
   color: var(--ink-2);
+}
+.detail-note + .detail-note {
+  margin-top: 8px;
 }
 .notes {
   display: grid;
@@ -1802,7 +1790,7 @@ table.grid {
   }
   .sc-head,
   .sc-row {
-    grid-template-columns: 30px 92px minmax(0, 1fr) 46px 66px 12px;
+    grid-template-columns: 30px 96px minmax(0, 1fr) 46px 66px 12px;
     grid-template-areas:
       'rank agent agent win trust chev'
       '. brier axis axis axis axis';
@@ -1938,10 +1926,6 @@ table.grid {
     font-size: 11.5px;
     line-height: 1.2;
   }
-  .beat {
-    font-size: 10.5px;
-    line-height: 1.2;
-  }
   .cell-v {
     font-size: 13px;
   }
@@ -1964,6 +1948,15 @@ table.grid {
   }
   .code {
     font-size: 12.5px;
+  }
+}
+
+/* The scorecard's fixed columns need about 300px; give the smallest phones a few back. */
+@media (max-width: 360px) {
+  .sc-head,
+  .sc-row {
+    grid-template-columns: 22px 96px minmax(0, 1fr) 42px 60px 10px;
+    column-gap: 6px;
   }
 }
 

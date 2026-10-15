@@ -1,8 +1,10 @@
 """Checks the rescore against LUCA's published numbers before trusting any change.
 
 Runs on data/snapshot.json, so a fresh clone can run `pytest analysis`.
+rescore.py points RESCORE_SNAPSHOT at a new snapshot to test it before writing it.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -11,7 +13,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import rescore as rs  # noqa: E402
 
-SNAPSHOT = Path(__file__).resolve().parents[2] / "data" / "snapshot.json"
+SNAPSHOT = Path(os.environ.get("RESCORE_SNAPSHOT") or Path(__file__).resolve().parents[2] / "data" / "snapshot.json")
 
 
 @pytest.fixture(scope="module")
@@ -72,3 +74,19 @@ def test_blend(snap, rows):
             continue
         lo, hi = sorted((x["raw"], rows[a]["brierFixed"]))
         assert lo - 1e-12 <= x["blended"] <= hi + 1e-12
+
+
+def test_luck_counts_each_contract_once():
+    def pick(event, side):
+        return {"eventId": event, "prediction": side, "marketProbAtEntry": 0.5}
+    contract_of = {"e1": "c1", "e2": "c1", "e3": "c2"}
+    # Two bets on one contract, same side: one outcome, so twice the spread of two independent bets.
+    assert rs.contract_spread([pick("e1", "YES"), pick("e2", "YES")], contract_of) == (1.0, 1)
+    assert rs.contract_spread([pick("e1", "YES"), pick("e3", "YES")], contract_of) == (0.5, 2)
+    # A YES and a NO on one contract: exactly one wins, so luck adds nothing.
+    assert rs.contract_spread([pick("e1", "YES"), pick("e2", "NO")], contract_of) == (0.0, 1)
+
+
+def test_every_scored_event_has_a_contract(snap):
+    contract_of = rs.contracts(snap)
+    assert all(contract_of[p["eventId"]] for p in snap["picks"] if rs.is_scored(p))

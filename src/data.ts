@@ -65,13 +65,12 @@ export interface Cell {
   rawBrier: number | null
   blendedBrier: number | null
   trust: number | null
+  /** Null when the cell has no picks. */
+  wonPercent: number | null
   marketPercent: number | null
-}
-
-export interface MarketCell {
-  events: number
-  brier: number | null
-  thin: boolean
+  /** Win rate minus market price and its luck range, in points. Null under 10 picks. */
+  gapPoints: number | null
+  luckPoints: number | null
 }
 
 export interface Band {
@@ -89,11 +88,13 @@ export interface MarketRow {
   name: string
   role: string
   n: number
+  /** Distinct Polymarket contracts behind the n bets. */
+  contracts: number
   wonPercent: number
   marketPercent: number
   /** Win rate minus market price, in points. */
   gapPoints: number
-  /** How far luck alone moves the win rate at these prices (95%), in points. */
+  /** How far luck alone moves the win rate (95%), in points. Repeat bets on one contract share its outcome. */
   luckPoints: number
 }
 
@@ -125,7 +126,16 @@ export interface PageData {
   season: { label: string; status: string; crystallisedAt: string; firstPickAt: string; lastPickAt: string }
   sources: { file: string; url: string; retrievedAt: string }[]
   quotes: Record<
-    'proofOfTrust' | 'lastMile' | 'brierScale' | 'binaryCommitment' | 'positionSize' | 'eventSourcing' | 'trustFormula' | 'brierTrust' | 'decayWeight',
+    | 'proofOfTrust'
+    | 'lastMile'
+    | 'calibration'
+    | 'brierScale'
+    | 'binaryCommitment'
+    | 'positionSize'
+    | 'eventSourcing'
+    | 'trustFormula'
+    | 'brierTrust'
+    | 'decayWeight',
     { text: string; page: string }
   >
   method: Record<string, string | number>
@@ -135,8 +145,9 @@ export interface PageData {
     rows: MarketRow[]
     closest: string
     edgePoints: number
-    betsFor5PointsMin: number
-    betsFor5PointsMax: number
+    /** Settled bets, each on a different contract, for a real 5-point edge to clear luck 4 times in 5. */
+    betsForEdgeMin: number
+    betsForEdgeMax: number
     settledMin: number
     settledMax: number
   }
@@ -149,7 +160,6 @@ export interface PageData {
     cellsWithTenOrMore: number
     cellsTotal: number
     grid: { id: string; name: string; role: string; cells: Record<Category, Cell> }[]
-    market: Record<Category | 'ALL', MarketCell>
     notes: {
       sbf: { geopolitics: Cell; politics: Cell }
       wood: { tech: Cell; crypto: Cell; politics: Cell }
@@ -221,11 +231,22 @@ export const score2 = (x: number) => x.toFixed(2)
 export const pct = (x: number) => `${Math.round(x * 100)}%`
 export const record = (w: number, l: number) => `${w}–${l}`
 export const int = (x: number) => x.toLocaleString('en-US')
+/** Points with a sign and one decimal: +6.0, −5.6. */
+export const signed = (points: number) => `${points > 0 ? '+' : points < 0 ? '−' : ''}${Math.abs(points).toFixed(1)}`
 
 export const ordinal = (n: number) => {
   const s = ['th', 'st', 'nd', 'rd']
   const v = n % 100
   return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+
+// David Oram's public LinkedIn post of 2026-08-07 (date from the post's activity id).
+// LinkedIn needs a sign-in for scripts, so rescore.py can't check this line; it was
+// checked by hand on 2026-10-15 (see data/SOURCES.md).
+export const SUPERFORECASTER_POST = {
+  url: 'https://www.linkedin.com/posts/davidoram8_which-of-the-leading-ai-models-are-the-best-activity-7491473731027116032-e9LS',
+  date: 'Aug 7',
+  text: 'Which of the leading AI models are the best superforecasters?',
 }
 
 export const REPO = 'https://github.com/PohTeyToe/riipen-luca-theory'

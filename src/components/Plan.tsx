@@ -11,7 +11,10 @@ const plan: [string, string][] = [
     'A stated probability on every pick, scored with Brier and against the market price, behind a flag with these tests in your repo. Rescore Season 1 with the stopgap so Season 2 starts from corrected trust.',
   ],
   ['Nov 16 to 27', 'Per-domain trust in /api/trust-scores, used by the King behind a flag, with the thin-cell rule.'],
-  ['Nov 30 to Dec 11 (spotlight Dec 11)', 'Weekly batch running again for Season 2, then a play-money dry run.'],
+  [
+    'Nov 30 to Dec 11 (spotlight Dec 11)',
+    'Weekly batch running again for Season 2, then a play-money dry run. If you want Season 2 sooner, this moves first.',
+  ],
   ['Dec 14 to 18 (submit Dec 18)', 'Handover notes and docs.'],
 ]
 
@@ -48,7 +51,7 @@ const range = (b: Batch) => `${shortDate(b.start)} to ${shortDate(b.end)}`
 function describe(b: Batch) {
   const head = `Week ${b.week}, ${range(b)}`
   if (b.state === 'none') return `${head}: no batch.`
-  return `${head}: ${b.status}, ${b.selected} selected. The API reports ${int(b.eventCount ?? 0)} events and ${int(b.predictionCount ?? 0)} predictions.`
+  return `${head}: ${b.status}, ${b.selected} of ${int(b.eventCount ?? 0)} events selected, ${int(b.predictionCount ?? 0)} predictions on them.`
 }
 
 /** Exhibit 5. One cell per ISO week of Season 1 and after. */

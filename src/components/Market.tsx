@@ -1,4 +1,4 @@
-import { int, page } from '../data'
+import { int, page, signed } from '../data'
 
 const { line, market } = page
 
@@ -47,7 +47,6 @@ export function RatingBands() {
 // Points either side of zero: the widest gap or luck range, rounded up to a multiple of 5.
 const AXIS = Math.ceil(Math.max(...market.rows.map((r) => Math.max(Math.abs(r.gapPoints), r.luckPoints))) / 5) * 5
 const x = (points: number) => `${50 + (points / AXIS) * 50}%`
-const signed = (points: number) => `${points > 0 ? '+' : points < 0 ? '−' : ''}${Math.abs(points).toFixed(1)}`
 
 /** Exhibit 3. Each agent's win rate minus the market price of the sides it picked, inside the range luck alone covers. */
 export function MarketGap() {
@@ -76,12 +75,14 @@ export function MarketGap() {
         {market.rows.map((r) => (
           <li key={r.id} className="gc-row">
             <span className="sr-only">
-              {r.name}: won {r.wonPercent}% of {r.n} settled bets, market price {r.marketPercent}%, a gap of {signed(r.gapPoints)}{' '}
+              {r.name}: won {r.wonPercent}% of {r.n} settled bets on {r.contracts} contracts, market price {r.marketPercent}%, a gap of {signed(r.gapPoints)}{' '}
               points. Luck alone covers {r.luckPoints} points either way.
             </span>
             <span className="gc-agent" aria-hidden="true">
               <span className="agent-name">{r.name}</span>
-              <span className="agent-role">{r.n} settled bets</span>
+              <span className="agent-role">
+                {r.n} bets, {r.contracts} contracts
+              </span>
             </span>
             <span className="gc-won" aria-hidden="true">
               {r.wonPercent}%

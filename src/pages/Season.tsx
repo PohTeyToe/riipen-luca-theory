@@ -9,7 +9,7 @@ import { BatchStrip, PlanTable, SupplyLine } from '../components/Plan'
 import { ProofStrip } from '../components/ProofStrip'
 import { Scorecard } from '../components/Scorecard'
 import { TheChange } from '../components/TheChange'
-import { OWNER, confidenceRow, int, page, pulled, score2, shortDate } from '../data'
+import { OWNER, SUPERFORECASTER_POST, confidenceRow, int, page, pulled, score2, shortDate } from '../data'
 
 const { line, domains, king, market, quotes, season } = page
 const sbf = domains.notes.sbf
@@ -66,7 +66,9 @@ export function Season() {
               {contents.map(([id, label], i) => (
                 <li key={id}>
                   <a href={`#${id}`}>
-                    <span className="toc-n">{i + 1}</span>
+                    <span className="toc-n" aria-hidden="true">
+                      {i + 1}
+                    </span>
                     {label}
                   </a>
                 </li>
@@ -107,8 +109,9 @@ export function Season() {
             >
               <Scorecard selected={openId} onOpen={openAgent} />
               <p className="caption">
-                Settled bets with a stake: the same {int(line.scoredPicks)} your analytics count. Trust uses your formula at
-                its 0.3 floor. Tap a row for the agent's own bets.
+                Settled bets with a stake: the same {int(line.scoredPicks)} your analytics count. Trust is your formula: from
+                35 settled bets on, it's 30% base trust and 70% Brier, and all ten agents are past 35. Tap a row for the
+                agent's own bets.
               </p>
             </Exhibit>
             <div className="prose">
@@ -122,10 +125,10 @@ export function Season() {
           <Section id="market" n={3} title="Who beats the market price">
             <div className="prose">
               <p>
-                The fixed reading is a stopgap. Your methodology page also says: "{quotes.positionSize.text}" The results
-                fit that better than either reading. Bets rated {highBand.from} or higher won {highBand.wonPercent}% of the
-                time. As scored that rating reads as {highBand.asScoredPercent}%, and fixed as {highBand.fixedPercent}%. The
-                market's price at entry said {highBand.marketPercent}%.
+                The fixed reading is a stopgap, because neither reading makes the rating a probability. Bets rated{' '}
+                {highBand.from} or higher won {highBand.wonPercent}% of the time. As scored that rating reads as{' '}
+                {highBand.asScoredPercent}%, and fixed as {highBand.fixedPercent}%. The market's price at entry said{' '}
+                {highBand.marketPercent}%.
               </p>
             </div>
             <Exhibit
@@ -158,16 +161,25 @@ export function Season() {
               <MarketGap />
               <p className="caption">
                 Market is the average price at entry of the sides each agent picked. Every agent sits inside the range luck
-                alone covers.
+                alone covers. Agents sometimes bet on the same contract in more than one week, so the range counts those bets
+                as one shared outcome. It doesn't model links between different contracts, such as two markets on one
+                election.
               </p>
             </Exhibit>
             <div className="prose">
               <p>
                 No agent clearly beats the market yet. The Policy Insider agent comes closest: it won {insider.wonPercent}% of
-                bets the market priced at {insider.marketPercent}%. The
-                Munger and Ackman agents, which the fixed reading moves up, win within 2 points of the market's price. Season 1
-                gave each agent {market.settledMin} to {market.settledMax} settled bets, and a {market.edgePoints}-point edge
-                only clears luck at about {tens(market.betsFor5PointsMin)} to {tens(market.betsFor5PointsMax)}.
+                bets the market priced at {insider.marketPercent}%. The Munger and Ackman agents, which the fixed reading
+                moves up, are within about 2 points of the market's price. Season 1 gave each agent {market.settledMin} to{' '}
+                {market.settledMax} settled bets. To spot a real {market.edgePoints}-point edge 4 times in 5 takes about{' '}
+                {tens(market.betsForEdgeMin)} to {tens(market.betsForEdgeMax)} per agent, each on a different contract.
+              </p>
+              <p>
+                These two tests are also how I'd answer the question you asked{' '}
+                <a href={SUPERFORECASTER_POST.url}>on LinkedIn on {SUPERFORECASTER_POST.date}</a>: "{SUPERFORECASTER_POST.text}"
+                Your <a href={quotes.calibration.page}>Benchmarks essay</a> says the gap between benchmark and live results
+                tracks "{quotes.calibration.text}" Exhibit 2 is a calibration check and Exhibit 3 an edge check. Both work for
+                any model, so they could score Season 2, or models head to head on the same events.
               </p>
             </div>
           </Section>
@@ -176,7 +188,9 @@ export function Season() {
             <div className="prose">
               <p>
                 Your <a href={quotes.lastMile.page}>Last-Mile Accuracy essay</a> says "{quotes.lastMile.text}" Here's Season 1
-                split by domain, scored the fixed way.
+                split by domain. Trust runs on Brier, so per-domain trust would too, and the stopgap is the best Brier Season 1
+                allows until picks carry a stated probability. Tap a cell for section 3's test as well: its win rate against
+                the market price of the same bets.
               </p>
             </div>
             <Exhibit
@@ -189,17 +203,20 @@ export function Season() {
                 <p>
                   <b>SAIm BAInkman-FrAIed</b> was built as the crypto degen. In Season 1 it's the best agent on geopolitics,{' '}
                   {sbf.geopolitics.wins} and {sbf.geopolitics.losses}, on sides the market priced at{' '}
-                  {sbf.geopolitics.marketPercent}% on average. On politics it went {sbf.politics.wins} and{' '}
-                  {sbf.politics.losses}, right at the market's {sbf.politics.marketPercent}%.
+                  {sbf.geopolitics.marketPercent}% on average. That's {Math.round(sbf.geopolitics.gapPoints ?? 0)} points over
+                  the price, still inside what luck covers on {sbf.geopolitics.n} bets. On politics it went {sbf.politics.wins}{' '}
+                  and {sbf.politics.losses}, right at the market's {sbf.politics.marketPercent}%.
                 </p>
                 <p>
                   <b>CAIthy Wood</b> was built around exponential tech and blockchain. It went {wood.tech.wins} and{' '}
                   {wood.tech.losses} on tech and {wood.crypto.wins} and {wood.crypto.losses} on crypto, against{' '}
-                  {wood.politics.wins} and {wood.politics.losses} on politics. Those cells are too thin to trust alone, which
-                  is why they're blended.
+                  {wood.politics.wins} and {wood.politics.losses} on politics. Those cells are too thin to trust alone, so the
+                  blend pulls them most of the way to its overall score.
                 </p>
               </div>
               <p className="caption">
+                Every cell is blended toward the agent's overall score, as if it had {String(page.method.prior)} more picks
+                there. Hatched cells have under {String(page.method.thinBelow)}, so the blend carries most of their weight.{' '}
                 {domains.politicsPercent}% of Season 1's scored events were politics. Per-domain trust needs more resolved
                 events outside politics, and that's a choice for Season 2's batches.
               </p>
@@ -229,8 +246,8 @@ export function Season() {
               <BatchStrip />
               <p className="caption">
                 Season 1 moved to "{season.status}" on {shortDate(season.crystallisedAt)}. Season 2 needs a batch every week,
-                and more settled bets per agent than Season 1's {market.settledMin} to {market.settledMax}, to tell skill from
-                luck.
+                and about {tens(market.betsForEdgeMin)} to {tens(market.betsForEdgeMax)} settled bets per agent, each on a
+                different contract, to tell a {market.edgePoints}-point edge from luck.
               </p>
               <SupplyLine />
             </Exhibit>

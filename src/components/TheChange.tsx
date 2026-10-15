@@ -1,6 +1,6 @@
 import { page, TEST_FILE } from '../data'
 
-const { change } = page
+const { change, quotes } = page
 const CATEGORY = 'GEOPOLITICS'
 const AGENT = 'sbf'
 const agentCount = Object.keys(change.proposedResponses[CATEGORY]).length
@@ -14,6 +14,8 @@ const gloss: Record<string, string> = {
   test_as_scored_rewards_losing: 'As scored, a loss beats a win at every rating from 1 to 7, and only there',
   test_fixed_never_rewards_losing: 'Fixed, a win never scores worse than a loss',
   test_blend: 'Empty cells get no value; a blend lands between the cell and the agent overall',
+  test_luck_counts_each_contract_once: 'Repeat bets on one contract share its outcome in the luck range',
+  test_every_scored_event_has_a_contract: 'Every scored bet maps to a Polymarket contract',
 }
 
 type Line = { text: string; added: boolean }
@@ -51,9 +53,9 @@ export function TheChange() {
       <div className="change-part">
         <h3 className="part-h">For Season 2: a stated probability</h3>
         <p className="part-note">
-          Ask each agent for the chance its side is right, as a number, next to the 1 to 15 rating that sets its stake.
-          Score that number with Brier, and show each agent's win rate against the market price at entry beside it. Then
-          trust measures forecasting, and the rating stays a stake.
+          Your methodology page says "{quotes.positionSize.text}" Keep it for that, and ask each agent for the chance its
+          side is right, as a number, next to the rating. Score that number with Brier, and show each agent's win rate
+          against the market price at entry beside it. Then trust measures forecasting, and the rating stays a stake.
         </p>
       </div>
 
@@ -85,7 +87,9 @@ export function TheChange() {
         </h3>
         <p className="part-note">
           Every field you return today keeps its name and meaning, so existing clients don't break. The highlighted block is
-          new. One agent shown; the response has all {agentCount}.
+          new: domain trust, plus section 3's test on the domain's bets (<code>wonRate</code> against{' '}
+          <code>marketPrice</code>, and <code>luckRange</code>, which is null under 10 picks). One agent shown; the response
+          has all {agentCount}.
         </p>
         <pre className="code json" aria-label="Proposed JSON response">
           {responseLines().map((l, i) => (

@@ -10,7 +10,9 @@ python -I analysis/rescore.py
 pytest analysis
 ```
 
-`fetch.py` saves raw responses to `data/raw/<date>/` (not committed) with a `manifest.json` that records each URL, its retrieval time, size and SHA-256. `rescore.py` reads the newest pull, writes `snapshot.json`, runs the tests, and writes `page.json` only if they all pass.
+`fetch.py` saves raw responses to `data/raw/<date>/` with a `manifest.json` that records each URL, its retrieval time, size and SHA-256. `rescore.py` reads the newest pull, checks every file against the manifest, runs the tests on the new snapshot, and writes `snapshot.json` and `page.json` only if they all pass.
+
+The raw files aren't committed: they're LUCA's API responses and site code, so this repo links them instead of republishing them. Each file's size and SHA-256 are committed in `page.json` → `sources`, so a copy of the Oct 15 pull can be checked against them. A fresh pull should match while Season 1 stays closed; if LUCA changes the data or the site, the hashes show it.
 
 ## Collected
 
@@ -26,7 +28,8 @@ One GET per endpoint, a one-second pause between requests, no `/api/admin` paths
 | https://street.lucatheory.com/api/batches/all | 2026-10-15 18:02:32 | Weekly batch status and counts |
 | https://street.lucatheory.com/api/seasons/current | 2026-10-15 18:02:33 | Season label and status |
 | https://street.lucatheory.com/ and its bundle https://street.lucatheory.com/assets/index-CGCh0oXP.js | 2026-10-15 18:02:34 to 18:02:36 | Agent display names and roles; the methodology lines and trust formula shown at https://street.lucatheory.com/methodology |
-| https://lucatheory.com/ and its bundle https://lucatheory.com/assets/index-C1_mihoM.js | 2026-10-15 18:02:37 to 18:02:38 | The two quotes from https://lucatheory.com/thinking/proof-of-trust and https://lucatheory.com/thinking/last-mile-accuracy |
+| https://lucatheory.com/ and its bundle https://lucatheory.com/assets/index-C1_mihoM.js | 2026-10-15 18:02:37 to 18:02:38 | The three quotes from https://lucatheory.com/thinking/proof-of-trust, https://lucatheory.com/thinking/last-mile-accuracy and https://lucatheory.com/thinking/benchmarks-vs-markets |
+| https://www.linkedin.com/posts/davidoram8_which-of-the-leading-ai-models-are-the-best-activity-7491473731027116032-e9LS | 2026-10-15, read by hand | David Oram's question "Which of the leading AI models are the best superforecasters?" (see below) |
 | https://gamma-api.polymarket.com/markets/keyset and /events | 2026-10-15, last request 18:11:08 | Count of open Polymarket markets that pass Agent Street's published filters (method below) |
 
 Both LUCA sites are single-page apps, so their text ships inside one JavaScript bundle per site. `rescore.py` checks every quoted line against the bundle it came from and stops if one is missing. That check proves a line is in the site, not which page shows it, so the page for each quote was traced by hand through the bundle's router:
@@ -34,6 +37,9 @@ Both LUCA sites are single-page apps, so their text ships inside one JavaScript 
 - The methodology lines and the trust formula are inside the component the street site mounts at `/methodology`.
 - "Trust is not a property of a person, an agent, or a credential. It is a per-domain measurement of track record." is the "Working Hypothesis" box. That box is its own small component, defined right after the Last-Mile Accuracy component in the bundle and rendered only inside the component mounted at `/thinking/proof-of-trust`.
 - "Trust does not transfer globally." is in the FAQ of the component mounted at `/thinking/last-mile-accuracy`.
+- "calibration, a property that closed-book benchmarks barely measure and live markets measure constantly." ends the sentence "The second is that the gap isn't random. It tracks calibration, ..." in the essay "Benchmarks are open-book. Markets aren't." Both the essay's title and this sentence sit inside the one component the router mounts at `/thinking/benchmarks-vs-markets` (component `m5`, which starts at offset 668,608 of the bundle and ends before the next component at 680,032; the quote is at 677,960).
+
+One line comes from LinkedIn, which the script can't read without signing in, so `rescore.py` doesn't check it. The post (link above) was read on 2026-10-15 without signing in. Its first line is "Which of the leading AI models are the best superforecasters?" and the next is "Are Open or Closed source models better predictors?" The page quotes the first. LinkedIn shows the date only as "2mo"; the post's activity id, 7491473731027116032, carries its timestamp (the id shifted right by 22 bits is milliseconds since 1970), which is 2026-08-07 12:42 UTC. The post points to a newsletter with results; the page says nothing about them.
 
 The quotes are stored in `page.json` under `quotes`, each with the page it appears on.
 
@@ -53,24 +59,25 @@ Result: about 4,238 markets in 1,848 events (`page.json` → `supply`). It's an 
 
 | File | Committed | What it is |
 |---|---|---|
-| `raw/<date>/` | No | The responses exactly as served, plus `manifest.json`. One exception: `gamma_supply.json` is built by `fetch.py` from the 57 market pages and the event lookups (the fields used, the filters, the page count, and whether paging ended). The per-page responses and cursors aren't kept, so `complete: true` records that paging ran out of cursors; it can't be rechecked from the file alone |
-| `snapshot.json` | Yes | Collected. Only the fields the tests need, with no free text: all 2,571 picks, the 261 events those picks and the King bets refer to, the 89 King bets that list each agent's vote (votes parsed from the JSON string, anchor pair parsed from "Anchor agents (x/y)" in the reasoning), and each agent's published trust and calibration figures |
-| `page.json` | Yes | Computed by `rescore.py`, plus collected text: event questions, the agents' own reasoning for the sample bets, agent display names and roles, the quotes, and the batch rows |
+| `raw/<date>/` | No (hashes in `page.json` → `sources`) | The responses exactly as served, plus `manifest.json`. One exception: `gamma_supply.json` is built by `fetch.py` from the 57 market pages and the event lookups (the fields used, the filters, the page count, and whether paging ended). The per-page responses and cursors aren't kept, so `complete: true` records that paging ran out of cursors; it can't be rechecked from the file alone |
+| `snapshot.json` | Yes | Collected. Only the fields the tests need, with no free text: all 2,571 picks, the 261 events those picks and the King bets refer to (each with its Polymarket contract id), the 89 King bets that list each agent's vote (votes parsed from the JSON string, anchor pair parsed from "Anchor agents (x/y)" in the reasoning), and each agent's published trust and calibration figures |
+| `page.json` | Yes | Computed by `rescore.py`, plus collected text: event questions, the agents' own reasoning for the sample bets, agent display names and roles, the quotes, and the batch rows. `inputs` holds the SHA-256 of `snapshot.json`, `rescore.py` and the tests it was built from; the build checks them |
 
 What's LUCA's, unchanged: every pick, outcome, published score, King call, batch row, the trust formula and the King's consensus formula.
 
 What's mine, and labelled as a proposal or approximation in `page.json` → `method`:
 
 - The fixed reading of confidence, `p = 0.5 + confidence / 30`.
-- The domain blend: a cell with n picks is scored as if it had 10 more at the agent's overall fixed Brier. Cells under 10 picks are flagged thin.
+- The domain blend: every cell with n picks is scored as if it had 10 more at the agent's overall fixed Brier, so a 10-pick cell is half its own score. Cells under 10 picks are flagged thin (hatched on the page).
 - Domain trust: LUCA's trust formula at its 0.3 floor, applied to the blended Brier.
-- The market row: per scored event, the mean market price at entry across its scored picks, scored against the resolution.
 - The approximate King rule: side YES if consensus is above 0.5; EXECUTE if both anchors named in the reasoning voted that side and consensus is at least 4 points from the market, else WAIT. It reproduces all 89 real calls using the trust recorded on each vote.
-- The comparison with the market: each agent's win rate minus the mean market price at entry of the sides it picked, with a luck range of 1.96 x sqrt(sum of p(1-p)) / n, where p is each pick's price. That's where 95% of win rates would land over the same bets if the market's prices were right.
+- The comparison with the market: each agent's win rate minus the mean market price at entry of the sides it picked, with a luck range of 1.96 x sqrt(spread) / n. That's where 95% of win rates would land over the same bets if the market's prices were right. The 124 scored events are 108 Polymarket contracts, because a contract can come back in a later week as a new event, and each agent has 7 to 11 repeat bets on a contract it had already bet on. Those bets share one outcome, so each contract adds (a - b)^2 x q(1 - q) to the spread, where a and b are the agent's YES and NO bets on it and q is their mean entry price for YES. Two bets on the same side count double; a YES and a NO cancel. The range doesn't model links between different contracts, such as two markets on one election. Counting the exact distribution of wins under the same assumption, instead of the 1.96 x sigma shortcut, also puts every agent inside the middle 95%. The closest is the Roaring Kitty agent: 6.7% of outcomes are at or below its win count.
+- Domain cells get the same comparison on their own bets. The luck range is shown only for cells with 10 or more bets, where the 1.96 x sigma range is close to a true 95%.
+- Bets needed: how many settled bets, each on a different contract at the agent's Season 1 prices, a real 5-point edge needs to clear the luck range 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2, which is 355 to 396 across the ten agents. Half that many is where an observed 5-point gap first reaches the edge of the range.
 - The proposed `/api/trust-scores?category=...` response.
 
 Mock data: none. There is no generated or LLM-written data in this project.
 
 ## Checks on this pull
 
-`rescore.py` writes the test results to `page.json` → `change.tests` and a set of yes/no checks for each number the page copy relies on to `page.json` → `checks`. On this pull all 7 tests pass and every check holds.
+`rescore.py` writes the test results to `page.json` → `change.tests` and a set of yes/no checks for each number the page copy relies on to `page.json` → `checks`. On this pull all 9 tests pass and all 22 checks hold.
