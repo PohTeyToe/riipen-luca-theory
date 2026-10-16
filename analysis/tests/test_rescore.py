@@ -54,6 +54,16 @@ def test_king_rule_fidelity(snap):
     assert misses == [], misses
 
 
+def test_king_log_matches_replay(snap):
+    # Every sentence kept from the King's log is a claim about its own votes
+    # (split, anchors, insider, highest conviction, consensus, gap to market).
+    # Each one must agree with the replay; none may go unchecked.
+    for b in snap["kingBets"]:
+        assert b["log"], b["id"]
+        checks = rs.log_checks(b)
+        assert all(ok is True for ok in checks), (b["id"], list(zip(b["log"], checks)))
+
+
 def test_as_scored_rewards_losing():
     for c in range(1, 16):
         loss_better = rs.pick_brier(c, False, "asScored") < rs.pick_brier(c, True, "asScored")

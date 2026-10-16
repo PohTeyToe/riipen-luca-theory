@@ -139,6 +139,52 @@ def matches_real(bet):
     return mine["decision"] == "WAIT" or mine["side"] == real["side"]
 
 
+LOG_RULES = [
+    # (pattern, check(match, bet, replay) -> bool). Percentages in the log have one decimal.
+    (r"EXECUTE: (\d+)Y/(\d+)N split with ([\d.]+)% edge",
+     lambda m, b, r: (int(m[1]), int(m[2])) == r["split"] and float(m[3]) == r["gapPercent"]),
+    (r"Anchor agents \(([a-z]+)/([a-z]+)\) selected by trust-weighted heuristic, aligned on (YES|NO)",
+     lambda m, b, r: r["votes"].get(m[1]) == m[3] == r["votes"].get(m[2])),
+    (r"(?:WAIT: )?Anchor agents \(([a-z]+)/([a-z]+)\) not aligned on (YES|NO)",
+     lambda m, b, r: m[3] == r["side"] and not (r["votes"].get(m[1]) == m[3] == r["votes"].get(m[2]))),
+    (r"Insider confirms", lambda m, b, r: r["votes"].get("insider") == b["direction"]),
+    # A missing insider vote counts as dissent in the log (3 bets with 2 or 3 votes).
+    (r"Insider dissents", lambda m, b, r: r["votes"].get("insider") != b["direction"]),
+    (r"Highest conviction: ([a-z]+) at (\d+)/15",
+     lambda m, b, r: r["confidence"].get(m[1]) == int(m[2]) == max(r["confidence"].values())),
+    (r"Split: (\d+)Y/(\d+)N, consensus ([\d.]+)% vs market ([\d.]+)%",
+     lambda m, b, r: (int(m[1]), int(m[2])) == r["split"] and float(m[3]) == r["consensusPercent"]
+     and float(m[4]) == half_up(100 * b["marketProb"], 1)),
+    (r"WAIT: Edge ([\d.]+)% below ([\d.]+)% threshold",
+     lambda m, b, r: float(m[1]) == r["gapPercent"] and float(m[1]) < float(m[2]) == 100 * EDGE),
+    (r"WAIT: Anchor agents missing predictions: ([a-z]+)", lambda m, b, r: m[1] not in r["votes"]),
+]
+
+
+def log_checks(bet):
+    """Each sentence of the King's log, with whether the replay of its votes agrees (None: not checkable)."""
+    c = consensus(bet["breakdown"])
+    yes = sum(v["prediction"] == "YES" for v in bet["breakdown"])
+    replay = {
+        "split": (yes, len(bet["breakdown"]) - yes),
+        "side": "YES" if c > 0.5 else "NO",
+        "votes": {v["agentId"]: v["prediction"] for v in bet["breakdown"]},
+        "confidence": {v["agentId"]: v["confidence"] for v in bet["breakdown"]},
+        "consensusPercent": half_up(100 * c, 1),
+        "gapPercent": half_up(100 * abs(c - bet["marketProb"]), 1),
+    }
+    out = []
+    for sentence in bet["log"]:
+        ok = None
+        for pattern, check in LOG_RULES:
+            m = re.match(pattern, sentence)
+            if m:
+                ok = bool(check(m, bet, replay))
+                break
+        out.append(ok)
+    return out
+
+
 def half_up(x, places=0):
     q = Decimal(1).scaleb(-places)
     return float(Decimal(str(x)).quantize(q, rounding=ROUND_HALF_UP))
@@ -164,6 +210,20 @@ def load(raw, name):
     return json.loads((raw / name).read_text(encoding="utf-8"))
 
 
+LOG_SPLIT = re.compile(r"(?<=\.) (?=[A-Z])")
+# Log sentences the page doesn't show: the human forecasters (DOK, Daive), the
+# Water Cooler endorsements and the sizing clause. Everything else in the log
+# is a claim the page checks against its own replay of the votes.
+LOG_DROP = ("Human forecaster", "Water Cooler", "Dynamic Kelly sizing")
+
+
+def king_log(reasoning):
+    """The King's log, split into sentences, keeping only the ones the page checks."""
+    sentences = LOG_SPLIT.split(reasoning or "")
+    kept = [x for x in sentences if not x.startswith(LOG_DROP)]
+    return {"log": kept, "logOmitted": len(sentences) - len(kept)}
+
+
 def build_snapshot(raw):
     preds = load(raw, "predictions.json")
     events = load(raw, "events.json")
@@ -178,10 +238,11 @@ def build_snapshot(raw):
             continue
         m = ANCHOR_RE.search(b["reasoning"] or "")
         bets.append({
-            "id": b["id"], "eventId": b["eventId"], "signal": b["signal"],
-            "consensusProb": b["consensusProb"], "marketProb": b["marketProb"], "direction": b["direction"],
+            "id": b["id"], "eventId": b["eventId"], "createdAt": b["createdAt"], "signal": b["signal"],
+            "consensusProb": b["consensusProb"], "marketProb": b["marketProb"], "edge": b["edge"], "direction": b["direction"],
             "breakdown": [{k: v[k] for k in ("agentId", "prediction", "confidence", "trustScore")} for v in breakdown],
             "anchors": list(m.groups()) if m else None,
+            **king_log(b["reasoning"]),
         })
     # Only the events the snapshot's picks and King bets refer to.
     used = {p["eventId"] for p in preds} | {b["eventId"] for b in bets}
@@ -201,7 +262,7 @@ def build_snapshot(raw):
         "picks": [{k: p[k] for k in ("agentId", "eventId", "prediction", "confidence", "units", "pnl",
                                      "settled", "marketProbAtEntry", "createdAt")}
                   for p in sorted(preds, key=lambda p: (p["createdAt"], p["agentId"]))],
-        "events": [{k: e[k] for k in ("id", "polymarketId", "category", "resolution", "weekNumber", "year")}
+        "events": [{k: e[k] for k in ("id", "polymarketId", "question", "category", "resolution", "weekNumber", "year")}
                    for e in sorted(events, key=lambda e: (e["year"], e["weekNumber"], e["id"])) if e["id"] in used],
         "kingBets": bets,
     }
@@ -370,7 +431,10 @@ def king_fidelity(snap):
     bets = snap["kingBets"]
     consensus_ok = [b["id"] for b in bets if abs(consensus(b["breakdown"]) - b["consensusProb"]) < 5e-5]
     fidelity_miss = [b["id"] for b in bets if not matches_real(b)]
-    return {"consensusOk": consensus_ok, "fidelityMiss": fidelity_miss}
+    checks = [ok for b in bets for ok in log_checks(b)]
+    return {"consensusOk": consensus_ok, "fidelityMiss": fidelity_miss,
+            "logClaims": sum(ok is not None for ok in checks), "logClaimsMatch": sum(ok is True for ok in checks),
+            "logUnchecked": sum(ok is None for ok in checks)}
 
 
 # ---- Page data ----
@@ -649,6 +713,7 @@ def build_page(snap, raw, tests):
     checks = {
         "proofTenOfTen": brier_ok == 10 and trust_ok == 10,
         "kingConsensusAll": len(king["consensusOk"]) == len(snap["kingBets"]),
+        "kingLogAllMatch": king["logClaims"] > 0 and king["logClaimsMatch"] == king["logClaims"] and king["logUnchecked"] == 0,
         "pick3WinsScores064LosesScores004": (half_up(pick_brier(3, True, "asScored"), 2), half_up(pick_brier(3, False, "asScored"), 2)) == (0.64, 0.04),
         "lossBetterExactlyAt1to7": [x["confidence"] for x in line if x["lossScoresBetter"]] == list(range(1, 8)),
         "simonsAsScored4thFixed8th": (simons["rankAsScored"], simons["rankFixed"]) == (4, 8),
@@ -749,6 +814,9 @@ def build_page(snap, raw, tests):
             "ruleMatches": len(snap["kingBets"]) - len(king["fidelityMiss"]),
             "ruleMisses": king["fidelityMiss"],
             "betsWithoutAnchorPair": [b["id"] for b in snap["kingBets"] if not b["anchors"]],
+            "logClaims": king["logClaims"],
+            "logClaimsMatch": king["logClaimsMatch"],
+            "logUnchecked": king["logUnchecked"],
             "edgeThreshold": EDGE,
         },
         "change": {
@@ -805,7 +873,8 @@ def verify_pull(raw):
 # The files page.json is built from that the repo carries. scripts/check-data.mjs
 # recomputes these hashes at build time, so a page.json left over from an older
 # snapshot or older code stops the build.
-INPUTS = ["data/snapshot.json", "analysis/rescore.py", "analysis/tests/test_rescore.py"]
+INPUTS = ["data/snapshot.json", "analysis/rescore.py", "analysis/tests/test_rescore.py",
+          "data/reader-run.json", "analysis/reader.py", "analysis/reader_prompt.md", "analysis/tests/test_reader.py"]
 
 
 def text_hash(text):

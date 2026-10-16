@@ -39,9 +39,9 @@ Both LUCA sites are single-page apps, so their text ships inside one JavaScript 
 - "Trust does not transfer globally." is in the FAQ of the component mounted at `/thinking/last-mile-accuracy`.
 - "calibration, a property that closed-book benchmarks barely measure and live markets measure constantly." ends the sentence "The second is that the gap isn't random. It tracks calibration, ..." in the essay "Benchmarks are open-book. Markets aren't." Both the essay's title and this sentence sit inside the one component the router mounts at `/thinking/benchmarks-vs-markets` (component `m5`, which starts at offset 668,608 of the bundle and ends before the next component at 680,032; the quote is at 677,960).
 
-One line comes from LinkedIn, which the script can't read without signing in, so `rescore.py` doesn't check it. The post (link above) was read on 2026-10-15 without signing in. Its first line is "Which of the leading AI models are the best superforecasters?" and the next is "Are Open or Closed source models better predictors?" The page quotes the first. LinkedIn shows the date only as "2mo"; the post's activity id, 7491473731027116032, carries its timestamp (the id shifted right by 22 bits is milliseconds since 1970), which is 2026-08-07 12:42 UTC. The post points to a newsletter with results; the page says nothing about them.
+One line comes from LinkedIn, which the script can't read without signing in, so `rescore.py` doesn't check it. The post (link above) was read on 2026-10-15 without signing in. Its first line is "Which of the leading AI models are the best superforecasters?" and the next is "Are Open or Closed source models better predictors?" The outreach notes quote the first; the page doesn't. LinkedIn shows the date only as "2mo"; the post's activity id, 7491473731027116032, carries its timestamp (the id shifted right by 22 bits is milliseconds since 1970), which is 2026-08-07 12:42 UTC. The post points to a newsletter with results; the page says nothing about them.
 
-The quotes are stored in `page.json` under `quotes`, each with the page it appears on.
+The quotes are stored in `page.json` under `quotes`, each with the page it appears on. The page itself no longer shows them.
 
 ## Polymarket supply count
 
@@ -53,7 +53,7 @@ Agent Street's methodology page says: "Minimum $5,000 volume. 3–90 day resolut
 4. Dropped events with any sports or entertainment tag: `sports`, `sport`, `esports`, `games`, `pop-culture`, `awards`, `celebrities`, `music`, `movies`, and the league and sport tags (`football`, `nfl`, `cfb`, `ncaaf`, `soccer`, `tennis`, `atp`, `wta`, `boxing`, `ufc`, `mma`, `nba`, `basketball`, `mlb`, `baseball`, `nhl`, `hockey`, `golf`, `f1`, `cricket`, `olympics`). Polymarket doesn't tag every sports event `sports`: the NFC East winner markets carry only `nfl` and `football`, and a tennis market only `sport` and `tennis`. The list is my reading of "no sports, no entertainment"; LUCA's own filter code is private. 4,405 markets left.
 5. Dropped 167 markets that are already Agent Street events (Gamma market id equals `polymarketId` in `/api/events`).
 
-Result: about 4,238 markets in 1,848 events (`page.json` → `supply`). It's an estimate under my reading of the filters, and a snapshot of a live market list, so it moves from minute to minute.
+Result: about 4,238 markets in 1,848 events (`page.json` → `supply`; the page no longer shows it). It's an estimate under my reading of the filters, and a snapshot of a live market list, so it moves from minute to minute.
 
 ## What's collected and what's computed
 
@@ -61,22 +61,24 @@ Result: about 4,238 markets in 1,848 events (`page.json` → `supply`). It's an 
 |---|---|---|
 | `raw/<date>/` | No (hashes in `page.json` → `sources`) | The responses exactly as served, plus `manifest.json`. One exception: `gamma_supply.json` is built by `fetch.py` from the 57 market pages and the event lookups (the fields used, the filters, the page count, and whether paging ended). The per-page responses and cursors aren't kept, so `complete: true` records that paging ran out of cursors; it can't be rechecked from the file alone |
 | `snapshot.json` | Yes | Collected. Only the fields the tests need, with no free text: all 2,571 picks, the 261 events those picks and the King bets refer to (each with its Polymarket contract id), the 89 King bets that list each agent's vote (votes parsed from the JSON string, anchor pair parsed from "Anchor agents (x/y)" in the reasoning), and each agent's published trust and calibration figures |
-| `page.json` | Yes | Computed by `rescore.py`, plus collected text: event questions, the agents' own reasoning for the sample bets, agent display names and roles, the quotes, and the batch rows. `inputs` holds the SHA-256 of `snapshot.json`, `rescore.py` and the tests it was built from; the build checks them |
+| `page.json` | Yes | Computed by `rescore.py`, plus collected text: event questions, the agents' own reasoning for the sample bets, agent display names and roles, the quotes, and the batch rows. `inputs` holds the SHA-256 of `snapshot.json`, `reader-run.json`, the analysis code and its tests; the build checks them |
+| `reader-run.json` | Yes | Recorded by `reader.py` on 2026-10-16: every model call (reader, worker, start, end, tokens, what was kept and what was re-asked, and why) and both readers' answers on all 893 scored picks, with short quotes from the agents' reasoning and the first 16 hex digits of each text's SHA-256. The full reasoning isn't committed; the page loads it from the API on demand |
 
 What's LUCA's, unchanged: every pick, outcome, published score, King call, batch row, the trust formula and the King's consensus formula.
 
 What's mine, and labelled as a proposal or approximation in `page.json` → `method`:
 
-- The fixed reading of confidence, `p = 0.5 + confidence / 30`.
-- The domain blend: every cell with n picks is scored as if it had 10 more at the agent's overall fixed Brier, so a 10-pick cell is half its own score. Cells under 10 picks are flagged thin (hatched on the page).
+- The 50% floor reading of confidence, `p = 0.5 + confidence / 30` (the slider's right end; in between, the floor moves from 0 to 50%).
+- The domain blend (in `page.json`; the page no longer shows domains): every cell with n picks is scored as if it had 10 more at the agent's overall fixed Brier, so a 10-pick cell is half its own score. Cells under 10 picks are flagged thin.
 - Domain trust: LUCA's trust formula at its 0.3 floor, applied to the blended Brier.
 - The approximate King rule: side YES if consensus is above 0.5; EXECUTE if both anchors named in the reasoning voted that side and consensus is at least 4 points from the market, else WAIT. It reproduces all 89 real calls using the trust recorded on each vote.
 - The comparison with the market: each agent's win rate against the win rate the market's prices at entry implied for its bets. The 124 scored events are 108 Polymarket contracts, because a contract can come back in a later week as a new event, and each agent has 7 to 11 repeat bets on a contract it had already bet on. Repeat bets share one outcome, so the model resolves each contract once, YES with the mean entry price of the agent's bets on it (for bets on one side that's the same as each bet keeping its own price). The luck range is the middle 95% of win rates under that model, computed exactly by adding up every combination of contract outcomes, so it holds at any number of bets and can be lopsided. Every agent is inside it. The range doesn't model links between different contracts, such as two markets on one election.
-- Domain cells show the same comparison on their own bets, without a luck range: with 50 cells, two or three would land outside a 95% range by luck alone. The one cell the copy calls out, the SBF agent's geopolitics (15 and 1), is inside its range (check `sbfGeopoliticsInsideLuck`).
-- Bets needed: a rough planning estimate from the usual normal approximation, not an exact power calculation. It's how many settled bets, each on a different contract at the agent's Season 1 prices, a real 5-point edge needs to clear the luck range about 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2, which is 355 to 396 across the ten agents. The page says "about 360 to 400".
-- The proposed `/api/trust-scores?category=...` response.
+- Domain cells show the same comparison on their own bets, without a luck range: with 50 cells, two or three would land outside a 95% range by luck alone. The one cell earlier copy called out, the SBF agent's geopolitics (15 and 1), is inside its range (check `sbfGeopoliticsInsideLuck`).
+- Bets needed: a rough planning estimate from the usual normal approximation, not an exact power calculation. It's how many settled bets, each on a different contract at the agent's Season 1 prices, a real 5-point edge needs to clear the luck range about 4 times in 5: (1.96 + 0.84)^2 x mean p(1-p) / 0.05^2, which is 355 to 396 across the ten agents. The page says "about 355–396 independent bets".
+- The proposed `/api/trust-scores?category=...` response (in `page.json`, not on the page).
+- The reader run: two models (Opus 5.5 and Sonnet 5.5) each read every scored pick's reasoning, given only the market question, the side bet and the text, and say whether the text calls the pick likely, unlikely or gives no view, and whether it admits low conviction, with a quote for each. The prompt is `analysis/reader_prompt.md`. Answers are kept only if each quote is a word-for-word span of the text (whitespace aside, at most 25 words); the others are re-asked. Where the readers disagree, the page leaves the call to the viewer.
 
-Mock data: none. There is no generated or LLM-written data in this project.
+Mock data: none. The only model output is the recorded reader run (`reader-run.json`), labelled as recorded on the page, with every quote checked against the pulled text (`test_reader_run_quotes_are_in_the_pulled_text`).
 
 ## Checks on this pull
 

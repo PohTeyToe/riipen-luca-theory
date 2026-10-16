@@ -2051,6 +2051,9 @@
    "4874f1da-1c8e-4add-946f-b8ad190e5977",
    "0754fa61-5c71-476a-bfa5-ca92655f3dc1"
   ],
+  "logClaims": 274,
+  "logClaimsMatch": 274,
+  "logUnchecked": 0,
   "edgeThreshold": 0.04
  },
  "change": {
@@ -3023,6 +3026,26 @@
   },
   "tests": [
    {
+    "name": "test_reader_keeps_exact_quotes",
+    "status": "passed"
+   },
+   {
+    "name": "test_reader_rejects_bad_answers",
+    "status": "passed"
+   },
+   {
+    "name": "test_reader_run_covers_every_scored_pick",
+    "status": "passed"
+   },
+   {
+    "name": "test_reader_run_quotes_are_in_the_pulled_text",
+    "status": "passed"
+   },
+   {
+    "name": "test_reader_retries_bad_answers_and_survives_a_crash",
+    "status": "passed"
+   },
+   {
     "name": "test_rebuilds_published_brier",
     "status": "passed"
    },
@@ -3036,6 +3059,10 @@
    },
    {
     "name": "test_king_rule_fidelity",
+    "status": "passed"
+   },
+   {
+    "name": "test_king_log_matches_replay",
     "status": "passed"
    },
    {
@@ -3495,6 +3522,7 @@
  "checks": {
   "proofTenOfTen": true,
   "kingConsensusAll": true,
+  "kingLogAllMatch": true,
   "pick3WinsScores064LosesScores004": true,
   "lossBetterExactlyAt1to7": true,
   "simonsAsScored4thFixed8th": true,
@@ -3517,8 +3545,12 @@
   "simonsLossesMostlyRated8Up": true
  },
  "inputs": {
-  "data/snapshot.json": "e065061595cba6b696b97a09b293166be2af5dd576d5a5a482660e3ede614ec0",
-  "analysis/rescore.py": "71d4a107ed2b63831d3b853df9419bb1a6404ee7d1455f2f946645ef2e321995",
-  "analysis/tests/test_rescore.py": "0e9103de38bfb1ce455bde6f4b7e654fb7fb3590dbeaa2252d8658aa3617f1c2"
+  "data/snapshot.json": "08e51fd2c2aa982ac213935daa92f41cb6092a7b5de05a5b67085863b6de044a",
+  "analysis/rescore.py": "938f31860276460124be4747f01864f90bf543c77492eafb58769dc0ccd979f4",
+  "analysis/tests/test_rescore.py": "308a747c51e09784fdf12054f7839f1c80444aece7a93abe39cb96a2ad68b98b",
+  "data/reader-run.json": "2a58c6e613f2856ee2c07a95d46f37ea76f92a0af29ad9e6643bc84d1c13fefd",
+  "analysis/reader.py": "2b755629cc4cafee819b333995d917f29e050cdf2cabc71833be7f538962624d",
+  "analysis/reader_prompt.md": "936716ff8c47cef10324667fec529c6f3cd3dfed298f7195292fcfc82da06b6e",
+  "analysis/tests/test_reader.py": "867dc3a5c22e8355424703c6df1f82dd701d0e7202db4b5735219b986f2e01e5"
  }
 }

@@ -4,13 +4,44 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/season-1", "destination": "/index.html" },
-    { "source": "/season-1/", "destination": "/index.html" }
+    {
+      "source": "/season-1",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/season-1/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/luca/api/predictions",
+      "destination": "/api/luca?path=predictions"
+    },
+    {
+      "source": "/luca/api/events",
+      "destination": "/api/luca?path=events"
+    },
+    {
+      "source": "/luca/api/king/bets",
+      "destination": "/api/luca?path=king/bets"
+    },
+    {
+      "source": "/luca/api/trust-scores",
+      "destination": "/api/luca?path=trust-scores"
+    },
+    {
+      "source": "/luca/api/analytics/calibration",
+      "destination": "/api/luca?path=analytics/calibration"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ]
 }

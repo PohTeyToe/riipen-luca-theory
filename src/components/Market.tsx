@@ -1,107 +1,90 @@
-import { int, page, signed } from '../data'
+import { useMemo } from 'react'
+import type { Model } from '../App'
+import { agentName } from '../data'
+import { EDGE_POINTS, againstMarket } from '../engine/market'
+import { halfUp } from '../engine/score'
+import { int, signed } from '../lib/ui'
 
-const { line, market } = page
+const p1 = (x: number) => `${halfUp(100 * x, 1).toFixed(1)}%`
 
-/** Exhibit 2. What each reading says a rating means, against how often those bets won and what the market priced them at. */
-export function RatingBands() {
-  return (
-    <table className="data bands-table">
-      <thead>
-        <tr>
-          <th scope="col">Rated</th>
-          <th scope="col" className="num">
-            Bets
-          </th>
-          <th scope="col" className="num">
-            Won
-          </th>
-          <th scope="col" className="num">
-            As scored, reads as
-          </th>
-          <th scope="col" className="num">
-            Fixed, reads as
-          </th>
-          <th scope="col" className="num">
-            Market price at entry
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {line.bands.map((b) => (
-          <tr key={b.from}>
-            <th scope="row">
-              {b.from} to {b.to}
-            </th>
-            <td className="num">{int(b.n)}</td>
-            <td className="num key">{b.wonPercent}%</td>
-            <td className="num as">{b.asScoredPercent}%</td>
-            <td className="num fixed">{b.fixedPercent}%</td>
-            <td className="num key">{b.marketPercent}%</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+// Each agent's win rate against the market's price at entry, with the range luck
+// alone explains if every contract resolved at that price.
+export function Market({ model, agentId, onAgent }: { model: Model; agentId: string; onAgent: (id: string) => void }) {
+  const rows = useMemo(
+    () =>
+      model.ds.agents
+        .map((a) => ({ id: a, vs: againstMarket(model.byAgent.get(a) ?? [], model.contractOf) }))
+        .sort((x, y) => y.vs.gap - x.vs.gap),
+    [model],
   )
-}
+  const outside = rows.filter((r) => !r.vs.inside).length
+  const span = Math.max(...rows.flatMap((r) => [Math.abs(r.vs.luckLow), Math.abs(r.vs.luckHigh), Math.abs(r.vs.gap)])) * 1.08
+  const at = (v: number) => `${50 + (v / span) * 50}%`
+  const needed = rows.map((r) => r.vs.betsFor5PointEdge)
+  const settled = rows.map((r) => r.vs.n)
+  const contracts = rows.map((r) => r.vs.contracts)
 
-// Points either side of zero: the widest gap or luck range, rounded up to a multiple of 5.
-const AXIS = Math.ceil(Math.max(...market.rows.flatMap((r) => [r.gapPoints, r.luckLowPoints, r.luckHighPoints].map(Math.abs))) / 5) * 5
-const x = (points: number) => `${50 + (points / AXIS) * 50}%`
-
-/** Exhibit 3. Each agent's win rate minus the market price of the sides it picked, inside the range luck alone covers. */
-export function MarketGap() {
   return (
-    <div className="gap-chart">
-      <p className="gap-legend" aria-hidden="true">
-        <span className="key">
-          <span className="gc-dot" /> win rate minus market price
-        </span>
-        <span className="key">
-          <span className="gc-luck" /> what luck alone covers (95%)
-        </span>
-      </p>
-      <div className="gc-head" aria-hidden="true">
-        <span className="gc-agent">Agent</span>
-        <span className="gc-won">Won</span>
-        <span className="gc-mkt">Market</span>
-        <span className="gc-axis">
-          <span style={{ left: '0%' }}>−{AXIS}</span>
-          <span style={{ left: '50%' }}>0</span>
-          <span style={{ left: '100%' }}>+{AXIS} points</span>
-        </span>
-        <span className="gc-gap">Gap</span>
-      </div>
-      <ol className="gc-rows">
-        {market.rows.map((r) => (
-          <li key={r.id} className="gc-row">
-            <span className="sr-only">
-              {r.name}: won {r.wonPercent}% of {r.n} settled bets on {r.contracts} contracts, where the market's prices implied{' '}
-              {r.marketPercent}%, a gap of {signed(r.gapPoints)} points. Luck alone covers {signed(r.luckLowPoints)} to{' '}
-              {signed(r.luckHighPoints)} points.
-            </span>
-            <span className="gc-agent" aria-hidden="true">
-              <span className="agent-name">{r.name}</span>
-              <span className="agent-role">
-                {r.n} bets, {r.contracts} contracts
+    <section id="market" className="sect" aria-labelledby="market-h">
+      <div className="wrap">
+        <div className="sect-head">
+          <h2 id="market-h">Does any agent beat the market?</h2>
+          <span className="sect-meta num">
+            {outside} of {rows.length} outside the luck range
+          </span>
+        </div>
+        <div className="panel market">
+          <div className="mk-row mk-h" aria-hidden="true">
+            <span>Agent</span>
+            <span className="r">Bets</span>
+            <span className="r">Won</span>
+            <span className="r">Market</span>
+            <span className="mk-axis">
+              <span>
+                {signed(-span * 100, 0)}
+              </span>
+              <span>won − market, points</span>
+              <span>
+                {signed(span * 100, 0)}
               </span>
             </span>
-            <span className="gc-won" aria-hidden="true">
-              {r.wonPercent}%
+          </div>
+          {rows.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              className={`mk-row ${r.id === agentId ? 'sel' : ''}`}
+              aria-pressed={r.id === agentId}
+              onClick={() => onAgent(r.id)}
+              aria-label={`${agentName(r.id)}: won ${p1(r.vs.won)}, market ${p1(r.vs.market)}, ${signed(r.vs.gap * 100)} points, luck range ${signed(r.vs.luckLow * 100)} to ${signed(r.vs.luckHigh * 100)}`}
+            >
+              <span className="who">{agentName(r.id)}</span>
+              <span className="r num">{r.vs.n}</span>
+              <span className="r num">{p1(r.vs.won)}</span>
+              <span className="r num mkt-t">{p1(r.vs.market)}</span>
+              <span className="mk-plot" aria-hidden="true">
+                <span className="mk-zero" />
+                <span className="mk-luck" style={{ left: at(r.vs.luckLow), right: `calc(100% - ${at(r.vs.luckHigh)})` }} />
+                <span className={`mk-dot ${r.vs.inside ? '' : 'out'}`} style={{ left: at(r.vs.gap) }} />
+                <span className={`mk-val num ${r.vs.gap / span > 0.4 ? 'left' : ''}`} style={{ left: at(r.vs.gap) }}>
+                  {/* The two shown values, subtracted, so the row adds up as printed. */}
+                  {signed(halfUp(100 * r.vs.won, 1) - halfUp(100 * r.vs.market, 1))}
+                </span>
+              </span>
+            </button>
+          ))}
+          <div className="mk-foot">
+            <span className="mk-key" aria-hidden="true">
+              <i className="k-luck" /> 95% luck range
             </span>
-            <span className="gc-mkt" aria-hidden="true">
-              {r.marketPercent}%
+            <span className="num">
+              A {EDGE_POINTS}-point edge needs about {int(Math.min(...needed))}–{int(Math.max(...needed))} independent bets to tell
+              from luck. Each agent has {Math.min(...settled)}–{Math.max(...settled)} bets on {Math.min(...contracts)}–
+              {Math.max(...contracts)} contracts.
             </span>
-            <span className="gc-axis" aria-hidden="true">
-              <span className="gc-luck" style={{ left: x(r.luckLowPoints), right: `calc(100% - ${x(r.luckHighPoints)})` }} />
-              <span className="gc-zero" />
-              <span className="gc-dot" style={{ left: x(r.gapPoints) }} />
-            </span>
-            <span className="gc-gap" aria-hidden="true">
-              {signed(r.gapPoints)}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }

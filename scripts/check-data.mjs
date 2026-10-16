@@ -10,10 +10,16 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 
 const TESTS = [
+  'test_reader_keeps_exact_quotes',
+  'test_reader_rejects_bad_answers',
+  'test_reader_run_covers_every_scored_pick',
+  'test_reader_run_quotes_are_in_the_pulled_text',
+  'test_reader_retries_bad_answers_and_survives_a_crash',
   'test_rebuilds_published_brier',
   'test_rebuilds_published_trust',
   'test_king_consensus_matches',
   'test_king_rule_fidelity',
+  'test_king_log_matches_replay',
   'test_as_scored_rewards_losing',
   'test_fixed_never_rewards_losing',
   'test_blend',
@@ -21,10 +27,19 @@ const TESTS = [
   'test_luck_range_is_exact',
   'test_every_scored_event_has_a_contract',
 ]
-const INPUTS = ['data/snapshot.json', 'analysis/rescore.py', 'analysis/tests/test_rescore.py']
+const INPUTS = [
+  'data/snapshot.json',
+  'analysis/rescore.py',
+  'analysis/tests/test_rescore.py',
+  'data/reader-run.json',
+  'analysis/reader.py',
+  'analysis/reader_prompt.md',
+  'analysis/tests/test_reader.py',
+]
 const CHECKS = [
   'proofTenOfTen',
   'kingConsensusAll',
+  'kingLogAllMatch',
   'pick3WinsScores064LosesScores004',
   'lossBetterExactlyAt1to7',
   'simonsAsScored4thFixed8th',
