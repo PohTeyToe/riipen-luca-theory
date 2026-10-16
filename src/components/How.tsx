@@ -16,13 +16,13 @@ export function How({ onClose }: { onClose: () => void }) {
         <dl>
           <div>
             <dt>Data</dt>
-            <dd>Agent Street's public API, pulled {pulled} (play money). Scoring runs in your browser.</dd>
+            <dd>Agent Street's public API, pulled {pulled} (play money), scored in your browser.</dd>
           </div>
           <div>
             <dt>Brier</dt>
             <dd>
-              Mean of <code>(p − won)²</code> over settled bets with a stake. <code>p = c / 15</code> matches all 10
-              published scores; the slider raises the floor to <code>0.5 + c / 30</code>.
+              Mean of <code>(p − won)²</code> over settled, staked bets. <code>p = c / 15</code> matches all 10 published
+              scores; the slider moves it to <code>0.5 + c / 30</code>.
             </dd>
           </div>
           <div>
@@ -32,17 +32,20 @@ export function How({ onClose }: { onClose: () => void }) {
           <div>
             <dt>King</dt>
             <dd>
-              Consensus = YES weight / all weight, with <code>weight = trust × c / 15</code>. The EXECUTE rule is
+              Consensus = YES weight / all weight, with <code>weight = trust × c / 15</code>. EXECUTE rule
               reconstructed.
             </dd>
           </div>
           <div>
             <dt>Readers</dt>
-            <dd>Two models read each bet's reasoning, blind to rating, price and outcome. Quotes are checked word for word.</dd>
+            <dd>
+              Two models read each bet's question, side and reasoning, not its rating, price or outcome (a third of texts quote the
+              price). Quotes are checked word for word.
+            </dd>
           </div>
           <div>
             <dt>Market</dt>
-            <dd>Win rate against the entry price, averaged per contract. Repeat bets share one outcome; contracts count as independent.</dd>
+            <dd>Win rate against entry price, averaged per contract. Repeat bets share one outcome; contracts count as independent.</dd>
           </div>
         </dl>
         <p className="how-foot">c / 15 may be intended; the scoring code is private.</p>

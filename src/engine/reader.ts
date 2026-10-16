@@ -1,6 +1,7 @@
 // The recorded reader run (analysis/reader.py -> data/reader-run.json): two models
-// read the written reasoning behind every scored pick, blind to its rating, price
-// and outcome. This file joins their answers to the picks and counts them.
+// read the question, side and written reasoning behind every scored pick. They
+// weren't given its rating, price or outcome, though about a third of the texts
+// quote the price. This file joins their answers to the picks and counts them.
 
 export type View = 'likely' | 'unlikely' | 'none'
 export const VIEWS: View[] = ['likely', 'none', 'unlikely']

@@ -98,6 +98,9 @@ export function Calibration({ model, floor, glide }: { model: Model; floor: numb
                   </g>
                 )
               })}
+              <text className="ax" x={PAD.l - 8} y={H - PAD.b + 16} textAnchor="end">
+                rated
+              </text>
               <text className="ax n" x={PAD.l - 8} y={H - PAD.b + 30} textAnchor="end">
                 bets
               </text>

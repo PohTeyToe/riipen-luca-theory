@@ -43,7 +43,7 @@ export function Market({ model, agentId, onAgent }: { model: Model; agentId: str
               <span>
                 {signed(-span * 100, 0)}
               </span>
-              <span>won − market, points</span>
+              <span>won − market, points (exact)</span>
               <span>
                 {signed(span * 100, 0)}
               </span>
@@ -67,8 +67,7 @@ export function Market({ model, agentId, onAgent }: { model: Model; agentId: str
                 <span className="mk-luck" style={{ left: at(r.vs.luckLow), right: `calc(100% - ${at(r.vs.luckHigh)})` }} />
                 <span className={`mk-dot ${r.vs.inside ? '' : 'out'}`} style={{ left: at(r.vs.gap) }} />
                 <span className={`mk-val num ${r.vs.gap / span > 0.4 ? 'left' : ''}`} style={{ left: at(r.vs.gap) }}>
-                  {/* The two shown values, subtracted, so the row adds up as printed. */}
-                  {signed(halfUp(100 * r.vs.won, 1) - halfUp(100 * r.vs.market, 1))}
+                  {signed(r.vs.gap * 100)}
                 </span>
               </span>
             </button>

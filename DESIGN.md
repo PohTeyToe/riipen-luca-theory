@@ -18,6 +18,7 @@ colors:
   red-wash: "oklch(0.962 0.025 22)"
   amber: "oklch(0.6 0.14 65)"
   market-blue: "oklch(0.56 0.19 259)"
+  reader-b: "oklch(0.72 0.012 165)"
 typography:
   display:
     fontFamily: "Josefin Sans Variable, Helvetica Neue, Arial, sans-serif"
@@ -97,8 +98,8 @@ It is an instrument, not a report. One global control (how a confidence rating i
 Tinted neutrals toward LUCA's emerald, one dark band, and data colors with one meaning each.
 
 ### Primary
-- **Deep Emerald** (`emerald-deep`): the pipeline band, primary buttons, the reading line, the "Fixed" end, reader A. From lucatheory.com's panels (#064E3B).
-- **Emerald** (`emerald`): a bet that won, a rank that rose, a check that passed, "side likely", reader B. From LUCA's #009966.
+- **Deep Emerald** (`emerald-deep`): the pipeline band, primary buttons, the reading line, the "50% floor" end. From lucatheory.com's panels (#064E3B).
+- **Emerald** (`emerald`): a bet that won, a rank that rose, a check that passed, "side likely". From LUCA's #009966.
 - **Lime** (`lime`): Agent Street's accent. The live action, step timings on the band, EXECUTE cells.
 
 ### Neutral
@@ -110,6 +111,7 @@ Tinted neutrals toward LUCA's emerald, one dark band, and data colors with one m
 - **Red**: a bet that lost, a rank that fell, "side unlikely", and the zone where a loss scores better than a win.
 - **Amber**: Brier between 0.2 and 0.3 (Agent Street's own coloring), and bets the readers split on.
 - **Market Blue**: the market price, always.
+- **Readers**: Opus is ink, Sonnet is grey (`reader-b`), the same in chips, timeline bars and quote underlines.
 
 **The one-meaning rule.** A data color means one thing across the page. Blue is never decoration.
 
@@ -131,7 +133,7 @@ Flat. Depth comes from the 1px frame, the one dark band and tonal surfaces (crea
 ## 5. Components
 
 - **Run bar:** six steps on deep emerald with a dot grid; each step has an index, label, value, sub-label and a measured time in lime, and opens a cream drawer with its table. The live button is lime.
-- **Reading control:** a range input between two named ends ("As scored c / 15" and "Fixed 0.5 + c / 30") with a readout and a zone chip.
+- **Reading control:** a range input between two named ends ("Published c / 15" and "50% floor 0.5 + c / 30") with a readout and a zone chip.
 - **Ranking rows:** 48px, FLIP re-sort on transform only (340ms ease-out-quart).
 - **Charts:** inline SVG, hairline grids, mono 10px axis text. Every mark is a real record (a bet, a call, a rating). Focus and selection are shown in ink.
 - **Inspector and drawers:** cream panels; tabs in mono caps with an ink underline.

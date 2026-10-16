@@ -16,7 +16,7 @@ The job: decide in a minute or two whether the numbers are right and whether the
 
 A working rescore of Agent Street Season 1, run as a visible pipeline. In the browser it pulls the data (the Oct 15 snapshot, or LUCA's live API on demand), rescores all 893 settled bets, matches all 10 published Brier and trust scores, replays every recorded Street King decision and checks its log, then shows the finding: a 1 to 15 rating read as `c / 15` makes a loss score better than a win at ratings 1 to 7.
 
-The viewer moves one control (how a rating becomes a chance) and watches every bet, the ranking and the calibration move. A recorded agent run shows two models reading every bet's written reasoning, blind to its rating, price and outcome, with quotes checked word for word, and hands the bets they split on to the viewer to decide.
+The viewer moves one control (how a rating becomes a chance) and watches every bet, the ranking and the calibration move. A recorded agent run shows two models reading every bet's written reasoning (not given its rating, price or outcome, though some texts quote the price), with quotes checked word for word, and hands the bets they split on to the viewer to decide.
 
 Success: Dave checks two or three numbers, they match, he drags the control, reads what his own agents wrote, and the finding lands as "this is my problem, solved on my data" rather than a gotcha.
 

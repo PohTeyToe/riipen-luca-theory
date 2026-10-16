@@ -32,8 +32,9 @@ export const modelName = (m: string) =>
 const plainReason = (why: string) =>
   why.replace(/viewQuote|convictionQuote/g, 'quote').replace('is not an exact span of the reasoning', 'not word for word in the text')
 
-// The recorded reader run: two models read every scored bet's reasoning, blind to
-// its rating, price and outcome. Shows what the text says by rating, the run as it
+// The recorded reader run: two models read every scored bet's question, side and
+// reasoning. They weren't given its rating, price or outcome, though about a third
+// of the texts quote the price themselves. Shows what the text says by rating, the run as it
 // happened, and the bets where the two readers split, for the viewer to call.
 // The run was made on the Oct 15 pull, so `model` is always the snapshot.
 export function Reader({
@@ -89,7 +90,6 @@ function ReaderBody({
   const perRating = tallyByRating(joined, ratingOf, decisions)
   // Bets the published reading treats as more likely lost than won (chance under 50%).
   const readLoss = low.filter((p) => pSide(ratingOf.get(p.key)!, AS_SCORED) < 0.5).length
-  const yours = joined.filter((p) => verdict(p, decisions).status === 'decided').length
 
   return (
     <>
@@ -99,7 +99,7 @@ function ReaderBody({
         {tLow.open ? ` (${tLow.open} still your call)` : ''} and admits low conviction in {tLow.low}.
       </p>
       <div className="reader-results">
-        <WordsTable tLow={tLow} tHigh={tHigh} yours={yours} />
+        <WordsTable tLow={tLow} tHigh={tHigh} />
         <ByRating rows={perRating} />
       </div>
       <RunTimeline run={run} stats={stats} />
@@ -108,7 +108,7 @@ function ReaderBody({
   )
 }
 
-function WordsTable({ tLow, tHigh, yours }: { tLow: Tally; tHigh: Tally; yours: number }) {
+function WordsTable({ tLow, tHigh }: { tLow: Tally; tHigh: Tally }) {
   const row = (label: string, a: number, b: number, cls: string) => (
     <tr className={cls}>
       <th scope="row">{label}</th>
@@ -125,7 +125,7 @@ function WordsTable({ tLow, tHigh, yours }: { tLow: Tally; tHigh: Tally; yours: 
       <table className="tbl words-tbl">
         <thead>
           <tr>
-            <th>{yours ? `Includes ${yours} of your calls` : 'The reasoning'}</th>
+            <th>The reasoning</th>
             <th className="r">Rated 1–{LOW}</th>
             <th className="r">Rated {LOW + 1}–15</th>
           </tr>
@@ -157,7 +157,8 @@ function WordsTable({ tLow, tHigh, yours }: { tLow: Tally; tHigh: Tally; yours: 
 function ByRating({ rows }: { rows: Tally[] }) {
   const [ref, width] = useWidth<HTMLDivElement>(560)
   const W = Math.max(280, width)
-  const H = 210
+  // Taller beside the table on wide screens, so the two panels end together.
+  const H = W > 520 ? 280 : 210
   const PAD = { l: 34, r: 8, t: 10, b: 26 }
   const band = (W - PAD.l - PAD.r) / 15
   const y = (v: number) => PAD.t + (1 - v) * (H - PAD.t - PAD.b)
@@ -217,6 +218,9 @@ function ByRating({ rows }: { rows: Tally[] }) {
             </g>
           )
         })}
+        <text className="ax" x={PAD.l - 4} y={H - 10} textAnchor="end">
+          rated
+        </text>
         <line className="cut" x1={PAD.l + band * LOW} x2={PAD.l + band * LOW} y1={PAD.t} y2={H - PAD.b} />
         <polyline className="lowline" points={lowPts} />
         {rows.map((r, i) => (r.n ? <circle key={i} className="lowdot" cx={PAD.l + band * (i + 0.5)} cy={y(r.low / r.n)} r={2.6} /> : null))}
@@ -225,7 +229,7 @@ function ByRating({ rows }: { rows: Tally[] }) {
   )
 }
 
-function RunTimeline({ run, stats }: { run: ReaderRun; stats: ReturnType<typeof runStats> }) {
+export function RunTimeline({ run, stats }: { run: ReaderRun; stats: ReturnType<typeof runStats> }) {
   const [ref, width] = useWidth<HTMLDivElement>(900)
   const [t, setT] = useState(run.wallMs)
   const [playing, setPlaying] = useState(false)
@@ -353,8 +357,21 @@ function RunTimeline({ run, stats }: { run: ReaderRun; stats: ReturnType<typeof 
           {playing && <line className="playhead" x1={x(t)} x2={x(t)} y1={PAD.t - 4} y2={H - PAD.b + 4} />}
         </svg>
       </div>
-      <div className="call-detail" aria-live="polite">
-        {selected ? <CallLine c={selected} model={readers.get(selected.reader)!.model} run={run} /> : <span className="faint">Tap a call.</span>}
+      <div className="call-detail">
+        <span aria-live="polite">
+          {selected ? <CallLine c={selected} model={readers.get(selected.reader)!.model} run={run} /> : <span className="faint">Tap a call.</span>}
+        </span>
+        <span className="call-key" aria-hidden="true">
+          <span>
+            <i className="k-bad" /> re-asked
+          </span>
+          <span>
+            <i className="k-retry" /> retry
+          </span>
+          <span>
+            <i className="k-sel" /> selected
+          </span>
+        </span>
       </div>
     </div>
   )
@@ -462,7 +479,7 @@ function Disputes({
               </button>
             )}
           </div>
-          <span className="hint">The table above counts your calls</span>
+          <span className="hint">{decided ? `The table above counts your ${decided} ${decided === 1 ? 'call' : 'calls'}` : 'The table above counts your calls'}</span>
         </div>
       </div>
     </div>

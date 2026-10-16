@@ -140,19 +140,40 @@ export function App() {
     })
   }, [])
 
-  // Older links: #proof opens the match table, #how the method panel; other anchors scroll.
+  // Anchors, on load and on every hash change: #proof opens the match table, #how
+  // the method panel, others scroll. #your-call renders only once the reader run
+  // has loaded, so a target that isn't there yet waits for it.
+  const pendingHash = useRef<string | null>(null)
   useEffect(() => {
-    let id = ''
-    try {
-      id = decodeURIComponent(window.location.hash.slice(1))
-    } catch {
-      return
+    const go = () => {
+      let id = ''
+      try {
+        id = decodeURIComponent(window.location.hash.slice(1))
+      } catch {
+        return
+      }
+      if (id === 'proof') setStep('match')
+      if (id === 'how') setHowOpen(true)
+      const target = id === 'proof' ? 'run' : id
+      pendingHash.current = target || null
+      if (!target) return
+      requestAnimationFrame(() => {
+        const el = document.getElementById(target)
+        if (!el) return
+        el.scrollIntoView()
+        if (pendingHash.current === target) pendingHash.current = null
+      })
     }
-    if (id === 'proof') setStep('match')
-    if (id === 'how') setHowOpen(true)
-    const target = id === 'proof' ? 'run' : id
-    if (target) requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView())
+    go()
+    window.addEventListener('hashchange', go)
+    return () => window.removeEventListener('hashchange', go)
   }, [])
+  useEffect(() => {
+    const target = pendingHash.current
+    if (!readerRun || !target) return
+    pendingHash.current = null
+    requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView())
+  }, [readerRun])
 
   const rerunLive = useCallback(async () => {
     pull.current.ctl?.abort()

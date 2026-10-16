@@ -5,6 +5,7 @@ import { type ReaderRun, runStats } from '../engine/reader'
 import { AS_SCORED, pickBrier, pSide } from '../engine/score'
 import { ENDPOINTS, type Fetched } from '../lib/live'
 import { clock, duration, f3, int, msText, pctText } from '../lib/ui'
+import { modelName, RunTimeline } from './Reader'
 
 export type StepId = 'pull' | 'rescore' | 'match' | 'king' | 'readers' | 'finding'
 
@@ -25,10 +26,13 @@ type Status = 'ok' | 'run' | 'fail' | 'wait'
 interface Step {
   id: StepId
   label: string
+  /** A shorter label for phone widths. */
+  short?: string
   value: ReactNode
   sub: ReactNode
   ms: ReactNode
   status: Status
+  spark?: ReactNode
 }
 
 // The pipeline, as it ran in this browser: pull, rescore, match, replay, read, find.
@@ -79,7 +83,7 @@ export function RunBar({
       id: 'match',
       label: 'Match',
       value: `${run.match.brierMatches}/${n}`,
-      sub: run.match.trustWithinHalf === n ? 'Brier 3 dp · trust ±0.5' : `Brier 3 dp · trust ${run.match.trustWithinHalf}/${n}`,
+      sub: `Brier to 3 decimals · trust ${run.match.trustWithinHalf === n ? '±0.5' : `${run.match.trustWithinHalf}/${n}`}`,
       ms: msText(run.match.ms),
       status: fetching ? 'wait' : run.match.brierMatches === n && run.match.trustWithinHalf === n ? 'ok' : 'fail',
     },
@@ -87,21 +91,19 @@ export function RunBar({
       id: 'king',
       label: 'Replay King',
       value: `${run.king.ruleOk}/${run.king.bets}`,
-      sub: `calls · log ${run.king.claimsOk}/${run.king.claims}`,
+      sub: `King calls · log lines ${run.king.claimsOk}/${run.king.claims}`,
       ms: msText(run.king.ms),
       status: fetching ? 'wait' : run.king.ruleOk === run.king.bets && run.king.claimsOk === run.king.claims ? 'ok' : 'fail',
     },
     {
       id: 'readers',
       label: 'Read reasoning',
+      short: 'Reasoning',
       value: stats ? int(stats.both) : '…',
-      sub: !stats
-        ? 'loading run'
-        : textsSame
-          ? `texts unchanged ${textsSame.same}/${textsSame.checked}`
-          : `read twice · agree ${pctText(stats.agreeView / stats.both)}`,
+      sub: readerRun ? `${readerRun.readers.map((r) => modelName(r.model).split(' ')[0]).join(' + ')} · ${readerRun.workers} workers` : 'loading run',
       ms: stats ? `recorded · ${duration(stats.wallMs)}` : '',
       status: stats ? 'ok' : 'wait',
+      spark: readerRun && <MiniRun run={readerRun} />,
     },
     {
       id: 'finding',
@@ -128,10 +130,22 @@ export function RunBar({
               >
                 <span className="step-top">
                   <span className="step-i">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="step-l">{s.label}</span>
+                  <span className="step-l">
+                    {s.short ? (
+                      <>
+                        <span className="l-long">{s.label}</span>
+                        <span className="l-short">{s.short}</span>
+                      </>
+                    ) : (
+                      s.label
+                    )}
+                  </span>
                   <Mark status={s.status} />
                 </span>
-                <span className="step-v num">{s.value}</span>
+                <span className="step-vrow">
+                  <span className="step-v num">{s.value}</span>
+                  {s.spark}
+                </span>
                 <span className="step-s">{s.sub}</span>
                 <span className="step-ms num">{s.ms}</span>
               </button>
@@ -176,6 +190,30 @@ export function RunBar({
   )
 }
 
+/** The recorded run in miniature: one row per worker, one bar per call. The
+ *  re-asked call and its retry are lime, like the selection in the full timeline. */
+function MiniRun({ run }: { run: ReaderRun }) {
+  // Drawn in CSS pixels: 2px lanes, 1px apart, and a 1px gap between calls.
+  const W = 116
+  const H = run.workers * 3 - 1
+  const x = (ms: number) => (ms / run.wallMs) * W
+  const redone = new Set(run.calls.filter((c) => c.rejected.length).map((c) => `${c.reader}|${c.batch}`))
+  return (
+    <svg className="minirun" viewBox={`0 0 ${W} ${H}`} width={W} height={H} preserveAspectRatio="none" aria-hidden="true">
+      {run.calls.map((c, i) => (
+        <rect
+          key={i}
+          className={redone.has(`${c.reader}|${c.batch}`) ? 'redone' : undefined}
+          x={x(c.t0)}
+          y={c.worker * 3}
+          width={Math.max(1, x(c.t1) - x(c.t0) - 1)}
+          height={2}
+        />
+      ))}
+    </svg>
+  )
+}
+
 function Mark({ status }: { status: Status }) {
   if (status === 'run') return <span className="mark run" role="img" aria-label="running" />
   if (status === 'wait') return <span className="mark wait" role="img" aria-label="waiting" />
@@ -193,43 +231,50 @@ function Mark({ status }: { status: Status }) {
 }
 
 const short = (sha: string) => `${sha.slice(0, 10)}…`
+/** A path that may break after each slash on a narrow screen. */
+const breakable = (path: string) => path.split('/').flatMap((part, i) => (i ? [<wbr key={i} />, `/${part}`] : [part]))
 
 function PullDetail({ live, showing }: { live: LiveState; showing: string }) {
   const fetched = live.phase === 'idle' ? [] : live.fetched
   return (
     <div className="detail">
-      <table className="tbl">
-        <thead>
-          <tr>
-            <th>Endpoint</th>
-            <th className="r">Bytes</th>
-            <th>SHA-256, {pulled}</th>
-            {live.phase !== 'idle' && <th className="r">Live</th>}
-            {live.phase !== 'idle' && <th>vs {pulled}</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {ENDPOINTS.map((ep) => {
-            const src = page.sources.find((s) => s.file === ep.file)!
-            const f = fetched.find((x) => x.path === ep.path)
-            return (
-              <tr key={ep.path}>
-                <td>
-                  <a href={`${STREET}${ep.path}`} className="mono-link">
-                    {ep.path}
-                  </a>
-                </td>
-                <td className="r num">{int(f ? f.bytes : src.bytes)}</td>
-                <td className="num faint">{short(src.sha256)}</td>
-                {live.phase !== 'idle' && <td className="r num">{f ? `${f.status} · ${msText(f.ms)}` : '…'}</td>}
-                {live.phase !== 'idle' && (
-                  <td>{f ? f.sameAsSnapshot === null ? '—' : f.sameAsSnapshot ? <span className="ok-t">same bytes</span> : <span className="chg-t">changed</span> : ''}</td>
-                )}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <div className="tbl-scroll">
+        <table className="tbl pull-tbl">
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th className="r">Bytes</th>
+              <th className="sha">SHA-256, {pulled}</th>
+              {live.phase !== 'idle' && <th className="r">Live</th>}
+              {live.phase !== 'idle' && <th>vs {pulled}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {ENDPOINTS.map((ep) => {
+              const src = page.sources.find((s) => s.file === ep.file)!
+              const f = fetched.find((x) => x.path === ep.path)
+              return (
+                <tr key={ep.path}>
+                  <td>
+                    <a href={`${STREET}${ep.path}`} className="mono-link">
+                      {breakable(ep.path)}
+                    </a>
+                    <span className="sha-under num faint">{short(src.sha256)}</span>
+                  </td>
+                  <td className="r num nw">{int(f ? f.bytes : src.bytes)}</td>
+                  <td className="sha num faint">{short(src.sha256)}</td>
+                  {live.phase !== 'idle' && <td className="r num nw">{f ? `${f.status} · ${msText(f.ms)}` : '…'}</td>}
+                  {live.phase !== 'idle' && (
+                    <td className="nw">
+                      {f ? f.sameAsSnapshot === null ? '—' : f.sameAsSnapshot ? <span className="ok-t">same bytes</span> : <span className="chg-t">changed</span> : ''}
+                    </td>
+                  )}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
       <p className="detail-note">
         {live.phase === 'error'
           ? `Live pull failed (${live.message}). The page still shows ${showing}.`
@@ -330,44 +375,21 @@ function KingDetail({ model }: { model: Model }) {
   )
 }
 
+// The recorded agent run, one click from the first screen.
 function ReadersDetail({ run, textsSame }: { run: ReaderRun | null; textsSame: { same: number; checked: number } | null }) {
   if (!run) return <div className="detail detail-note">Loading the recorded run…</div>
-  const s = runStats(run)
   return (
-    <div className="detail detail-row">
-      <dl className="facts">
-        <div>
-          <dt>Recorded</dt>
-          <dd>{longDate(run.ranAt)}</dd>
-        </div>
-        <div>
-          <dt>Calls · workers</dt>
-          <dd className="num">
-            {s.calls} · {run.workers}
-          </dd>
-        </div>
-        <div>
-          <dt>Wall · total call time</dt>
-          <dd className="num">
-            {duration(s.wallMs)} · {duration(s.serialMs)}
-          </dd>
-        </div>
-        <div>
-          <dt>Answers re-asked</dt>
-          <dd className="num">{s.rejectedAnswers}</dd>
-        </div>
-        {textsSame && (
-          <div>
-            <dt>Texts unchanged since</dt>
-            <dd className="num">
-              {textsSame.same}/{textsSame.checked}
-            </dd>
-          </div>
-        )}
-      </dl>
-      <a className="btn ghost" href="#reader">
-        Open the run
-      </a>
+    <div className="detail">
+      <RunTimeline run={run} stats={runStats(run)} />
+      <div className="detail-row">
+        <p className="detail-note">
+          Recorded run, {longDate(run.ranAt)}, {clock(run.ranAt)}.
+          {textsSame && ` ${textsSame.same} of ${textsSame.checked} texts unchanged in the API since.`}
+        </p>
+        <a className="btn ghost" href="#reader">
+          What they found
+        </a>
+      </div>
     </div>
   )
 }

@@ -164,7 +164,7 @@ export function AgentPanel({
           <span>
             <i className="k-lost" /> lost
           </span>
-          <span className="k-axis">size = bets</span>
+          <span className="k-axis">height = Brier per bet, lower is better · size = bets</span>
         </div>
         <svg
           viewBox={`0 0 ${W} ${H}`}
@@ -190,6 +190,9 @@ export function AgentPanel({
           </text>
           <text className="ax coin-t" x={W - PAD.r} y={y(COIN_FLIP) - 4} textAnchor="end">
             coin flip
+          </text>
+          <text className="ax" x={PAD.l - 2} y={H - 8} textAnchor="end">
+            rated
           </text>
           {[1, 5, 10, 15].map((c) => (
             <text key={c} className="ax" x={PAD.l + band * (c - 0.5)} y={H - 8} textAnchor="middle">
@@ -323,8 +326,8 @@ function BetInspector({
           <Line k="marketProbAtEntry" v={String(p.marketProbAtEntry)} />
           <Line k="pnl" v={String(p.pnl)} hot />
           <Line k="settled" v={String(p.settled)} />
-          <Line k="createdAt" v={`"${p.createdAt}"`} last />
-          {'}'}
+          <Line k="createdAt" v={`"${p.createdAt}"`} />
+          {'  … id, eventId, units, reasoning\n}'}
           <span className="src-cap">{'\n'}GET /api/predictions · scored: settled, P&amp;L ≠ 0, won when P&amp;L &gt; 0</span>
         </pre>
       )}
@@ -334,12 +337,10 @@ function BetInspector({
   )
 }
 
-function Line({ k, v, hot, last }: { k: string; v: string; hot?: boolean; last?: boolean }) {
+function Line({ k, v, hot }: { k: string; v: string; hot?: boolean }) {
   return (
     <span className={hot ? 'hot' : undefined}>
-      {'  '}"{k}": {v}
-      {last ? '' : ','}
-      {'\n'}
+      {`  "${k}": ${v},\n`}
     </span>
   )
 }

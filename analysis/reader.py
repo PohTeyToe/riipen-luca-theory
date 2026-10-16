@@ -1,7 +1,8 @@
 """Two model readers go through the written reasoning behind every scored Season 1 pick.
 
 Each reader sees the market question, the side the agent bet and its reasoning. It
-doesn't see the agent, the 1-15 rating, the market price or the outcome. For each
+isn't given the agent, the 1-15 rating, the market price or the outcome, though
+about a third of the texts quote the price themselves. For each
 pick it says whether the text treats the side it bet as the likely outcome, and
 whether the text says the agent lacks conviction, with an exact quote for each
 (the prompt is analysis/reader_prompt.md).
