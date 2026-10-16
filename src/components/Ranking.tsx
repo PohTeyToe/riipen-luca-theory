@@ -17,26 +17,33 @@ export function Ranking({
   onSelect: (id: string) => void
 }) {
   const list = useRef<HTMLOListElement>(null)
-  const before = useRef(new Map<string, number>())
+  const order = useRef<string[]>([])
 
+  // Rows are a fixed height, so a row that moved from index `was` to `i` moved
+  // (was - i) rows. Layout is read only when the order changes, not on every step of a drag.
   useLayoutEffect(() => {
+    const ids = scores.map((s) => s.id)
+    const prev = order.current
+    order.current = ids
     const el = list.current
-    if (!el) return
+    if (!el || !prev.length || ids.join() === prev.join() || reducedMotion()) return
     const rows = [...el.querySelectorAll<HTMLElement>('[data-id]')]
-    const now = new Map(rows.map((r) => [r.dataset.id!, r.offsetTop]))
-    if (!reducedMotion()) {
-      for (const r of rows) {
-        const prev = before.current.get(r.dataset.id!)
-        const cur = now.get(r.dataset.id!)!
-        if (prev === undefined || prev === cur) continue
-        r.style.transition = 'none'
-        r.style.transform = `translateY(${prev - cur}px)`
-        void r.offsetHeight
-        r.style.transition = ''
-        r.style.transform = ''
-      }
+    if (rows.length < 2) return
+    const pitch = rows[1].offsetTop - rows[0].offsetTop
+    const moves: [HTMLElement, number][] = []
+    rows.forEach((r, i) => {
+      const was = prev.indexOf(r.dataset.id!)
+      if (was >= 0 && was !== i) moves.push([r, (was - i) * pitch])
+    })
+    for (const [r, dy] of moves) {
+      r.style.transition = 'none'
+      r.style.transform = `translateY(${dy}px)`
     }
-    before.current = now
+    void el.offsetHeight
+    for (const [r] of moves) {
+      r.style.transition = ''
+      r.style.transform = ''
+    }
   }, [scores])
 
   const moved = scores.filter((s) => s.rank !== s.rankAsScored).length

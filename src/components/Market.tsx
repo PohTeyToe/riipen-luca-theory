@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import type { Model } from '../App'
 import { agentName } from '../data'
 import { EDGE_POINTS, againstMarket } from '../engine/market'
@@ -9,7 +9,7 @@ const p1 = (x: number) => `${halfUp(100 * x, 1).toFixed(1)}%`
 
 // Each agent's win rate against the market's price at entry, with the range luck
 // alone explains if every contract resolved at that price.
-export function Market({ model, agentId, onAgent }: { model: Model; agentId: string; onAgent: (id: string) => void }) {
+export const Market = memo(function Market({ model, agentId, onAgent }: { model: Model; agentId: string; onAgent: (id: string) => void }) {
   const rows = useMemo(
     () =>
       model.ds.agents
@@ -86,4 +86,4 @@ export function Market({ model, agentId, onAgent }: { model: Model; agentId: str
       </div>
     </section>
   )
-}
+})

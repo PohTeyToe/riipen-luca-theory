@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Model } from '../App'
-import { agentName, longDate } from '../data'
+import { agentName, longDate, RUN_FAILED } from '../data'
 import type { RawPrediction } from '../engine/dataset'
 import {
   type Answer,
@@ -37,9 +37,10 @@ const plainReason = (why: string) =>
 // of the texts quote the price themselves. Shows what the text says by rating, the run as it
 // happened, and the bets where the two readers split, for the viewer to call.
 // The run was made on the Oct 15 pull, so `model` is always the snapshot.
-export function Reader({
+export const Reader = memo(function Reader({
   model,
   run,
+  failed,
   decisions,
   decide,
   records,
@@ -47,6 +48,7 @@ export function Reader({
 }: {
   model: Model
   run: ReaderRun | null
+  failed: boolean
   decisions: Decisions
   decide: (key: string, v: View | null) => void
   records: Map<string, RawPrediction> | null
@@ -57,13 +59,15 @@ export function Reader({
       <div className="wrap">
         <div className="sect-head">
           <h2 id="reader-h">What the agents wrote</h2>
-          <span className="sect-meta">{run ? `Recorded run, ${longDate(run.ranAt)}, ${clock(run.ranAt)}` : 'Loading the recorded run…'}</span>
+          <span className="sect-meta">
+            {run ? `Recorded run, ${longDate(run.ranAt)}, ${clock(run.ranAt)}` : failed ? RUN_FAILED : 'Loading the recorded run…'}
+          </span>
         </div>
         {run && <ReaderBody model={model} run={run} decisions={decisions} decide={decide} records={records} setRecords={setRecords} />}
       </div>
     </section>
   )
-}
+})
 
 function ReaderBody({
   model,
@@ -340,18 +344,21 @@ export function RunTimeline({ run, stats }: { run: ReaderRun; stats: ReturnType<
             </g>
           ))}
           {run.calls.map((c, i) => {
-            const yy = PAD.t + c.worker * (LANE + GAP)
-            const end = Math.min(c.t1, t)
-            const w = Math.max(1, x(c.t1) - x(c.t0) - 1)
-            const bad = c.rejected.length > 0 || c.error
+            const x0 = x(c.t0)
             return (
-              <g key={i} className={`call r-${c.reader} ${selected === c ? 'on' : ''}`} onClick={() => setSelected(c)}>
-                <title>{`${modelName(readers.get(c.reader)!.model)}, ${c.items} bets, ${((c.t1 - c.t0) / 1000).toFixed(1)} s`}</title>
-                <rect className="ghost" x={x(c.t0) + 0.5} y={yy} width={w} height={LANE} />
-                {c.t0 <= t && <rect className="fill" x={x(c.t0) + 0.5} y={yy} width={Math.max(1, x(end) - x(c.t0) - 1)} height={LANE} />}
-                {bad && c.t1 <= t && <rect className="bad" x={x(c.t0) + 0.5} y={yy} width={w} height={LANE} />}
-                {c.attempt > 1 && c.t1 <= t && <rect className="retry" x={x(c.t0) + 0.5} y={yy} width={w} height={LANE} />}
-              </g>
+              <CallBar
+                key={i}
+                c={c}
+                name={modelName(readers.get(c.reader)!.model)}
+                x0={x0}
+                y={PAD.t + c.worker * (LANE + GAP)}
+                w={Math.max(1, x(c.t1) - x0 - 1)}
+                h={LANE}
+                fill={c.t0 <= t ? Math.max(1, x(Math.min(c.t1, t)) - x0 - 1) : null}
+                done={c.t1 <= t}
+                on={selected === c}
+                onSelect={setSelected}
+              />
             )
           })}
           {playing && <line className="playhead" x1={x(t)} x2={x(t)} y1={PAD.t - 4} y2={H - PAD.b + 4} />}
@@ -376,6 +383,44 @@ export function RunTimeline({ run, stats }: { run: ReaderRun; stats: ReturnType<
     </div>
   )
 }
+
+/** One call on the timeline. Memoised: during a replay only the calls in progress
+ *  get new props, so only they re-render each frame. */
+const CallBar = memo(function CallBar({
+  c,
+  name,
+  x0,
+  y,
+  w,
+  h,
+  fill,
+  done,
+  on,
+  onSelect,
+}: {
+  c: ReaderCall
+  name: string
+  x0: number
+  y: number
+  w: number
+  h: number
+  /** Width drawn so far, or null before the call starts. */
+  fill: number | null
+  done: boolean
+  on: boolean
+  onSelect: (c: ReaderCall) => void
+}) {
+  const bad = c.rejected.length > 0 || c.error
+  return (
+    <g className={`call r-${c.reader} ${on ? 'on' : ''}`} onClick={() => onSelect(c)}>
+      <title>{`${name}, ${c.items} bets, ${((c.t1 - c.t0) / 1000).toFixed(1)} s`}</title>
+      <rect className="ghost" x={x0 + 0.5} y={y} width={w} height={h} />
+      {fill !== null && <rect className="fill" x={x0 + 0.5} y={y} width={fill} height={h} />}
+      {bad && done && <rect className="bad" x={x0 + 0.5} y={y} width={w} height={h} />}
+      {c.attempt > 1 && done && <rect className="retry" x={x0 + 0.5} y={y} width={w} height={h} />}
+    </g>
+  )
+})
 
 function CallLine({ c, model, run }: { c: ReaderCall; model: string; run: ReaderRun }) {
   const retry = c.rejected.length ? run.calls.find((x) => x.reader === c.reader && x.batch === c.batch && x.attempt === c.attempt + 1) : null

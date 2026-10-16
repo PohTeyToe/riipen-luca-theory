@@ -85,12 +85,16 @@ export function App() {
   const [records, setRecords] = useState<Map<string, RawPrediction> | null>(null)
   const [textsSame, setTextsSame] = useState<{ same: number; checked: number } | null>(null)
   const [readerRun, setReaderRun] = useState<ReaderRun | null>(null)
+  const [readerFailed, setReaderFailed] = useState(false)
   const [decisions, setDecisions] = useState<Decisions>(readSaved)
   const pull = useRef<{ id: number; ctl: AbortController | null }>({ id: 0, ctl: null })
 
   useEffect(() => {
     let off = false
-    loadReaderRun().then((r) => !off && setReaderRun(r))
+    loadReaderRun().then(
+      (r) => !off && setReaderRun(r),
+      () => !off && setReaderFailed(true),
+    )
     return () => {
       off = true
     }
@@ -202,12 +206,17 @@ export function App() {
     setLive({ phase: 'idle' })
   }, [])
 
+  // Stable, or the open panel would take focus back on every render (its effect depends on it).
+  const closeHow = useCallback(() => setHowOpen(false), [])
+
   const score = scores.find((s) => s.id === agentId)
 
+  // RunBar, Reader, King and Market are memoised and get stable props, so a slider
+  // drag or a click re-renders only the sections that change with it.
   return (
     <>
       <Header howOpen={howOpen} onHow={() => setHowOpen((v) => !v)} />
-      {howOpen && <How onClose={() => setHowOpen(false)} />}
+      {howOpen && <How onClose={closeHow} />}
       <main>
         <RunBar
           model={model}
@@ -217,6 +226,7 @@ export function App() {
           onLive={rerunLive}
           onSnapshot={backToSnapshot}
           readerRun={readerRun}
+          readerFailed={readerFailed}
           textsSame={textsSame}
         />
         <section className="instrument" aria-label="Rescore">
@@ -232,6 +242,7 @@ export function App() {
                 betKey={betKey}
                 onBet={setBetKey}
                 readerRun={readerRun}
+                readerFailed={readerFailed}
                 records={records}
                 setRecords={setRecords}
               />
@@ -239,7 +250,15 @@ export function App() {
           </div>
         </section>
         <Calibration model={model} floor={floor} glide={glideFloor} />
-        <Reader model={recorded} run={readerRun} decisions={decisions} decide={decide} records={records} setRecords={setRecords} />
+        <Reader
+          model={recorded}
+          run={readerRun}
+          failed={readerFailed}
+          decisions={decisions}
+          decide={decide}
+          records={records}
+          setRecords={setRecords}
+        />
         <King model={model} />
         <Market model={model} agentId={agentId} onAgent={selectAgent} />
       </main>

@@ -1099,6 +1099,11 @@ text.coin-t {
 }
 
 /* ---------- sections ---------- */
+/* Each section paints as its own layer, so a slider drag repaints only the
+   sections that change instead of the whole page. No visual effect. */
+main > section {
+  isolation: isolate;
+}
 .sect {
   padding: 40px 0 8px;
 }

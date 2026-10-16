@@ -65,6 +65,7 @@ All public, pulled on 2026-10-15 between 18:02 and 18:11 UTC. `data/SOURCES.md` 
 Vercel, as-is: framework Vite, build `npm run build`, output `dist`. No environment variables or secrets.
 
 - The site asks not to be indexed: a `noindex, nofollow` meta tag, an `X-Robots-Tag` header, and `robots.txt` (link-preview bots may read it).
+- Files under `/assets/` have content hashes in their names, so `vercel.json` lets browsers cache them for a year.
 - The `og:image` URL needs an absolute origin. On Vercel it comes from `VERCEL_PROJECT_PRODUCTION_URL` at build time; set `SITE_URL` to override it.
 - Fonts are self-hosted through Fontsource. The only third-party request is "Rerun live" (and "Show the full text"), through the site's own proxy.
 

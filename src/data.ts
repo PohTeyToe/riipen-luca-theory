@@ -5,8 +5,10 @@
 // loaded after first paint.
 import snapshotJson from '../data/snapshot.json'
 import { proof, sources } from '../data/page.json'
+import readerRunUrl from '../data/reader-run.json?url'
 import type { ReaderRun } from './engine/reader'
 import type { Dataset } from './engine/score'
+import { shortDate } from './lib/ui'
 
 export const snapshot = snapshotJson as unknown as Dataset
 
@@ -29,16 +31,28 @@ export const AGENT_META = new Map(page.proof.rows.map((r) => [r.id, { name: r.na
 export const agentName = (id: string) => AGENT_META.get(id)?.name ?? id
 export const agentRole = (id: string) => AGENT_META.get(id)?.role ?? ''
 
-export const loadReaderRun = () => import('../data/reader-run.json').then((m) => m.default as unknown as ReaderRun)
+/** Fetched as plain JSON, which parses faster than the same data as a script chunk.
+ *  A failed or stalled load is retried twice before the page says so. */
+export async function loadReaderRun(): Promise<ReaderRun> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const res = await fetch(readerRunUrl, { signal: AbortSignal.timeout(15000) })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return (await res.json()) as ReaderRun
+    } catch (e) {
+      if (attempt === 3) throw e
+      await new Promise((r) => setTimeout(r, 1000 * attempt))
+    }
+  }
+}
+
+export const RUN_FAILED = 'Couldn’t load the recorded run. Reload the page to try again.'
 
 export const REPO = 'https://github.com/PohTeyToe/riipen-luca-theory'
 export const EMAIL = 'abdalsf5@gmail.com'
 export const STREET = 'https://street.lucatheory.com'
 
 /** "Oct 15, 2026" from "2026-10-15" (UTC, so no timezone shifts the day). */
-export function longDate(iso: string): string {
-  const d = new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
-}
+export const longDate = (iso: string) => shortDate(iso.length === 10 ? `${iso}T12:00:00Z` : iso)
 
 export const pulled = longDate(snapshot.pullDate)

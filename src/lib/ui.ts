@@ -54,7 +54,12 @@ export function useWidth<T extends HTMLElement>(fallback = 640) {
 export const f3 = (x: number) => halfUp(x, 3).toFixed(3)
 export const f1 = (x: number) => halfUp(x, 1).toFixed(1)
 export const pctText = (x: number) => `${halfUp(100 * x)}%`
-export const int = (x: number) => x.toLocaleString('en-US')
+// Formatters are built once: toLocaleString with a locale builds a new one on every
+// call, which costs about 0.1 ms each, and the King's grid alone makes 89 per render.
+const INT = new Intl.NumberFormat('en-US')
+const DAY = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+
+export const int = (x: number) => INT.format(x)
 export const signed = (x: number, digits = 1) => {
   const v = halfUp(x, digits)
   return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(digits)}`
@@ -66,8 +71,11 @@ export const brierTone = (b: number) => (b < 0.2 ? 'good' : b < 0.3 ? 'mid' : 'b
 export const pickKey = (p: { agentId: string; eventId: string; createdAt: string }) =>
   `${p.agentId}|${p.eventId}|${p.createdAt}`
 
+/** "Oct 15, 2026" (UTC). A bad date reads "Invalid Date", as toLocaleDateString did,
+ *  instead of throwing. */
 export function shortDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime()) ? 'Invalid Date' : DAY.format(d)
 }
 
 /** A measured time: "<0.1 ms", "2.4 ms", "312 ms", "1.24 s". */

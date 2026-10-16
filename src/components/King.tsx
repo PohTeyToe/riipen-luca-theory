@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Model } from '../App'
 import { agentName } from '../data'
 import { logChecks, replay, voteWeight } from '../engine/king'
@@ -14,7 +14,7 @@ const STEP_MS = 260
 // trust and confidence, compares the consensus with the market, and calls EXECUTE
 // or WAIT. This replays one recorded decision vote by vote and checks every
 // number and every sentence of the King's own log against the replay.
-export function King({ model }: { model: Model }) {
+export const King = memo(function King({ model }: { model: Model }) {
   const bets = useMemo(() => [...model.ds.kingBets].sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [model])
   const summary = model.run.king
   const defaultIndex = useMemo(() => {
@@ -33,10 +33,6 @@ export function King({ model }: { model: Model }) {
   const [playing, setPlaying] = useState(false)
   const timer = useRef<number>(0)
 
-  const stop = () => {
-    window.clearInterval(timer.current)
-    setPlaying(false)
-  }
   const play = useCallback(() => {
     window.clearInterval(timer.current)
     if (!bet) return
@@ -58,11 +54,15 @@ export function King({ model }: { model: Model }) {
   }, [bet])
   useEffect(() => () => window.clearInterval(timer.current), [])
 
-  const go = (j: number) => {
-    stop()
-    setI(j)
-    setShown(bets[j].breakdown.length)
-  }
+  const go = useCallback(
+    (j: number) => {
+      window.clearInterval(timer.current)
+      setPlaying(false)
+      setI(j)
+      setShown(bets[j].breakdown.length)
+    },
+    [bets],
+  )
 
   if (!bet) return null
 
@@ -81,18 +81,7 @@ export function King({ model }: { model: Model }) {
             <div className="panel-head">
               <h3>{bets.length} recorded decisions</h3>
             </div>
-            <div className="kcells" role="group" aria-label="Recorded decisions, oldest first">
-              {bets.map((b, j) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  aria-pressed={j === i}
-                  className={`kcell ${b.signal === 'STREET_KING_EXECUTE' ? 'ex' : 'wt'} ${j === i ? 'on' : ''}`}
-                  aria-label={`${shortDate(b.createdAt)}, ${b.signal === 'STREET_KING_EXECUTE' ? 'EXECUTE' : 'WAIT'}`}
-                  onClick={() => go(j)}
-                />
-              ))}
-            </div>
+            <Cells bets={bets} i={i} onGo={go} />
             <div className="kkey" aria-hidden="true">
               <span>
                 <i className="ex" /> EXECUTE {executes}
@@ -118,7 +107,25 @@ export function King({ model }: { model: Model }) {
       </div>
     </section>
   )
-}
+})
+
+/** One cell per recorded decision. Memoised so a replay step doesn't re-render all of them. */
+const Cells = memo(function Cells({ bets, i, onGo }: { bets: KingBet[]; i: number; onGo: (j: number) => void }) {
+  return (
+    <div className="kcells" role="group" aria-label="Recorded decisions, oldest first">
+      {bets.map((b, j) => (
+        <button
+          key={b.id}
+          type="button"
+          aria-pressed={j === i}
+          className={`kcell ${b.signal === 'STREET_KING_EXECUTE' ? 'ex' : 'wt'} ${j === i ? 'on' : ''}`}
+          aria-label={`${shortDate(b.createdAt)}, ${b.signal === 'STREET_KING_EXECUTE' ? 'EXECUTE' : 'WAIT'}`}
+          onClick={() => onGo(j)}
+        />
+      ))}
+    </div>
+  )
+})
 
 function Stage({
   model,
@@ -133,14 +140,14 @@ function Stage({
   playing: boolean
   onPlay: () => void
 }) {
-  const r = replay(bet)
+  const r = useMemo(() => replay(bet), [bet])
+  const checks = useMemo(() => logChecks(bet, r), [bet, r])
   const votes = bet.breakdown.slice(0, shown)
   const total = votes.reduce((s, v) => s + voteWeight(v), 0)
   const yes = votes.filter((v) => v.prediction === 'YES').reduce((s, v) => s + voteWeight(v), 0)
   const running = total ? yes / total : null
   const done = shown >= bet.breakdown.length
   const maxW = Math.max(...bet.breakdown.map(voteWeight))
-  const checks = logChecks(bet, r)
   const ev = model.events.get(bet.eventId)
   const anchors = bet.anchors
 

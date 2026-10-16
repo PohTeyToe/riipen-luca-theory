@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import type { Model } from '../App'
-import { agentName, longDate, page, pulled, STREET } from '../data'
+import { agentName, longDate, page, pulled, RUN_FAILED, STREET } from '../data'
 import { type ReaderRun, runStats } from '../engine/reader'
 import { AS_SCORED, pickBrier, pSide } from '../engine/score'
 import { ENDPOINTS, type Fetched } from '../lib/live'
@@ -37,7 +37,7 @@ interface Step {
 
 // The pipeline, as it ran in this browser: pull, rescore, match, replay, read, find.
 // Every count and time comes from the run that produced the page below.
-export function RunBar({
+export const RunBar = memo(function RunBar({
   model,
   step,
   setStep,
@@ -45,6 +45,7 @@ export function RunBar({
   onLive,
   onSnapshot,
   readerRun,
+  readerFailed,
   textsSame,
 }: {
   model: Model
@@ -54,6 +55,7 @@ export function RunBar({
   onLive: () => void
   onSnapshot: () => void
   readerRun: ReaderRun | null
+  readerFailed: boolean
   textsSame: { same: number; checked: number } | null
 }) {
   const { run } = model
@@ -99,10 +101,14 @@ export function RunBar({
       id: 'readers',
       label: 'Read reasoning',
       short: 'Reasoning',
-      value: stats ? int(stats.both) : '…',
-      sub: readerRun ? `${readerRun.readers.map((r) => modelName(r.model).split(' ')[0]).join(' + ')} · ${readerRun.workers} workers` : 'loading run',
+      value: stats ? int(stats.both) : readerFailed ? '–' : '…',
+      sub: readerRun
+        ? `${readerRun.readers.map((r) => modelName(r.model).split(' ')[0]).join(' + ')} · ${readerRun.workers} workers`
+        : readerFailed
+          ? 'couldn’t load run'
+          : 'loading run',
       ms: stats ? `recorded · ${duration(stats.wallMs)}` : '',
-      status: stats ? 'ok' : 'wait',
+      status: stats ? 'ok' : readerFailed ? 'fail' : 'wait',
       spark: readerRun && <MiniRun run={readerRun} />,
     },
     {
@@ -181,14 +187,14 @@ export function RunBar({
             {step === 'rescore' && <RescoreDetail model={model} />}
             {step === 'match' && <MatchDetail model={model} />}
             {step === 'king' && <KingDetail model={model} />}
-            {step === 'readers' && <ReadersDetail run={readerRun} textsSame={textsSame} />}
+            {step === 'readers' && <ReadersDetail run={readerRun} failed={readerFailed} textsSame={textsSame} />}
             {step === 'finding' && <FindingDetail model={model} />}
           </div>
         </div>
       )}
     </section>
   )
-}
+})
 
 /** The recorded run in miniature: one row per worker, one bar per call. The
  *  re-asked call and its retry are lime, like the selection in the full timeline. */
@@ -376,8 +382,16 @@ function KingDetail({ model }: { model: Model }) {
 }
 
 // The recorded agent run, one click from the first screen.
-function ReadersDetail({ run, textsSame }: { run: ReaderRun | null; textsSame: { same: number; checked: number } | null }) {
-  if (!run) return <div className="detail detail-note">Loading the recorded run…</div>
+function ReadersDetail({
+  run,
+  failed,
+  textsSame,
+}: {
+  run: ReaderRun | null
+  failed: boolean
+  textsSame: { same: number; checked: number } | null
+}) {
+  if (!run) return <div className="detail detail-note">{failed ? RUN_FAILED : 'Loading the recorded run…'}</div>
   return (
     <div className="detail">
       <RunTimeline run={run} stats={runStats(run)} />

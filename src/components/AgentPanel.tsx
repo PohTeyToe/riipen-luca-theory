@@ -1,6 +1,6 @@
 import { useMemo, useState, type PointerEvent } from 'react'
 import type { Model } from '../App'
-import { agentName, agentRole } from '../data'
+import { agentName, agentRole, RUN_FAILED } from '../data'
 import type { RawPrediction } from '../engine/dataset'
 import type { ReaderRun } from '../engine/reader'
 import { AS_SCORED, type AgentScore, COIN_FLIP, type Pick, halfUp, lossBetterBelow, pickBrier, pSide, sidePrice, won } from '../engine/score'
@@ -32,6 +32,7 @@ export function AgentPanel({
   betKey,
   onBet,
   readerRun,
+  readerFailed,
   records,
   setRecords,
 }: {
@@ -42,6 +43,7 @@ export function AgentPanel({
   betKey: string | null
   onBet: (k: string) => void
   readerRun: ReaderRun | null
+  readerFailed: boolean
   records: Map<string, RawPrediction> | null
   setRecords: (m: Map<string, RawPrediction>) => void
 }) {
@@ -232,6 +234,7 @@ export function AgentPanel({
           total={ordered.length}
           onStep={step}
           readerRun={readerRun}
+          readerFailed={readerFailed}
           records={records}
           setRecords={setRecords}
         />
@@ -250,6 +253,7 @@ function BetInspector({
   total,
   onStep,
   readerRun,
+  readerFailed,
   records,
   setRecords,
 }: {
@@ -260,6 +264,7 @@ function BetInspector({
   total: number
   onStep: (d: number) => void
   readerRun: ReaderRun | null
+  readerFailed: boolean
   records: Map<string, RawPrediction> | null
   setRecords: (m: Map<string, RawPrediction>) => void
 }) {
@@ -270,7 +275,8 @@ function BetInspector({
   const prob = pSide(p.confidence, floor)
   const now = pickBrier(p.confidence, w, floor)
   const other = pickBrier(p.confidence, !w, floor)
-  const rp = readerRun?.picks.find((x) => x.key === pickKey(p)) ?? null
+  const key = pickKey(p)
+  const rp = useMemo(() => readerRun?.picks.find((x) => x.key === key) ?? null, [readerRun, key])
 
   return (
     <div className="inspector">
@@ -332,7 +338,7 @@ function BetInspector({
         </pre>
       )}
       {view === 'reasoning' &&
-        (rp && readerRun ? <ReaderVerdicts pick={rp} run={readerRun} compact records={records} setRecords={setRecords} /> : <p className="empty">{readerRun ? 'Not in the reader run.' : 'Loading the reader run…'}</p>)}
+        (rp && readerRun ? <ReaderVerdicts pick={rp} run={readerRun} compact records={records} setRecords={setRecords} /> : <p className="empty">{readerRun ? 'Not in the reader run.' : readerFailed ? RUN_FAILED : 'Loading the reader run…'}</p>)}
     </div>
   )
 }
