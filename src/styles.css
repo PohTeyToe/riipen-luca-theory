@@ -1100,9 +1100,15 @@ text.coin-t {
 
 /* ---------- sections ---------- */
 /* Each section paints as its own layer, so a slider drag repaints only the
-   sections that change instead of the whole page. No visual effect. */
+   sections that change instead of the whole page. A layer would paint over a
+   focus ring that sticks out of the section above it (the pipeline steps' rings
+   do), so the section holding focus goes on top. */
 main > section {
   isolation: isolate;
+}
+main > section:focus-within {
+  position: relative;
+  z-index: 1;
 }
 .sect {
   padding: 40px 0 8px;

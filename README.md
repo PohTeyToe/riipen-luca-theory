@@ -24,7 +24,7 @@ npm run build      # checks the data, runs the tests, type-checks, builds to dis
 npm run preview    # serves dist/ on port 5104
 ```
 
-"Rerun live" calls `/luca/api/...` on the page's own origin, because Agent Street's API sends no CORS headers. `vercel.json` (and `vite.config.ts` for dev and preview) forwards exactly five GET paths to street.lucatheory.com and nothing else.
+"Rerun live" calls `/luca/api/...` on the page's own origin, because Agent Street's API sends no CORS headers. `vercel.json` (and `vite.config.ts` for dev and preview) forwards exactly five GET paths to street.lucatheory.com and nothing else. In production the proxy (`api/luca.js`) answers 504 if Agent Street hasn't answered within 20 s, so the page shows an error instead of spinning.
 
 `npm run build` runs `scripts/check-data.mjs` first. It doesn't run pytest (the build has no Python). `rescore.py` runs the tests and records the results in `data/page.json`, with a yes/no check for each claim the outreach depends on and a SHA-256 of every input (`data/snapshot.json`, `data/reader-run.json`, the analysis code and its tests). The build stops unless every expected test and check passed and those files still match their hashes.
 

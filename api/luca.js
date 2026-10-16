@@ -3,13 +3,26 @@
 // rescore reads, and nothing else: only GET is exported, so other methods get 405.
 const ALLOWED = new Set(['predictions', 'events', 'king/bets', 'trust-scores', 'analytics/calibration'])
 const UPSTREAM = 'https://street.lucatheory.com/api/'
+// Without a limit, a stalled upstream keeps the page's Pull step spinning until the
+// platform kills the function, minutes later. It normally answers in under 3 s.
+const ANSWER_MS = 20000
 
 export async function GET(request) {
   const path = new URL(request.url).searchParams.get('path') ?? ''
   if (!ALLOWED.has(path)) return new Response('Not found', { status: 404 })
-  const upstream = await fetch(UPSTREAM + path, {
-    headers: { Accept: 'application/json', 'User-Agent': 'riipen-luca-theory-rescore/1.0 (read-only; github.com/PohTeyToe)' },
-  })
+  const ctl = new AbortController()
+  const timer = setTimeout(() => ctl.abort(), ANSWER_MS)
+  let upstream
+  try {
+    upstream = await fetch(UPSTREAM + path, {
+      signal: ctl.signal,
+      headers: { Accept: 'application/json', 'User-Agent': 'riipen-luca-theory-rescore/1.0 (read-only; github.com/PohTeyToe)' },
+    })
+  } catch {
+    return new Response('Agent Street did not answer', { status: 504, headers: { 'Cache-Control': 'no-store' } })
+  } finally {
+    clearTimeout(timer)
+  }
   return new Response(upstream.body, {
     status: upstream.status,
     headers: {
